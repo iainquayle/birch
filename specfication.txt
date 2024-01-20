@@ -55,3 +55,28 @@ notes:
 	will need to resolve the piping idea with the .= operation
 	consider making the top level mod in a file, if the only one, not require any scoping, maybe signify it as such some how 
 	modules and funcions are pre annotated
+
+
+
+	mod 
+		data Self = 
+			x: i32 
+
+	mod 
+		data Self = 
+			& 
+				x: i32 
+				h: i32
+			SomeType | 
+				y: i32
+				z: i32
+			OtherType | 
+				y: i32
+				z: i32
+
+	
+		func f(self)
+
+		...
+			type =, 1, 1 -> f -> ...
+

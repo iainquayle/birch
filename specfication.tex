@@ -52,7 +52,7 @@
 		tup may not be needed depending on how type is implemented\\ 
 		to\\
 		as\\
-		unsafe or trust\\
+		unsafe or trust (may just replace with tight c interface integration?)\\
 		none\\
 		self\\
 		Self\\
@@ -80,43 +80,5 @@
 		decl\_list
 			decl decl\_list 
 		decl 
-
-	\section{Notes}
-		for consideration, making some form of packed data that is native to the language 
-		consider making it such that the / op actually just makes a num effectivley 1/x
-		figure out scoping symbol useage 
-		may change it such that modules can be compiled at run time, in which case the syntax for a mod would change to
-			mod \_ = ...
-		perhaps files wont be treated as modules, thus importing the explicit module will be required 
-		will need to resolve the piping idea with the .= operation
-		consider making the top level mod in a file, if the only one, not require any scoping, maybe signify it as such some how 
-		modules and funcions are pre annotated
-
-
-		the idea for generic function prototypes will be the means to traits, how to make collections of them though? unless we just dont 
-
-
-
-		mod 
-			data Self = 
-				x: i32 
-
-		mod 
-			data Self = 
-				\& 
-					x: i32 
-					h: i32
-				SomeType | 
-					y: i32
-					z: i32
-				OtherType | 
-					y: i32
-					z: i32
-
-		
-			func f(self)
-
-			...
-				type =, 1, 1 -> f -> ...
 \end{document}
 

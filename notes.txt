@@ -16,13 +16,12 @@ mod
 
 mod 
 	data Self = 
-		\& 
 			x: i32 
 			h: i32
-		SomeType | 
+		| SomeType 
 			y: i32
 			z: i32
-		OtherType | 
+		| OtherType 
 			y: i32
 			z: i32
 
@@ -31,3 +30,24 @@ mod
 
 	...
 		type =, 1, 1 -> f -> ...
+
+
+members, modules, and functions can be access restricted to the module they are defined in, perhaps as well selectively to other modules
+
+
+so an example of a module, take the shape types used in lemnos
+
+mod Shape
+	pub type Shape =
+			shape: [u32, 3] //assuming it is max 3d
+			vis dims: u32
+		| Locked
+		| Open
+
+	pub fn common_lossless ... -> Shape?:
+		...
+
+pub type Option T = 
+	| Some
+		value: T
+	| None

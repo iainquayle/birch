@@ -7,10 +7,6 @@
 	\maketitle
 	\newpage
 	\section{Purpose}
-		Birch sets out to be a language that merges the best of functional and OOP into one style,
-		rather than merely supporting both paradigms,
-		cutting down the breadth of possible ways to write a given piece of code.
-		Statically typed, AOT compiled, and as minimal as possible while being reasonably safe.
 	\section{Overview}
 		\paragraph{Modules}
 			Modules define all structural scope in Birch. 
@@ -29,36 +25,40 @@
 				(Depending on how stream lined modules become, perhaps tuples will be removed entirely)
 		\paragraph{Functions}
 	\section{Tokens}
-		\subsection{}
 		\subsection{Key Words}
 			\begin{tabular}{rl}
-				let & LET\\
-				priv & PRIV\\
-				vis & VIS\\
-				use & USE\\
-				pub & PUB\\
-				if & IF\\
-				else & ELSE\\ 
-				match or case or mux tbd & \\
-				for & FOR\\
-				while & WHILE\\
-				mod & MOD\\
-				data or type tbd & \\
-				to & TO\\
-				as & AS\\
-				unsafe & UNSAFE\\
-				None & \\
-				self & \\
-				Self & \\
+				\texttt{use} & USE\\
+				\texttt{let} & LET\\
+				\texttt{priv} & PRIV\\
+				\texttt{vis} & VIS\\
+				\texttt{pub} & PUB\\
+				\texttt{if} & IF\\
+				\texttt{else} & ELSE\\ 
+				\texttt{match or case} & \\
+				\texttt{for} & FOR\\
+				\texttt{while} & WHILE\\
+				\texttt{mod} & MOD\\
+				\texttt{type} & TYPE \\
+				\texttt{to} & TO\\
+				\texttt{as} & AS\\
+				\texttt{unsafe} & UNSAFE\\
+				\texttt{self} & \\
+				\texttt{Self} & \\
 			\end{tabular}
-		\subsection{Operators}
-			$.$
-			$.=$
+		\subsection{Symbols}
+			\begin{tabular}{rl}
+				\texttt{+} & ADD\\
+				\texttt{-} & SUB\\
+				\texttt{*} & MUL\\
+				\texttt{/} & DIV\\
+				\texttt{\&} & AND\\
+				\texttt{|} & OR\\
+
+			\end{tabular}
 			$+ - * / | \& \^$
 			$(op from above)=$
 			$<, >, =$
 			$(op from above)=$
-		\subsection{Symbols}
 			$[ ]
 			( )
 			{ }
@@ -67,15 +67,15 @@
 			? \_$
 		\subsection{Types}	
 			\begin{tabular}{rl}
-				u(8 | 16 | 32 | 64) & UINT\_num\\
-				i(8 | 16 | 32 | 64) & INT\_num\\
-				f(8 | 16 | 32 | 64) & FLOAT\_num\\
-				usize & USIZE\\ 
+				\texttt{u(8 | 16 | 32 | 64)} & UINT\_(num)\\
+				\texttt{u(8 | 16 | 32 | 64)} & INT\_(num)\\
+				\texttt{u(8 | 16 | 32 | 64)}  & FLOAT\_(num)\\
+				\texttt{usize} & USIZE\\ 
 			\end{tabular}
 		\subsection{Constants}
 			\begin{tabular}{rl}
-				[0-9]* & CONST\_INT\\
-				[0-9]?.[0-9]* & CONST\_FLOAT\\
+				\texttt{[0-9]*} & CONST\_INT\\
+				\texttt{[0-9]?.[0-9]*} & CONST\_FLOAT\\
 			\end{tabular}
 	\section{Grammar}
 		prog

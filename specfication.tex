@@ -28,6 +28,8 @@
 		\subsection{Key Words}
 			\begin{tabular}{rl}
 				\texttt{use} & USE\\
+				\texttt{fn} & FN\\
+				\texttt{with} & WITH\\
 				\texttt{let} & LET\\
 				\texttt{priv} & PRIV\\
 				\texttt{vis} & VIS\\
@@ -51,20 +53,38 @@
 				\texttt{-} & SUB\\
 				\texttt{*} & MUL\\
 				\texttt{/} & DIV\\
+				\texttt{\%} & MOD\\
 				\texttt{\&} & AND\\
 				\texttt{|} & OR\\
-
+				\texttt{\^} & XOR\\
+				\texttt{<<} & L\_SHIFT\\
+				\texttt{>>} & R\_SHIFT\\
+				\texttt{\&\&} & S\_AND\\
+				\texttt{||} & S\_OR\\
+				\texttt{==} & EQ\\
+				\texttt{!=} & NEQ\\
+				\texttt{<} & LT\\
+				\texttt{>} & GT\\
+				\texttt{<=} & LTE\\
+				\texttt{>=} & GTE\\
+				\texttt{!} & NOT\\
+				\texttt{=} & ASSIGN\\
+				\texttt{|>} & PIPE\\
+				\texttt{->} & ARROW\\
+				\texttt{=>} & FAT\_ARROW\\
+				\texttt{[} & L\_BRACKET\\
+				\texttt{]} & R\_BRACKET\\
+				\texttt{(} & L\_PAREN\\
+				\texttt{)} & R\_PAREN\\
+				\texttt{\{} & L\_BRACE\\
+				\texttt{\}} & R\_BRACE\\
+				\texttt{;} & SEMI\\
+				\texttt{,} & COMMA\\
+				\texttt{.} & DOT\\
+				\texttt{..} & RANGE\\
+				\texttt{:} & COLON\\
+				\texttt{?} & OPTION\\
 			\end{tabular}
-			$+ - * / | \& \^$
-			$(op from above)=$
-			$<, >, =$
-			$(op from above)=$
-			$[ ]
-			( )
-			{ }
-			' "
-			\: ;
-			? \_$
 		\subsection{Types}	
 			\begin{tabular}{rl}
 				\texttt{u(8 | 16 | 32 | 64)} & UINT\_(num)\\
@@ -77,6 +97,10 @@
 				\texttt{[0-9]*} & CONST\_INT\\
 				\texttt{[0-9]?.[0-9]*} & CONST\_FLOAT\\
 			\end{tabular}
+		\subsection{Identifiers}
+			\begin{tabular}{rl}
+				\texttt{[a-zA-Z\_][a-zA-Z0-9\_]*} & IDENT\\
+			\end{tabular}	
 	\section{Grammar}
 		prog
 			mod\_list main 

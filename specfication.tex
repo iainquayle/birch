@@ -70,8 +70,10 @@
 				\texttt{!} & NOT\\
 				\texttt{=} & ASSIGN\\
 				\texttt{|>} & PIPE\\
-				\texttt{->} & ARROW\\
-				\texttt{=>} & FAT\_ARROW\\
+				\texttt{->} & R\_ARROW\\
+				\texttt{=>} & R\_FAT\_ARROW\\
+				\texttt{<-} & L\_ARROW\\
+				\texttt{<=} & L\_FAT\_ARROW\\
 				\texttt{[} & L\_BRACKET\\
 				\texttt{]} & R\_BRACKET\\
 				\texttt{(} & L\_PAREN\\
@@ -102,6 +104,8 @@
 				\texttt{[a-zA-Z\_][a-zA-Z0-9\_]*} & IDENT\\
 			\end{tabular}	
 	\section{Grammar}
+		
+
 		prog
 			mod\_list main 
 		decl\_list

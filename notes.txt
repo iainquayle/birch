@@ -56,3 +56,20 @@ pub type Option T =
 
 pub type Option T B ...something Trait = 
 
+
+
+regarding how to do visibility
+	make an impl type block, which would allow funcs to be kind of scoped and what not the types, and as well make for easy extensibility
+		though, at that point, its more like a class
+	make name spaces type modules, where any type defined in that namespace has visibility restricted to it
+	the other other option, is make it less flexible, and only allow traits to be defined outside of the scoping module? this also dont seen right
+	perhaps instead of modules, make a "space", but then organization is harder
+	
+	PERHAPS, best is still to be like elixir, and have modules that can be defined anywhere?
+		make types defined in a module, then a module with by the same name, will have the correct visibilities
+
+	type Shape = ...
+	mod Shape
+		...
+
+

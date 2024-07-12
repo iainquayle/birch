@@ -44,7 +44,7 @@ mod Shape
 		| Locked
 		| Open
 
-	pub fn common_lossless ... -> Shape?:
+	pub fn common_lossless ... -> ? Shape:
 		...
 
 pub type Option T = 
@@ -52,11 +52,25 @@ pub type Option T =
 		value: T
 	| None
 
+pub type Tree T = 
+	| Node
+		value: T,
+		left: Tree T,
+		right: Tree T
+	| Leaf
 
+	OR...
+
+		value: T
+		left: (Tree T)
+		right: (Tree T)
 
 pub type Option T B ...something Trait = 
 
+perhaps the switch between inlined types and allocated types can just be handled by the compiler,
+	it should be obvious enough for the user when the compiler will do it (maybe can have some decorator that will crash if it happens)
 
+can also allow optional names, such that if there is one name, they are all required, but if none thats fine
 
 regarding how to do visibility
 	make an impl type block, which would allow funcs to be kind of scoped and what not the types, and as well make for easy extensibility

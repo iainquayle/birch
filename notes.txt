@@ -86,4 +86,5 @@ regarding how to do visibility
 	mod Shape
 		...
 
-
+for traits, which are effectivley just function patterns/prototypes/whatever, no need to copy the whole thing, can do something like impl ...
+	then for the inputs, allow it to just be described as "inputs" or "arguments" and access the already described args as inputs.arg_name 

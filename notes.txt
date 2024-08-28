@@ -88,3 +88,19 @@ regarding how to do visibility
 
 for traits, which are effectivley just function patterns/prototypes/whatever, no need to copy the whole thing, can do something like impl ...
 	then for the inputs, allow it to just be described as "inputs" or "arguments" and access the already described args as inputs.arg_name 
+
+could there be some way to create some one off, or few off datastructure and then attach functionality directly to it rather than needing to do a lookup?
+
+
+
+the mashability of structs/tuples could cause issues so rules need to be established:
+	eager
+		piping is eager, ie  _ , _ |> func, _ |> func is ((_, _) |> func, _) |> func
+		thus to pipe two results into a func
+		(_, _ |> func), (_ |> func) |> func
+		function overloading would be nice, but with this, could be very dangerous, so it may need to be tossed
+		probably also dont need to the , delimiter
+	tuple piping
+		can pip items into a tuple
+		ie x y |> _ _ z is (x, y, z)
+		

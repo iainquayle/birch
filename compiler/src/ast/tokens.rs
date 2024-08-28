@@ -1,24 +1,7 @@
 //this will all be scrapped
 
 
-pub enum BinaryOperator {
-	Add,
-	Sub,
-	Mul,
-	Div,
-	Mod,
-	And,
-	Or,
-	Xor,
-	Gt,
-	Lt,
-	Ge,
-	Le,
-	Eq,
-	Ne,
-}
-
-pub enum UnaryOperator {
+pub enum UniOp {
 	Not,
 	Neg,
 }
@@ -30,17 +13,65 @@ pub enum Literal {
 }
 
 pub enum Type {
-	Int(usize),
-	Float(usize),
+	Int(u8),
+	Float(u8),
 	Bool,
 	String,
 }
 
-pub enum Identifier {
+pub enum Delimiter {
+	LParen,
+	RParen,
+	LBrace,
+	RBrace,
+	LBracket,
+	RBracket,
+	Comma,
+	Semicolon,
+	Colon,
+}
 
+pub enum CompareOp {
+	Gt,
+	Lt,
+	Ge,
+	Le,
+	Eq,
+	Ne,
+}
+
+pub enum BinOp {
+	Add,
+	Sub,
+	Mul,
+	Div,
+	Mod,
+	And,
+	Or,
+	Xor,
 }
 
 
-pub enum Token {
 
+pub enum TokenKind {
+	Delimiter(Delimiter),
+	Compare(CompareOp),
+	BinOp(BinOp),
+	UniOp(UniOp),
+	Type(Type),
+	Ident(String),
+}
+
+pub struct Token {
+	start: usize,
+	kind: TokenKind,
+}
+
+impl Token {
+	pub fn new(start: usize, kind: TokenKind) -> Self {
+		Token {
+			start,
+			kind,
+		}
+	}
 }

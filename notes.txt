@@ -1,3 +1,25 @@
+what if for types it more along the lines of elixir/ts where types are trivial to define as an inline
+suppose fn(...) -> some: i16 | none ...
+in this case, simple enum variants just dont get any type, when matching, they cant have anything taken from them
+suppose fn(...) -> ok: i16 | err: u16 ...
+suppose fn(...) -> one: i16 | two: {x: u16, y: u16} ...
+even perhaps being able to switch on the existense of a certain member?
+where it could be that the options are allowed to run into the children of a structure
+these types would also be equivlent based on structure and iternal names rather than the name of the type?
+while this would hypothetically get rid of the need for generics,
+it would likely make that a complete pain in the ass if the generic type had any size to it.
+this could be simply over come with a more simplistic macros system?
+at the end of the day generics arent absolutly necessary, but the flexibility of arithmatic types is a big plus
+then when writing a switch, write out the part of the structure that you want to match on, ie for the last example
+| one -> ...
+| two: {x, y} -> ... or | two -> ...
+in the case of a nested arithmatic, could then just match on the super name of it, and create a whole new nested switch, or,
+enumerate all the possible structures in one switch statement.
+
+as well, type classes need to be flushed out,
+it would be nice to even be able to add to an existing type class definition, ie? though this could be too problematic
+
+
 figure out scoping symbol useage 
 may change it such that modules can be compiled at run time, in which case the syntax for a mod would change to
 	mod \_ = ...

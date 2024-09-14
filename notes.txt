@@ -32,6 +32,15 @@ the idea for generic function prototypes will be the means to traits, how to mak
 
 change so that environment capture is allowed
 
+
+also, what about making paraenthesis essentially a scoped code block, and allowing multiple statements inside?
+paras for running code, curly for structuring data, and square for indexing?
+this could be an issue though, suppose in the case of functions, there is code that is not ran until called? as versus paras which are ran immediately
+	that it self could the the factor? may also be the case that functions dont need explicit scoping, though that likely woulnt work for the case of nested functions
+may not need any brackets for generics, it could even be the case that macros get their own identifiable brackets
+
+
+
 mod 
 	data Self = 
 		x: i32 

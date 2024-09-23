@@ -1,3 +1,8 @@
+if not already figured out, all data structs use {}, and all code blocks use ()
+	then, to make something like currying more flexible and explicit than in haskell, could pass partially complete structs into functions.
+	ie {x: 1, ...} |> func, which passes back a function that now only requires the rest of the struct
+	should be completely feasible...
+
 what if for types it more along the lines of elixir/ts where types are trivial to define as an inline
 suppose fn(...) -> some: i16 | none ...
 in this case, simple enum variants just dont get any type, when matching, they cant have anything taken from them

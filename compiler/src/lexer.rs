@@ -1,13 +1,5 @@
-//this will all be scrapped
 
-pub struct Token {
-	start: usize,
-	kind: TokenType,
-}
 
-impl Token {
-	//pub fn 
-}
 
 pub enum Literal {
 	Int(i64), //probably want to make this something larger, then perhaps box it

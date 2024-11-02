@@ -3,4 +3,6 @@ name = "compiler"
 version = "0.1.0"
 
 [dependencies]
+regex = "1.11.1"
 #lalrpop = "0.22.0"
+

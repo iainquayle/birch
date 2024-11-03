@@ -3,6 +3,8 @@ extern crate once_cell;
 
 pub mod ast;
 pub mod lexer;
+pub mod token;
+pub mod parser;
 
 use lexer::Lexer;
 

@@ -11,4 +11,5 @@ fn main() {
 
 	let mut lex = Lexer::new("fn main() { let x = 5; }".to_string());
 	lex.lex();
+	println!("{}", lex);
 }

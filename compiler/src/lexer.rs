@@ -11,6 +11,8 @@ pub enum TokenType {
 	Let,
 	Type,
 
+	Assign,
+
 	LParen,
 	RParen,
 	LSquare,
@@ -51,6 +53,7 @@ impl fmt::Display for TokenType {
 			Self::Ident(s) => write!(f, "Ident({})", s),
 			Self::Let => write!(f, "Let"),
 			Self::Type => write!(f, "Type"),
+			Self::Assign => write!(f, "Assign"),
 			Self::LParen => write!(f, "LParen"),
 			Self::RParen => write!(f, "RParen"),
 			Self::LSquare => write!(f, "LSquare"),
@@ -104,19 +107,18 @@ impl Lexer {
 		let mut current_string = String::new();
 		let mut location: usize = 0;
 
-		//first check for identifier, check if identifier is a keyword or type, else identifier
-		//or check for whitespace first, doens matter
-		//check for literals 
-		//check match on operators and what not
-
 		while let Some(c) = next_char {
 			match c { 
-				' ' | '\t' | '\n' | '\r' => self.tokens.push(Token { token_type: TokenType::Whitespace, location }),
+				' ' | '\t' | '\n' | '\r' => {
+					self.tokens.push(Token { token_type: TokenType::Whitespace, location });
+					next_char = char_iter.next();
+				},
 				'0'..='9' => {
 					current_string.push(c);
 					next_char = char_iter.next();
 					while let Some(c @ '0'..='9') = next_char {
 						current_string.push(c);
+						next_char = char_iter.next();
 					} //will need to add . and possible other descriptors
 					self.tokens.push(Token { token_type: TokenType::LitInt(current_string.parse().unwrap()), location });
 					location += current_string.len();
@@ -127,6 +129,7 @@ impl Lexer {
 					next_char = char_iter.next();
 					while let Some(c @ ('a'..='z' | 'A'..='Z' | '_' | '0'..='9')) = next_char {
 						current_string.push(c);
+						next_char = char_iter.next();
 					}
 					match current_string.as_str() {
 						"let" => self.tokens.push(Token { token_type: TokenType::Let, location }),
@@ -136,28 +139,38 @@ impl Lexer {
 					location += current_string.len();
 					current_string.clear();
 				}
-				'{' => self.tokens.push(Token { token_type: TokenType::LCurly, location }),
-				'}' => self.tokens.push(Token { token_type: TokenType::RCurly, location }),
-				'(' => self.tokens.push(Token { token_type: TokenType::LParen, location }),
-				')' => self.tokens.push(Token { token_type: TokenType::RParen, location }),
-				'[' => self.tokens.push(Token { token_type: TokenType::LSquare, location }),
-				']' => self.tokens.push(Token { token_type: TokenType::RSquare, location }),
-				',' => self.tokens.push(Token { token_type: TokenType::Comma, location }),
-				';' => self.tokens.push(Token { token_type: TokenType::Semicolon, location }),
-				':' => self.tokens.push(Token { token_type: TokenType::Colon, location }),
-				'+' => self.tokens.push(Token { token_type: TokenType::Add, location }),
-				'-' => self.tokens.push(Token { token_type: TokenType::Sub, location }),
-				'*' => self.tokens.push(Token { token_type: TokenType::Mul, location }),
-				'/' => self.tokens.push(Token { token_type: TokenType::Div, location }),
-				'%' => self.tokens.push(Token { token_type: TokenType::Mod, location }),
-				'&' => self.tokens.push(Token { token_type: TokenType::And, location }),
-				'|' => self.tokens.push(Token { token_type: TokenType::Or, location }),
-				'^' => self.tokens.push(Token { token_type: TokenType::Xor, location }),
-				'!' => self.tokens.push(Token { token_type: TokenType::Not, location }),
+				'{' => {
+					self.tokens.push(Token { token_type: TokenType::LCurly, location });
+					next_char = char_iter.next();
+				}, 
+				'}' => {self.tokens.push(Token { token_type: TokenType::RCurly, location }); next_char = char_iter.next();},
+				'(' => {self.tokens.push(Token { token_type: TokenType::LParen, location }); next_char = char_iter.next();},
+				')' => {self.tokens.push(Token { token_type: TokenType::RParen, location }); next_char = char_iter.next();},
+				'[' => {self.tokens.push(Token { token_type: TokenType::LSquare, location }); next_char = char_iter.next();},
+				']' => {self.tokens.push(Token { token_type: TokenType::RSquare, location }); next_char = char_iter.next();},
+				',' => {self.tokens.push(Token { token_type: TokenType::Comma, location }); next_char = char_iter.next();},
+				';' => {self.tokens.push(Token { token_type: TokenType::Semicolon, location }); next_char = char_iter.next();},
+				':' => {self.tokens.push(Token { token_type: TokenType::Colon, location }); next_char = char_iter.next();},
+				'=' => {
+					next_char = char_iter.next();
+					match next_char {
+						Some('=') => {self.tokens.push(Token { token_type: TokenType::Eq, location }); next_char = char_iter.next();},
+						_ => {self.tokens.push(Token { token_type: TokenType::Assign, location });},
+					}
+				},
 				_ => {}
 			}
 
-			location += 1;
+			//location += 1;
+			//make this easier
 		}
 	}
+}
+impl fmt::Display for Lexer {
+	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+		for token in &self.tokens {
+			write!(f, "{}\n", token.token_type)?;
+		}
+		Ok(())
+	}	
 }

@@ -11,7 +11,7 @@ use lexer::Lexer;
 fn main() {
     println!("Hello, world!");
 
-	let mut lex = Lexer::new("fn main() { let x = 5; }".to_string());
+	let mut lex = Lexer::new("fn do {some: i32}: i32 (let x = 5 x = some x) ".to_string());
 	lex.lex();
 	println!("{}", lex);
 }

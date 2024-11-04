@@ -1,3 +1,12 @@
+while duck typing is nice, it does possible cause issues when it comes to preventing misuse of values
+for example Shape as it is below
+for something like that, could allow for something like {x: Val: i32}?
+though, not sure this really makes sense, as no other functions would be able to define that they take that in...
+
+
+perhaps for arrays, have it be more like rust, [T, N] or [T N].
+haveing a number in the type would fit in line with primitive types that use iN
+
 if not already figured out, all data structs use {}, and all code blocks use ()
 	then, to make something like currying more flexible and explicit than in haskell, could pass partially complete structs into functions.
 	ie {x: 1, ...} |> func, which passes back a function that now only requires the rest of the struct

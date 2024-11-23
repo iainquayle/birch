@@ -5,8 +5,7 @@ pub enum Type {
 	None,
 	Primitive(Token),
 	Pointer(Box<Type>), 
-	//not sure how these will be utilized in the syntax, have some kind of escape hatch? or defer all unsafe stuff to using c?
-	//just how will items that use dynamic allocation be created?
+	//are these necessary? or will that be handled later?
 	Array(Box<(Type, usize)>), 
 	Function {
 		input: Box<Type>,
@@ -37,19 +36,12 @@ pub enum Value {
 }
 
 pub enum Expression {
-	Value(Value), //change this
-	Identifier(Token),
+	Variable(Token),
+	Value(Value),
 	Call{
-		
 		callee: Box<Expression>, //either a variable, or inlined function
 	},
 }
-
-
-//statement block, includes env capture
-//function is a block, with a env that hasnt been fully resolved
-
-
 
 
 pub enum Statement { 

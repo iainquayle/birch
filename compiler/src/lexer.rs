@@ -33,11 +33,12 @@ impl Lexer {
 
 		while let Some(c) = next_char {
 			position.add(c);
-			next_char = char_iter.next();
+			next_char = char_iter.next(); //cut this, perhaps make some helper to eat / not?
 			let mut token_type = TokenType::Unknown;
 			match c { 
 				' ' | '\t' | '\n' | '\r' => {
-					//removed the whitespace token
+					//while let Some(c @ (' ' | '\t' | '\n' | '\r')) = next_char { position.add(c); }
+					token_type = TokenType::Whitespace;
 				},
 				'0'..='9' => {
 					current_string.push(c);
@@ -63,8 +64,11 @@ impl Lexer {
 				']' => token_type = TokenType::RSquare,
 				'<' => token_type = TokenType::Lt,
 				'>' => token_type = TokenType::Gt,
-				'+' => token_type = TokenType::Add,
-				'-' => token_type = TokenType::Sub,
+				'+' => token_type = TokenType::Plus,
+				'-' => {
+					
+					token_type = TokenType::Minus;
+				},
 				'=' => {
 					next_char = char_iter.next();
 					match next_char {

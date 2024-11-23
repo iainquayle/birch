@@ -1,3 +1,17 @@
+first class types seem like a cool idea, especially in the face of wanting natural comp time and just general meta programming.
+two things that may have issues now that types have been brought into the fold are, generics and type inference
+this obviously extends to opaque generics, and that solution for how to deal with interfaces.
+it may be that type enforcement, and generics remain in in a higher realm than all other first class data
+
+enumerate examples of how types and generics may look...
+
+
+first class types and comptime would be amazing for things like protobufs, some outside defintion that needs to compiled, plus other things
+for true first class meta programming, may need some kind of way to denote that something should be a token rather than taken at face value?
+
+regarding interfaces, have an opaque generic type, has a piece of data, and attached functions
+if the functions are grouped into a const struct, all that is needed is a pointer to the func collections, which ends up being the same size as a automatically tagged type
+
 while duck typing is nice, it does possible cause issues when it comes to preventing misuse of values
 for example Shape as it is below
 for something like that, could allow for something like {x: Val: i32}?

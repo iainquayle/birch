@@ -9,7 +9,3 @@ would be nice in any case to not need angle braces for generics... or perhaps th
 
 ## compiler
 
-decide between using haskell, elixir or rust.
-while elixir would be fun, the server will use it, so perhaps tamper with haskell
-
-

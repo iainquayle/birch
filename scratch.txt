@@ -3,6 +3,14 @@ two things that may have issues now that types have been brought into the fold a
 this obviously extends to opaque generics, and that solution for how to deal with interfaces.
 it may be that type enforcement, and generics remain in in a higher realm than all other first class data
 
+in the case of using generics to make the equivilant of order agnostic definitions, macro based generics wouldnt work, as the macro wouldnt be making a defintion.
+and while recurssive type definitions can always be flattened, it doesnt always make sense.
+if, in the end, making use of modules instead of making everything funcs, then should it be considered to allow circular imports, as that would seemingly be in the rules.
+
+perhaps modules are the best way forward, but just using the file system, no module keyword?
+other option is to use namespaces specifically for access control? not a bad idea
+only issue here is that comptime types then become an issue, as the order of initialization is not guarenteed?
+
 enumerate examples of how types and generics may look...
 
 

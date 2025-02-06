@@ -1,6 +1,18 @@
-
-
 # issues
+
+## order of evaluation
+
+* procedural
+    
+    top to bottom, left to right. very natural.
+    this would to be natural to use, require a module system, 
+
+* functional/declaritive
+
+    everything is implicitly declared, more along the lines of haskell, where you can have a where clause that is lazily evaluated.
+    while this would be more foreign, it would consolidate the need for modules, vs just having functions which are used for scoping.
+    and, people could write this in a procedural manner, it would change anything.
+    then, there would just need to be a singular return point, which can be branching through ifs and matches.
 
 ## definition
 

@@ -1,3 +1,11 @@
+
+
+
+
+
+
+
+
 first class types seem like a cool idea, especially in the face of wanting natural comp time and just general meta programming.
 two things that may have issues now that types have been brought into the fold are, generics and type inference
 this obviously extends to opaque generics, and that solution for how to deal with interfaces.

@@ -1,18 +1,20 @@
 # issues
 
-## order of evaluation
+## functions
 
-* procedural
-    
-    top to bottom, left to right. very natural.
-    this would to be natural to use, require a module system, 
+while likely going towards the {} -> {} syntax, this does leave the issue of it wont be able to handle all types as inputes
+ie, cant do i32 -> ..., as there is no name to address it by
+two options are, actually address the input no matter what type by something like 'in' or 'self'
+or, just dont allow types that cant be destructured. <- lilely this
 
-* functional/declaritive
+## types
 
-    everything is implicitly declared, more along the lines of haskell, where you can have a where clause that is lazily evaluated.
-    while this would be more foreign, it would consolidate the need for modules, vs just having functions which are used for scoping.
-    and, people could write this in a procedural manner, it would change anything.
-    then, there would just need to be a singular return point, which can be branching through ifs and matches.
+while first class types would be cool and the structs can be handled, enums prove and issue
+if types were first class, they could merely be a struct, where all values are types, and the syntax stays the same.
+however, enums, would break that syntax.
+two options, either keep types in a seperate space and not usable at runtime which would be an issue for runtime comp
+or, perhaps the | x: y | z: w syntax returns a whole new type, which can obvioudly be then a member of a struct.
+second options best ^
 
 ## definition
 

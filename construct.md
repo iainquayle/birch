@@ -1,40 +1,58 @@
 # finalized
 
-## vars
-
-variables are immutable always, cant be reassigned, and arent preceded by any keyword.
 
 ## types 
 
-tuples arent a thing, only structs, and anonymous structs.
-will make use of arithmetic types, which will be the method of error handling.
+tuples arent a thing, only structs, enums, and anonymous structs/enums.
 
 defined types may be pass for anonymous types of the same structure, but not vice versa.
 this is not absolute yet, but will likely be the case to help with type enforcement.
 
+### first class
+
+types are first class, meaning they can be tossed around, though the usefulness of this will likely come with ctr and rtc.
+if it is useful, great, if not, it wont effect anything.
+
 ### definitions
 
-types will take after typescript, with the addition of arithmetic types.
-ie, they will not be restricted to being flat, and anonymous types will be a large part.
-it may be the case that the braces are optional, but not decided yet,
-this would take more complicated tokenization, and not sure it would be more readable.
-
+a type is any data, where all values within it are types.
 type A = {
     a: u32, 
-    b: {
-        c: u32,
-        d: u32
-    },
-    e: {
-        f: u32
+    e: 
+        | f: u32
         | g: u32
-    }
 }
+enums under the hood, using such syntax, will create a new type and return it as a value.
+
+as well, there will be a shorthand for the option type, which will be a ? after the type.
+there may also be a shorthand for the result type, with a ! between the type and the error type, but this is not decided.
 
 ### generics
 
-while not tuned, generics will be supported, and either some or all will be opaque.
-these opaque types will allow for a certain level of polymorphism, along the lines of rusts traits, but not globally scoped and a little more limited.
+generics will be a thing, but the syntax and their construction in language is not yet decided.
+
+there will be an opaque type of generic, which will take the place of traits and typeclasses.
+these will allow for the passing of types, with some functions paired that can take in that type.
+once these types are passed in, their members will only be accessible by the functions, as only the functions will know what the type is.
+
+## data 
+
+data from the programmers perspective is always immutable, and arent preceded by any keyword.
+
+while types and functions are just data, it may be that the syntax requires a ketword denote them when they are being defined to help with readability.
+this is not decided yet.
+
+### instantiation
+
+as shown above, structs can be defined anonymously, and infact those are what are used for types.
+
+it would be nice though to have a way to instantiate a typed by binding positionally.
+that being said, it really isnt necessary.
+
+### access
+
+access with be done through . operator.
+it may also be destructured, with {a, b} = {a: 1, b: 2}, or somthing similar, perhaps brackets being optional.
 
 ## functions
 
@@ -59,9 +77,12 @@ fn add: {a: u32, b: u32} -> u32 =
 fn sum_and_prod: {a: u32, b: u32} -> {s: u32, p: u32} =
     {s: a + b, p: a * b}
 
-and precidience will be done through parantheses.
+for the moment, structs are the only top level type allowed to be passed in. thought this may change if a good solution is found.
 
-while 
+fn sum_and_prod: {a: u32, b: u32} -> {s: u32, p: u32} = {a, b}
+    {s: a + b, p: a * b}
+may need something more like this? where the type is optional.
+in the case of anon functions, the inputs would need to be able to be defined.
 
 ### calling
 
@@ -76,6 +97,10 @@ but more traditional calling would likely be smart to support, especially for an
 add <| {1, 2}
 
 it may be possible, in the case of anon functions being passed into
+
+### currying
+
+currying will be supported by passing in partially complete structs, this will return a new function that takes a struct with the remaining fields.
 
 ## scoping
 
@@ -124,3 +149,7 @@ this would work well for essentially all of these operations, and would be a uni
 
 ### multithreading
 
+
+## style guide
+
+actual tabs for indentation, snake case for vars, camel case for functions, capital camel case for types, and screaming snake case for constants.

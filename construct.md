@@ -49,10 +49,23 @@ as shown above, structs can be defined anonymously, and infact those are what ar
 it would be nice though to have a way to instantiate a typed by binding positionally.
 that being said, it really isnt necessary.
 
+### arrays
+
+would be nice to support fixed size arrays, but it may be a little out of place in the language.
+ideally, the compiler will be able to descern when a fixed size array will be used, but that may not be really feasible.
+fixed size arrays in other langs are somewhat more of a contract that allows the programmer to know what is quicker.
+
 ### access
 
 access with be done through . operator.
 it may also be destructured, with {a, b} = {a: 1, b: 2}, or somthing similar, perhaps brackets being optional.
+
+### mutation 
+
+in any case, since data is immutable, editing an would end up something like \[orig, x: y\]? maybe even allow for multiple sets, or for a list into a list, \[orig, ..new\].
+this would make a new array from the programmer perspective, but obviously the compiler would be able to optimize this when possible.
+
+a similar syntax would be used for structs, {orig, x: y}.
 
 ## functions
 

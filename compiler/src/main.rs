@@ -13,7 +13,6 @@ fn main() {
 
 	let src = "fn do {some: i32} -> i32 (let x = 5 x = some x)".to_string();
 	println!("{}", src);
-	let mut lex = Lexer::new(src);
-	lex.lex();
+	let lex = Lexer::new(src);
 	println!("{}", lex);
 }

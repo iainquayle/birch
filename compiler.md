@@ -8,6 +8,11 @@ one flat namespace of token types, dont worry about how the tokens will interact
 
 nodes will be a single struct, accompanied by an enum type also from a flat namespace, and any number of children. 
 
+data holds type (which will be value until semantic analysis?) and value,
+value can be prim (including types), struct (including types), function, 
+
+files will be a function node, as well as files.
+
 # ast generation 
 
 ## parsing

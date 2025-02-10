@@ -8,14 +8,9 @@ pub struct Lexer {
 }
 impl Lexer {
 	pub fn new(source: String) -> Lexer {
-		Lexer {
-			source,
-			tokens: Vec::new(),
-		}
-	}
-	//merge these two duh
-	pub fn lex(&mut self) {
-		let mut char_iter = self.source.chars();
+		let mut tokens = Vec::new();
+
+		let mut char_iter = source.chars();
 		let mut next_char: Option<char> = char_iter.next();
 
 		let mut current_string = String::new();
@@ -135,9 +130,13 @@ impl Lexer {
 				';' => token_type = TokenType::Semi,
 				_ => { }
 			}
-			self.tokens.push(Token::new(token_type, previous_position.clone()));
+			tokens.push(Token::new(token_type, previous_position.clone()));
 			previous_position = position.clone();
 			current_string.clear();
+		}
+		Lexer {
+			source,
+			tokens,
 		}
 	}
 }

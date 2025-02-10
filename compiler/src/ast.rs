@@ -2,10 +2,16 @@ use token::Token;
 
 
 pub struct AstNode {
-	pub token: Token,
-	pub children: Vec<AstNode>,
+	token: Token,
+	node_type: NodeType,	
+	children: Vec<AstNode>,
 }
 pub struct Ast {
-	pub root: AstNode,
+	root: AstNode,
+}
+
+pub enum NodeType {
+	Function,	
+	
 }
 

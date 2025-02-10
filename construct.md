@@ -1,5 +1,7 @@
-# finalized
+# essentially finalized 
 
+technically, may make everything first class data, but that shouldnt change much of what is written here.
+more of a compiler thing to deal with?
 
 ## types 
 
@@ -67,7 +69,21 @@ this would make a new array from the programmer perspective, but obviously the c
 
 a similar syntax would be used for structs, {orig, x: y}.
 
+### casting
+
+obviously usees functions for higher level casting, but for basic types use the to keyword?
+either that, or the casting functions are in the respective standard lib modules?
+
+### aliasing
+
+the as keyword will be used to alias types, and functions, and other data.
+this will likely also help with piping and how data is passed around when the names of memebers dont match.
+
 ## functions
+
+### overloading
+
+not sure yet, maybe?
 
 ### body
 

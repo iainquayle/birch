@@ -1,3 +1,4 @@
+/*
 use token::Token;
 use ast::{Type, Value, Expression, Statement};
 
@@ -16,3 +17,4 @@ impl Parser {
 		}
 	}
 }
+*/

@@ -13,7 +13,7 @@ impl Lexer {
 			tokens: Vec::new(),
 		}
 	}
-
+	//merge these two duh
 	pub fn lex(&mut self) {
 		let mut char_iter = self.source.chars();
 		let mut next_char: Option<char> = char_iter.next();
@@ -51,22 +51,74 @@ impl Lexer {
 						push_c!(c);
 					}
 					match current_string.as_str() {
-						"let" => token_type = TokenType::Let, 
 						"type" => token_type = TokenType::Type, 
+						"fn" => token_type = TokenType::Fn,
+						"let" => token_type = TokenType::Let,
 						_ => token_type = TokenType::Ident(current_string.clone()), 
 					}
 				}
+				'!' => token_type = TokenType::Bang,
+				'/' => token_type = TokenType::FSlash,
+				'\\' => token_type = TokenType::BSlash,
+				'*' => token_type = TokenType::Star,
+				'%' => token_type = TokenType::Mod,
+				'&' => {
+					next_char = char_iter.next();
+					match next_char {
+						Some('&') => {
+							token_type = TokenType::And;
+							position.add('&');
+						},
+						_ => token_type = TokenType::Amp,
+					}
+				},
 				'{' => token_type = TokenType::LCurly, 
 				'}' => token_type = TokenType::RCurly,
 				'(' => token_type = TokenType::LParen,
 				')' => token_type = TokenType::RParen,
 				'[' => token_type = TokenType::LSquare,
 				']' => token_type = TokenType::RSquare,
-				'<' => token_type = TokenType::Lt,
-				'>' => token_type = TokenType::Gt,
+				'<' => {
+					next_char = char_iter.next();
+					match next_char {
+						Some('=') => {
+							token_type = TokenType::Le;
+							position.add('=');
+						},
+						/*Some('>') => {
+							token_type = TokenType::Ne;
+							position.add('>');
+						},*/
+						_ => token_type = TokenType::Lt,
+					}
+				},
+				'>' => {
+					next_char = char_iter.next();
+					match next_char {
+						Some('=') => {
+							token_type = TokenType::Ge;
+							position.add('=');
+						},
+						/*Some('>') => {
+							token_type = TokenType::Ne;
+							position.add('>');
+						},*/
+						_ => token_type = TokenType::Gt,
+					}
+				},
+				'|' => {
+					next_char = char_iter.next();
+					match next_char {
+						Some('|') => {
+							token_type = TokenType::Or;
+							position.add('|');
+						},
+						_ => token_type = TokenType::Bar,
+					}
+				},
+				'^' => token_type = TokenType::Xor,
 				'+' => token_type = TokenType::Plus,
 				'-' => {
-					
 					token_type = TokenType::Minus;
 				},
 				'=' => {
@@ -79,6 +131,8 @@ impl Lexer {
 						_ => token_type = TokenType::Assign,
 					}
 				},
+				':' => token_type = TokenType::Colon,
+				';' => token_type = TokenType::Semi,
 				_ => { }
 			}
 			self.tokens.push(Token::new(token_type, previous_position.clone()));

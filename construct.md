@@ -137,6 +137,10 @@ once these types are passed in, their members will only be accessible by the fun
 
 ## functions
 
+Functions only take one argument, and return one value.
+Both the use of anonymous struct typing, and haskell type currying is supported.
+Typeing will be optional where inference is possible.
+
 ### overloading
 
 not sure yet, maybe?
@@ -144,61 +148,42 @@ they are not as confusing as in other languages due to the use of structs for ar
 
 ### definitions
 
-may switch to fat arrow for function part instead of single
-
 fn add: {a: u32, b: u32} -> u32 = in ->
     x = in.a + in.b
     x
-
 or
-
 fn add: {a: u32, b: u32} -> u32 = {a, b} ->
     x = a + b
     x
+or
+fn add: u32 -> u32 -> u32 = a, b ->
+    x = a + b
+    x
 
-fn sum_and_prod: {a: u32, b: u32} -> {s: u32, p: u32} =
+fn sum_and_prod: {a: u32, b: u32} -> {s: u32, p: u32} = {a, b} ->
     {s: a + b, p: a * b}
-
-for the moment, structs are the only top level type allowed to be passed in. thought this may change if a good solution is found.
-
-fn sum_and_prod: {a: u32, b: u32} -> {s: u32, p: u32} = {a, b}
-    {s: a + b, p: a * b}
-may need something more like this? where the type is optional.
-in the case of anon functions, the inputs would need to be able to be defined.
 
 ### calling
 
-likely favour piping
+not sure yet...
 
+pipe operator with a struct,
 {a: 1, b: 2} |> add
-or
-{1, 2} |> add 
+and with curried functions
+1, 2 |> add
 
-but more traditional calling would likely be smart to support, especially for anonymous functions that take space.
-
+as for a more common syntax, it may be somthing like a reverse pipe instead of parens.
 add <| {1, 2}
+add <| 1, 2
 
-it may be possible, in the case of anon functions being passed into
-
-### currying
-
-currying will be supported by passing in partially complete structs, this will return a new function that takes a struct with the remaining fields.
-
-## scoping
-
-all items are implicity declared, thus in a function, a variable can rely on anything declared before or after it in that scope.
-this allows for the removal of modules.
-
-scope does bleed into functions, but not the other way around.
-
-x = 1
-fn f = {y: u32} -> u32
-    x + y
+As shown, currying in the haskell sense is supported, but as well, partial struct currying will be supported.
+add_1 = add <| {a: 1}
 
 ## control flow
 
-if and match will be the only control flow structures.
+if and match will be the only branching control structures. 
 values will be returned from them, into the next scope up, they will not return from the function they are in.
+
 (syntax is not final)
 
 if
@@ -209,7 +194,8 @@ match x
 | 1 -> 1
 | _ -> 0
 
-match obviously works best on arithmetic types, but can be used on any type that has equality.
+match can be used as an exhastive switch and pattern matching system.
+if will be specifically for boolean expressions, and will be evaluated in order.
 
 loops while done through recursion, may have a special rec keyword to help with simple tail recursion situations to reduce boilerplate.
 either that, or have an anon function that is called back to itself using perhaps self.
@@ -235,3 +221,8 @@ this would work well for essentially all of these operations, and would be a uni
 ## style guide
 
 actual tabs for indentation, snake case for vars, camel case for functions, capital camel case for types, and screaming snake case for constants.
+
+for function inputs, structs should be used when the order matters, or there is any ambiguity as to what an argument is.
+otherwise, currying may be used.
+
+variable names are preferred to be descriptive, and not heavily abbreviated unless the abbreviation is common.

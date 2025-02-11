@@ -8,6 +8,7 @@ pub enum TokenType {
 
 	TypeType,	
 	IntType(u8),
+	UIntType(u8),
 	FloatType(u8),
 
 	Ident(String),
@@ -15,6 +16,8 @@ pub enum TokenType {
 	Type,
 	Fn,
 	Let,
+	If,
+	Match,
 
 	Assign,
 
@@ -29,6 +32,9 @@ pub enum TokenType {
 	Colon,
 	Semi,
 	RArrow,
+	LArrow,
+	RPipe,
+	LPipe,
 
 	FSlash,
 	BSlash,
@@ -98,6 +104,7 @@ impl fmt::Display for TokenType {
 			Self::LitFloat(n) => write!(f, "LitFloat({})", n),
 			Self::TypeType => write!(f, "TypeType"),
 			Self::IntType(n) => write!(f, "IntType({})", n),
+			Self::UIntType(n) => write!(f, "UIntType({})", n),
 			Self::FloatType(n) => write!(f, "FloatType({})", n),
 			Self::Fn => write!(f, "Fn"),
 			Self::QMark => write!(f, "QMark"),
@@ -105,7 +112,11 @@ impl fmt::Display for TokenType {
 			Self::As => write!(f, "As"),
 			Self::Bar => write!(f, "Bar"),
 			Self::Amp => write!(f, "Amp"),
-			//_ => write!(f, "Unknown"),
+			Self::RPipe => write!(f, "RPipe"),
+			Self::LPipe => write!(f, "LPipe"),
+			Self::LArrow => write!(f, "LArrow"),
+			Self::If => write!(f, "If"),
+			Self::Match => write!(f, "Match"),
 		}
 	}
 }

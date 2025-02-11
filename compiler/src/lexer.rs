@@ -25,7 +25,7 @@ impl Lexer {
 				next_char = char_iter.next();
 			)
 		}
-
+		//need to impl basic types such as iXX and fXX
 		while let Some(c) = next_char {
 			position.add(c);
 			next_char = char_iter.next(); //cut this, perhaps make some helper to eat / not?
@@ -49,6 +49,8 @@ impl Lexer {
 						"type" => token_type = TokenType::Type, 
 						"fn" => token_type = TokenType::Fn,
 						"let" => token_type = TokenType::Let,
+						"if" => token_type = TokenType::If,
+						"match" => token_type = TokenType::Match,
 						_ => token_type = TokenType::Ident(current_string.clone()), 
 					}
 				}
@@ -84,6 +86,14 @@ impl Lexer {
 							token_type = TokenType::Ne;
 							position.add('>');
 						},*/
+						Some('|') => {
+							token_type = TokenType::LPipe;
+							position.add('|');
+						},
+						Some('-') => {
+							token_type = TokenType::LArrow;
+							position.add('-');
+						},
 						_ => token_type = TokenType::Lt,
 					}
 				},
@@ -108,13 +118,24 @@ impl Lexer {
 							token_type = TokenType::Or;
 							position.add('|');
 						},
+						Some('>') => {
+							token_type = TokenType::RPipe;
+							position.add('>');
+						},
 						_ => token_type = TokenType::Bar,
 					}
 				},
 				'^' => token_type = TokenType::Xor,
 				'+' => token_type = TokenType::Plus,
 				'-' => {
-					token_type = TokenType::Minus;
+					next_char = char_iter.next();
+					match next_char {
+						Some('>') => {
+							token_type = TokenType::RArrow;
+							position.add('>');
+						},
+						_ => token_type = TokenType::Minus,
+					}
 				},
 				'=' => {
 					next_char = char_iter.next();
@@ -147,4 +168,12 @@ impl fmt::Display for Lexer {
 		}
 		Ok(())
 	}	
+}
+impl Lexer {
+	pub fn tokens(&self) -> &Vec<Token> {
+		&self.tokens
+	}
+	pub fn source(&self) -> &String {
+		&self.source
+	}
 }

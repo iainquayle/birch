@@ -1,33 +1,130 @@
-# essentially finalized 
+# essentially finalized language constructs
 
-technically, may make everything first class data, but that shouldnt change much of what is written here.
-more of a compiler thing to deal with?
+## overview
+
+Very minimalistic functional language, with goals of supporting full ctr and rtc metaprogramming.
+The main points of note are:
+
+- Immutability all the time 
+- Declaration order independence all the time
+- Strongly typed, with inference 
+- Algebraic types
+- Anonymous types
+- No modules, only functions
+- Currying support
+- Piping support
+- Opaque generics for interface like functionality
+
+The aim is for extreme simplicity, and massive maleability but safety with metaprogramming.
+
+### first class ast
+
+I would like the language moving forward to be able to neturally be able to generate and work on its own code.
+The exact way in which this will be accomplished is not yet decided,
+but a possibility is to make ast nodes built in types, and have syntax specific to accessing the ast at any symbol in the code.
+
+## expressions and scope
+
+Expressions form the base of the language, they are any chunk of code in the same scope, and can be denoted by parantheses.
+Values can be declared in the expression, in any order, and there must be one return value at the end of the expression. 
+( 
+    x = 1
+    x
+)
+
+Variables can be overwritten in nested scopes, but they will not leak back out.
+(
+    x = 1
+    (
+        x = 2
+        x
+    )
+    x
+)
+
+## data 
+
+Data is always immutable, and is defined by structs and algebraic types.
+
+### structs
+
+#### instantiation
+
+structs are instantiated by curly braces.
+b = 2
+y = { b: 10, c: 3 }
+s = {
+    ..y,
+    a: 0,
+    b 
+}
+Shown is the spread operator, which only one of is allowed, and which will copy fields but will be overridden by specified fields.
+b takes both the value and name of b.
+and a is a simple field.
+
+#### access
+
+single element access is done by dot notation.
+s.a
+and destructuring is done by curly braces.
+{a, b} = s
+
+aliasing for destructuring will be done using the as keyword.
+{a, b as c} = s
+
+### arrays
+
+#### instantiation
+
+arrays are instantiated by square brackets, and are fixed length for the moment.
+not sure whether vectors will be the mutable version, or if arrays will allow for resizing.
+\[1, 2, 3\]
+or
+\[\]
+
+and to get an updated array, the spread operator can be used.
+\[..a, i: 0, j: 1\]
+or (not sure yet, would like to diffeerniate between arrays and structs, but also the same is nice)
+\[..a, i = 0, j = 1\]
+Not yet sure if attempting to 
+
+And as to whether the syntax will be supported for vectors is also not yet decided.
+
+#### access
+
+access is done by square brackets.
+a\[0\]
+
+### casting
+
+casting of basic types will use the to keyword.
+(how this will work exactly will be decided by decisions on function overloading)
+
+as well, casting will be explicit.
 
 ## types 
 
-tuples arent a thing, only structs, enums, and anonymous structs/enums.
+Types are 
 
 defined types may be pass for anonymous types of the same structure, but not vice versa.
-this is not absolute yet, but will likely be the case to help with type enforcement.
-
-### first class
-
-types are first class, meaning they can be tossed around, though the usefulness of this will likely come with ctr and rtc.
-if it is useful, great, if not, it wont effect anything.
 
 ### definitions
 
-a type is any data, where all values within it are types.
+Types can be an alias of any type, including, primitives, structs, arrays, algebraic types, and functions.
+type Int = u32
 type A = {
     a: u32, 
-    e: 
-        | f: u32
-        | g: u32
+    b: \[u32; 3\]
+    e: {
+        f: u32 |
+        g: u32
+    },
+    h: u32 -> u32
 }
-enums under the hood, using such syntax, will create a new type and return it as a value.
 
-as well, there will be a shorthand for the option type, which will be a ? after the type.
-there may also be a shorthand for the result type, with a ! between the type and the error type, but this is not decided.
+Short hand for an option algebraic will be supported with a ? after the type.
+type OptionInt = u32?
+Short hand for the result type will be supported with a ! between the return type and the error type. 
 
 ### generics
 
@@ -37,69 +134,25 @@ there will be an opaque type of generic, which will take the place of traits and
 these will allow for the passing of types, with some functions paired that can take in that type.
 once these types are passed in, their members will only be accessible by the functions, as only the functions will know what the type is.
 
-## data 
-
-data from the programmers perspective is always immutable, and arent preceded by any keyword.
-
-while types and functions are just data, it may be that the syntax requires a ketword denote them when they are being defined to help with readability.
-this is not decided yet.
-
-### instantiation
-
-as shown above, structs can be defined anonymously, and infact those are what are used for types.
-
-it would be nice though to have a way to instantiate a typed by binding positionally.
-that being said, it really isnt necessary.
-
-### arrays
-
-would be nice to support fixed size arrays, but it may be a little out of place in the language.
-ideally, the compiler will be able to descern when a fixed size array will be used, but that may not be really feasible.
-fixed size arrays in other langs are somewhat more of a contract that allows the programmer to know what is quicker.
-
-### access
-
-access with be done through . operator.
-it may also be destructured, with {a, b} = {a: 1, b: 2}, or somthing similar, perhaps brackets being optional.
-
-### mutation 
-
-in any case, since data is immutable, editing an would end up something like \[orig, x: y\]? maybe even allow for multiple sets, or for a list into a list, \[orig, ..new\].
-this would make a new array from the programmer perspective, but obviously the compiler would be able to optimize this when possible.
-
-a similar syntax would be used for structs, {orig, x: y}.
-
-### casting
-
-obviously usees functions for higher level casting, but for basic types use the to keyword?
-either that, or the casting functions are in the respective standard lib modules?
-
-### aliasing
-
-the as keyword will be used to alias types, and functions, and other data.
-this will likely also help with piping and how data is passed around when the names of memebers dont match.
 
 ## functions
 
 ### overloading
 
 not sure yet, maybe?
-
-### body
-
-the body of a function will be denoted by parantheses.
-all code will be evaluated implicitly, meaning that the order of eval is not tied to the order of the code.
-the return value will be the last item in the function, and will be returned to the scope above it.
-this means that 
-x = 1 + (
-    y = 2 + 5
-    y + 1)
-is valid
-the optionality of paranthese is not decided, it could be that the single return value can be elsewhere, but that would likely be more messy.
+they are not as confusing as in other languages due to the use of structs for arguments.
 
 ### definitions
 
-fn add: {a: u32, b: u32} -> u32 =
+may switch to fat arrow for function part instead of single
+
+fn add: {a: u32, b: u32} -> u32 = in ->
+    x = in.a + in.b
+    x
+
+or
+
+fn add: {a: u32, b: u32} -> u32 = {a, b} ->
     x = a + b
     x
 

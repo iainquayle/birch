@@ -25,7 +25,6 @@ impl Lexer {
 				next_char = char_iter.next();
 			)
 		}
-		//need to impl basic types such as iXX and fXX
 		while let Some(c) = next_char {
 			position.add(c);
 			next_char = char_iter.next(); //cut this, perhaps make some helper to eat / not?
@@ -37,21 +36,48 @@ impl Lexer {
 				},
 				'0'..='9' => {
 					current_string.push(c);
-					while let Some(c @ '0'..='9') = next_char { push_c!(c); } //will need to add . and possible other descriptors
-					token_type = TokenType::LitInt(current_string.parse().unwrap());
+					while let Some(c @ '0'..='9') | Some(c @ '.') = next_char { push_c!(c); } //will need to add . and possible other descriptors
+					if current_string.contains('.') {
+						token_type = TokenType::LitFloat(current_string.parse().unwrap());
+					} else {
+						token_type = TokenType::LitInt(current_string.parse().unwrap());
+					}
 				}
 				'a'..='z' | 'A'..='Z' | '_' => {
 					current_string.push(c);
+					let first_char = c;
+					let mut number_count = 0;
 					while let Some(c @ ('a'..='z' | 'A'..='Z' | '_' | '0'..='9')) = next_char {
+						if c.is_digit(10) {
+							number_count += 1;
+						}
 						push_c!(c);
 					}
-					match current_string.as_str() {
-						"type" => token_type = TokenType::Type, 
-						"fn" => token_type = TokenType::Fn,
-						"let" => token_type = TokenType::Let,
-						"if" => token_type = TokenType::If,
-						"match" => token_type = TokenType::Match,
-						_ => token_type = TokenType::Ident(current_string.clone()), 
+					if current_string.len() - number_count == 1 && number_count != 0  {
+						match first_char {
+							'u' => token_type = TokenType::UIntType(current_string[1..].parse().unwrap()),
+							'i' => token_type = TokenType::IntType(current_string[1..].parse().unwrap()),
+							'f' => token_type = TokenType::FloatType(current_string[1..].parse().unwrap()),
+							_ => token_type = TokenType::Ident(current_string.clone()),
+						}
+					} else {
+						match current_string.as_str() {
+							"type" => token_type = TokenType::Type, 
+							"fn" => token_type = TokenType::Fn,
+							"let" => token_type = TokenType::Let,
+							"if" => token_type = TokenType::If,
+							"match" => token_type = TokenType::Match,
+							_ => token_type = TokenType::Ident(current_string.clone()), 
+						}
+					}
+				}
+				'.' => {
+					current_string.push(c);
+					while let Some(c @ '0'..='9') = next_char { push_c!(c); }
+					if current_string.len() == 1 {
+						token_type = TokenType::Dot;
+					} else {
+						token_type = TokenType::LitFloat(current_string.parse().unwrap());
 					}
 				}
 				'!' => token_type = TokenType::Bang,

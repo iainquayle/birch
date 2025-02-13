@@ -35,6 +35,7 @@ pub enum TokenType {
 	LArrow,
 	RPipe,
 	LPipe,
+	Dot,
 
 	FSlash,
 	BSlash,
@@ -117,6 +118,7 @@ impl fmt::Display for TokenType {
 			Self::LArrow => write!(f, "LArrow"),
 			Self::If => write!(f, "If"),
 			Self::Match => write!(f, "Match"),
+			Self::Dot => write!(f, "Dot"),
 		}
 	}
 }

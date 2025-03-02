@@ -13,6 +13,11 @@ value can be prim (including types), struct (including types), function,
 
 files will be a function node, as well as files.
 
+## asg
+
+does it make sense to turn the ast into a graph like with the lemnos ir?
+likely quicker navigation and analysis, but whether it is worth it.
+
 # ast generation 
 
 ## parsing

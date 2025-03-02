@@ -12,6 +12,12 @@ pub struct Ast {
 
 pub enum NodeType {
 	Function,	
-	
+	FunctionBody,
+	FunctionType,
+	Struct,
+	StructType,
+	EnumType,
+	Array,
+	ArrayType,
 }
 

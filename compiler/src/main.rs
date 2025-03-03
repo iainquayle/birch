@@ -1,5 +1,6 @@
 extern crate regex;
 extern crate once_cell;
+extern crate petgraph;
 
 pub mod ast;
 pub mod asg;
@@ -12,7 +13,7 @@ use lexer::Lexer;
 fn main() {
     println!("Hello, world!");
 
-	let src = "fn do {some: i32} -> i32 (let x = 5 x = some x)".to_string();
+	let src = "{some: i32} -> i32 = some -> (let x = 5 y = some x + y)".to_string();
 	println!("{}", src);
 	let lex = Lexer::new(src);
 	println!("{}", lex);

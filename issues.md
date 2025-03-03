@@ -28,3 +28,7 @@ issues with this are that, asg when using a array is harder to merge than.
 ast/asg is more specific to a written code syntax, and less to a runtime graph that generates code. 
 so, perhaps, make a first class ir system, that can be generated from code or built.
 this ir is opinionated in the fact that it still follows the functional no side effect rules of the language.
+
+on second thought, asg is likely the way to go, make it part of the std lib.
+example of why is calling functions, or if statements, asg will be close enough to minimal,
+but understable in the context of the language and calling already implemented functions that take structs etc.

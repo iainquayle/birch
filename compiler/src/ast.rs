@@ -1,17 +1,11 @@
 use token::Token;
-
+use petgraph::graph::{Graph, NodeIndex};
 
 //while this is nice, it may be useful to start from the beginning with a graph based syntax representation
 
-
-pub struct Assignment {
-	pub assignee: Assignee,
-	pub expression: Box<Expression>,
-}
-
 pub enum Assignee {
 	Identifier(Token),
-	Destructure(Vec<(Token, Option<Token>)>),
+	Destructure(Vec<(Token, Option<Token>)>), // (name, alias)
 }
 
 pub enum Value {
@@ -36,7 +30,12 @@ pub enum Value {
 	}
 }
 
-pub enum Type {
+/*
+ * was a question as to whether this should be explicitly in the ast, or added on some how
+ * that being said, runtime comp, when compiling a function it would be best to have it still
+ * around.
+ */
+pub enum Type { 
 	Struct {
 		fields: Vec<(Token, Type)>,
 	},
@@ -67,14 +66,15 @@ pub enum Expression {
 		catch: Option<Box<Expression>>,
 	},
 	Block {
-		assignments: Vec<Assignment>,
+		assignments: Vec<(Assignee, Expression)>,
 		return_expression: Box<Expression>,
 	},
 	Call {
-		identifier: Token,
+		function: Box<Expression>, //can technically be an anon function called right away 
 		argument: Box<Expression>,
 	},
-
+	Value(Box<Value>),
+	Identifier(Token),
 }
 
 

@@ -2,6 +2,7 @@ extern crate regex;
 extern crate once_cell;
 
 pub mod ast;
+pub mod asg;
 pub mod lexer;
 pub mod token;
 pub mod parser;

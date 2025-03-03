@@ -17,3 +17,14 @@ second options best ^
 
 ## compiler
 
+## metaprogramming
+
+want to make both compile time and runtime metaprogramming natural if possible. 
+all compiled code will be immutable unlike the reflection stupidity of other languages.
+ast/asg of the code should be available at runtime, that can be used in new asg,
+and a asg should be easily created at runtime.
+
+issues with this are that, asg when using a array is harder to merge than.
+ast/asg is more specific to a written code syntax, and less to a runtime graph that generates code. 
+so, perhaps, make a first class ir system, that can be generated from code or built.
+this ir is opinionated in the fact that it still follows the functional no side effect rules of the language.

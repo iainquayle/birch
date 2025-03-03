@@ -72,6 +72,27 @@ and destructuring is done by curly braces.
 aliasing for destructuring will be done using the as keyword.
 {a, b as c} = s
 
+### algebraic types
+
+#### instantiation
+
+(exact syntax is not yet decided)
+
+a = b: 1
+c = d: 2
+
+if returned from a branching expression such as if or match, the type will be inferred, as follows
+
+if
+| x == 1 -> b: 1
+| _ -> d: 2
+
+this will result in a type of 
+{ 
+    | b: i32
+    | d: i32 
+}
+
 ### arrays
 
 #### instantiation
@@ -143,8 +164,8 @@ Typeing will be optional where inference is possible.
 
 ### overloading
 
-not sure yet, maybe?
-they are not as confusing as in other languages due to the use of structs for arguments.
+no overloading, wont work with partial application of arguments.
+this includes no overloading of operators.
 
 ### definitions
 

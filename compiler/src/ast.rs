@@ -8,53 +8,6 @@ pub enum Assignee {
 	Destructure(Vec<(Token, Option<Token>)>), // (name, alias)
 }
 
-pub enum Value {
-	Type(Type),
-	Expression(Expression),
-	Function {
-		argument: Token,
-		expression: Box<Expression>,
-	},
-	Struct {
-		fields: Vec<(Token, Value)>,
-	},
-	Enum {
-		variant: Token,
-		value: Option<Box<Value>>,
-	},
-	Array {
-		values: Vec<Value>,
-	},
-	Primitive {
-
-	}
-}
-
-/*
- * was a question as to whether this should be explicitly in the ast, or added on some how
- * that being said, runtime comp, when compiling a function it would be best to have it still
- * around.
- */
-pub enum Type { 
-	Struct {
-		fields: Vec<(Token, Type)>,
-	},
-	Enum {
-		variants: Vec<(Token, Option<Type>)>,
-	},
-	Array {
-		elem_type: Box<Type>,
-		length: Option<usize>,
-	},
-	Function {
-		argument: Box<Type>,
-		return_type: Box<Type>,
-	},
-	Primitive {
-		kind: Token,
-	},
-}
-
 pub enum Expression {
 	If {
 		conditions: Vec<(Expression, Expression)>,
@@ -70,10 +23,48 @@ pub enum Expression {
 		return_expression: Box<Expression>,
 	},
 	Call {
-		function: Box<Expression>, //can technically be an anon function called right away 
+		function: Box<Expression>,
 		argument: Box<Expression>,
 	},
-	Value(Box<Value>),
+	ArrayAccess {
+		array: Box<Expression>,
+		index: Box<Expression>,
+	},
+	StructAccess {
+		structure: Box<Expression>,
+		field: Token,
+	},
+	StructInit {
+		fields: Vec<(Token, Expression)>,
+	},
+	EnumInit {
+		variant: Token, 
+		value: Option<Box<Expression>>,
+	},
+	FunctionInit {
+		argument: Token, //needs to change to allow for destructuring
+		expression: Box<Expression>,
+	},
+	ArrayInit {
+		values: Vec<Expression>,
+	},
+	PrimitiveInit(Token),
+	StructType{
+		fields: Vec<(Token, Expression)>,
+	},
+	EnumType{
+		variants: Vec<(Token, Option<Expression>)>,
+	},
+	ArrayType{
+		elem_type: Box<Expression>,
+		length: Option<usize>,
+	},
+	FunctionType{
+		argument: Box<Expression>,
+		return_type: Box<Expression>,
+	},
+	PrimitiveType(Token),
+	TypeType,
 	Identifier(Token),
 }
 

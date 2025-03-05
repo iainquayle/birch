@@ -2,18 +2,12 @@
 
 ## functions
 
+also will be good to add something like tail, or rec, or something to replace loops in a manner that doesnt require the user think of names for the function.
+as well, something like tail forcing tail recursion would be nice for explicit optimization.
+
 ## types
 
-while first class types would be cool and the structs can be handled, enums prove and issue
-if types were first class, they could merely be a struct, where all values are types, and the syntax stays the same.
-however, enums, would break that syntax.
-two options, either keep types in a seperate space and not usable at runtime which would be an issue for runtime comp
-or, perhaps the | x: y | z: w syntax returns a whole new type, which can obvioudly be then a member of a struct.
-second options best ^
-
 ## definition
-
-### generics
 
 ## compiler
 
@@ -32,3 +26,10 @@ this ir is opinionated in the fact that it still follows the functional no side 
 on second thought, asg is likely the way to go, make it part of the std lib.
 example of why is calling functions, or if statements, asg will be close enough to minimal,
 but understable in the context of the language and calling already implemented functions that take structs etc.
+
+need to decide how to denote compile time, and runtime compile.
+
+
+## misc
+
+remaining symbols are @, #, $ 

@@ -11,9 +11,8 @@ The main points of note are:
 - Algebraic types
 - Anonymous types
 - No modules, only functions
-- Currying support
+- Partial argument application 
 - Piping support
-- Opaque generics for interface like functionality
 
 The aim is for extreme simplicity, and massive maleability but safety with metaprogramming.
 
@@ -48,6 +47,10 @@ Data is always immutable, and is defined by structs and algebraic types.
 
 ### structs
 
+#### typing 
+
+{ a: u32, b: u32 }
+
 #### instantiation
 
 structs are instantiated by curly braces.
@@ -74,6 +77,10 @@ aliasing for destructuring will be done using the as keyword.
 
 ### algebraic types
 
+#### typing
+
+{ a: u32 | b: u32 }
+
 #### instantiation
 
 (exact syntax is not yet decided)
@@ -88,10 +95,15 @@ if
 | _ -> d: 2
 
 this will result in a type of 
-{ 
-    | b: i32
-    | d: i32 
-}
+{ b: i32 | d: i32 }
+
+#### access
+
+access is done by pattern matching.
+
+match a
+| b: x -> x
+| d: x -> x
 
 ### arrays
 
@@ -147,15 +159,6 @@ Short hand for an option algebraic will be supported with a ? after the type.
 type OptionInt = u32?
 Short hand for the result type will be supported with a ! between the return type and the error type. 
 
-### generics
-
-generics will be a thing, but the syntax and their construction in language is not yet decided.
-
-there will be an opaque type of generic, which will take the place of traits and typeclasses.
-these will allow for the passing of types, with some functions paired that can take in that type.
-once these types are passed in, their members will only be accessible by the functions, as only the functions will know what the type is.
-
-
 ## functions
 
 Functions only take one argument, and return one value.
@@ -169,17 +172,11 @@ this includes no overloading of operators.
 
 ### definitions
 
-fn add: {a: u32, b: u32} -> u32 = in ->
-    x = in.a + in.b
-    x
+fn add: {a: u32, b: u32} -> u32 = in => in.a + in.b
 or
-fn add: {a: u32, b: u32} -> u32 = {a, b} ->
-    x = a + b
-    x
+fn add: {a: u32, b: u32} -> u32 = {a, b} => a + b
 or
-fn add: u32 -> u32 -> u32 = a, b ->
-    x = a + b
-    x
+fn add: u32 -> u32 -> u32 = a => b => a + b 
 
 fn sum_and_prod: {a: u32, b: u32} -> {s: u32, p: u32} = {a, b} ->
     {s: a + b, p: a * b}
@@ -199,6 +196,15 @@ add <| 1, 2
 
 As shown, currying in the haskell sense is supported, but as well, partial struct currying will be supported.
 add_1 = add <| {a: 1}
+
+### partial application
+
+partial application is done by passing a struct with the fields that are to be partially applied.
+this will return a function that takes the remaining fields.
+
+obviously curried functions will work just like in haskell. 
+
+this mechanic will allow for interface mimicking.
 
 ## control flow
 
@@ -228,7 +234,12 @@ likely will be that, files and folders are merely treated as functions that take
 
 ## metaprogramming
 
-ideally, both compile time, and run time programming, in the native language will be supported.
+compile time run and runtime compile metaprogramming will be supported.
+
+compile time will be the method of choice for generics.
+runtime will offer alternate avenues for interfaces though partial application will be best for a number of reasons,
+and a massive benefit of runtime compile will be jit compilation targeting other compute devices such as gpus.
+
 
 ## side effects
 

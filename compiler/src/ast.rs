@@ -36,18 +36,20 @@ pub enum Expression {
 		field: Token,
 	},
 	StructInit {
+		spread: Option<Box<Expression>>,
 		fields: Vec<(Token, Expression)>,
 	},
 	EnumInit {
 		variant: Token, 
 		value: Option<Box<Expression>>,
 	},
+	ArrayInit {
+		spread: Option<Box<Expression>>,
+		values: Vec<Expression>,
+	},
 	FunctionInit {
 		argument: Token, //needs to change to allow for destructuring
 		expression: Box<Expression>,
-	},
-	ArrayInit {
-		values: Vec<Expression>,
 	},
 	PrimitiveInit(Token),
 	AsType {

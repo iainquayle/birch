@@ -16,51 +16,71 @@ The main points of note are:
 
 The aim is for extreme simplicity, and massive maleability but safety with metaprogramming.
 
-### first class ast
 
-I would like the language moving forward to be able to neturally be able to generate and work on its own code.
-The exact way in which this will be accomplished is not yet decided,
-but a possibility is to make ast nodes built in types, and have syntax specific to accessing the ast at any symbol in the code.
+## scoping 
 
-## expressions and scope
+Everything is an expression except for assignments. 
+Even blocks, which always culminate with an expression which is the return value.
 
-Expressions form the base of the language, they are any chunk of code in the same scope, and can be denoted by parantheses.
-Values can be declared in the expression, in any order, and there must be one return value at the end of the expression. 
-( 
-    x = 1
-    x
+(   x = 1
+    x + 1 
 )
 
-Variables can be shadowed in nested scopes, but they will not leak back out.
-(
-    x = 1
-    (
-        x = 2
+Variables in the same scope are declaration order independent, though style wise it is best to declare them in the order they are used unless.
+This may still be changed to be imperative, and just not allow for mutual recursion.
+
+(   x = 1 + y
+    y = 2
+    x + 1 
+)
+
+Variables in nested scopes are not visible in outer scopes, and variables in outer scopes are shadowed by variables in inner scopes.
+
+(   x = 1
+    (   x = 2
         x
     )
     x
 )
 
+## control flow
+
+### if
+
+If is an expression, and will return a value.
+Ifs have mutliple conditions, and always a default condition unless static analysis can make that unnecessary.
+if
+| x == 1 -> 1
+| x == 2 -> 2
+| _ -> 0
+
+the guard syntax may be changed to not have the _ ->, but it is not yet decided.
+alternatives are an else keyword, or just a single expression.
+
+### match
+
+Match is an expression, and will return a value.
+Match is exhaustive, and will return a value for every possible value of the input.
+match x
+| 1 -> 1
+| 2 -> 2
+| _ -> 0
+Ranges and ors are planned, but not yet implemented.
+
 ## data 
 
-Data is always immutable, and is defined by structs and algebraic types.
+Data is always immutable, and is defined by structs, arrays and algebraic types.
+
+Currently, data structures such as structs and algebraic types shouldnt need the braces to be parsed, but syntax wise it is not yet decided.
 
 ### structs
 
-#### typing 
-
-{ a: u32, b: u32 }
-
 #### instantiation
 
-structs are instantiated by curly braces.
-b = 2
-y = { b: 10, c: 3 }
-s = {
-    ..y,
-    a: 0,
-    b 
-}
+structs are instantiated with curly braces.
+a = 2
+x = { a, b: 3 }
+y = { ..x, a: 1 }
 Shown is the spread operator, which only one of is allowed, and which will copy fields but will be overridden by specified fields.
 b takes both the value and name of b.
 and a is a simple field.
@@ -71,46 +91,43 @@ single element access is done by dot notation.
 s.a
 and destructuring is done by curly braces.
 {a, b} = s
-
 aliasing for destructuring will be done using the as keyword.
 {a, b as c} = s
 
 ### algebraic types
 
-#### typing
-
-{ a: u32 | b: u32 }
-
 #### instantiation
 
 (exact syntax is not yet decided)
 
-a = b: 1
-c = d: 2
+a: 1
+b: 2
 
 if returned from a branching expression such as if or match, the type will be inferred, as follows
 
 if
 | x == 1 -> b: 1
-| _ -> d: 2
+| _ -> d: 1.0 
 
 this will result in a type of 
-{ b: i32 | d: i32 }
+b: i32 | d: f32 
 
 #### access
 
 access is done by pattern matching.
-
 match a
 | b: x -> x
 | d: x -> x
+or, for use in conditions, the is keyword will be used.
+if
+| a is b: x -> x
+...
 
 ### arrays
 
 #### instantiation
 
-arrays are instantiated by square brackets, and are fixed length for the moment.
-not sure whether vectors will be the mutable version, or if arrays will allow for resizing.
+arrays are instantiated by square brackets, and are fixed. 
 \[1, 2, 3\]
 or
 \[\]
@@ -127,6 +144,33 @@ And as to whether the syntax will be supported for vectors is also not yet decid
 
 access is done by square brackets.
 a\[0\]
+
+
+## types 
+
+Types are 
+
+defined types may be pass for anonymous types of the same structure, but not vice versa.
+
+### definitions
+
+Types can be an alias of any type, including, primitives, structs, arrays, algebraic types, and functions.
+Int = u32
+A = {
+    a: u32, 
+    b: \[u32; 3\]
+    e: {
+        f: u32 |
+        g: u32
+    },
+    h: u32 -> u32
+}
+
+Short hand for an option algebraic will be supported with a ? after the type.
+type OptionInt = u32?
+Short hand for the result type will be supported with a ! between the return type and the error type. 
+
+Struct type syntax may also be changed to {a: u32 & b: u32} to show that it is specifically a type.
 
 ### casting
 
@@ -146,30 +190,6 @@ c = {a: 1} as X
 is
 c: X = {a: 1}
 
-## types 
-
-Types are 
-
-defined types may be pass for anonymous types of the same structure, but not vice versa.
-
-### definitions
-
-Types can be an alias of any type, including, primitives, structs, arrays, algebraic types, and functions.
-type Int = u32
-type A = {
-    a: u32, 
-    b: \[u32; 3\]
-    e: {
-        f: u32 |
-        g: u32
-    },
-    h: u32 -> u32
-}
-
-Short hand for an option algebraic will be supported with a ? after the type.
-type OptionInt = u32?
-Short hand for the result type will be supported with a ! between the return type and the error type. 
-
 ## functions
 
 Functions only take one argument, and return one value.
@@ -183,18 +203,15 @@ this includes no overloading of operators.
 
 ### definitions
 
-fn add: {a: u32, b: u32} -> u32 = in => in.a + in.b
+add: {a: u32, b: u32} -> u32 = in => in.a + in.b
 or
-fn add: {a: u32, b: u32} -> u32 = {a, b} => a + b
+add: {a: u32, b: u32} -> u32 = {a, b} => a + b
 or
-fn add: u32 -> u32 -> u32 = a => b => a + b 
+add: u32 -> u32 -> u32 = a => b => a + b 
 
-fn sum_and_prod: {a: u32, b: u32} -> {s: u32, p: u32} = {a, b} ->
-    {s: a + b, p: a * b}
+The syntax for currying may change to the haskell type of all arguments seperated by commas.
 
 ### calling
-
-not sure yet...
 
 pipe operator with a struct,
 {a: 1, b: 2} |> add
@@ -204,9 +221,7 @@ and with curried functions
 as for a more common syntax, it may be somthing like a reverse pipe instead of parens.
 add <| {1, 2}
 add <| 1, 2
-
-As shown, currying in the haskell sense is supported, but as well, partial struct currying will be supported.
-add_1 = add <| {a: 1}
+or, like haskell where a function is just applied to the following expressions.
 
 ### partial application
 
@@ -216,27 +231,6 @@ this will return a function that takes the remaining fields.
 obviously curried functions will work just like in haskell. 
 
 this mechanic will allow for interface mimicking.
-
-## control flow
-
-if and match will be the only branching control structures. 
-values will be returned from them, into the next scope up, they will not return from the function they are in.
-
-(syntax is not final)
-
-if
-| x == 1 -> 1
-| _ -> 0
-
-match x
-| 1 -> 1
-| _ -> 0
-
-match can be used as an exhastive switch and pattern matching system.
-if will be specifically for boolean expressions, and will be evaluated in order.
-
-loops while done through recursion, may have a special rec keyword to help with simple tail recursion situations to reduce boilerplate.
-either that, or have an anon function that is called back to itself using perhaps self.
 
 ## organization 
 
@@ -251,6 +245,14 @@ compile time will be the method of choice for generics.
 runtime will offer alternate avenues for interfaces though partial application will be best for a number of reasons,
 and a massive benefit of runtime compile will be jit compilation targeting other compute devices such as gpus.
 
+### first class ast
+
+I would like the language moving forward to be able to neturally be able to generate and work on its own code.
+The exact way in which this will be accomplished is not yet decided,
+but a possibility is to make ast nodes built in types, and have syntax specific to accessing the ast at any symbol in the code.
+
+This does not mean that there will be runtime reflection, all code is immutable, but an ast can be constructed at compile time, or runtime,
+and used after it has been compiled.
 
 ## side effects
 

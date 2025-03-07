@@ -2,6 +2,9 @@
 
 ## tokens
 
+make new eat function in token class, will take iterator, return next token and iterator.
+just copy iterator before reading, return last iterator once done.
+
 one flat namespace of token types, dont worry about how the tokens will interact with each other such as in the case of them all being data.
 
 ## ast 

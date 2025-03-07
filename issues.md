@@ -15,6 +15,18 @@ if the type definition has not been made available, then the user wont be able t
 t: Type = { ... }
 { ... } as t |> f
 
+all that being said, the more rigid system is still not very natural compared to how the rest has fit together.
+duck typing is byfar the most natural.
+becuase really the type system is just checks that two types are equal, and checking equality obviously is based on values, not definitions.
+
+## init
+
+add spread operator, and add the singular spread to ast nodes that can use it.
+
+## expressions
+
+make it apparent that expressions dont need parens, except for blocks
+
 ## definition
 
 ## compiler
@@ -31,9 +43,19 @@ example of why is calling functions, or if statements, asg will be close enough 
 but understable in the context of the language and calling already implemented functions that take structs etc.
 
 
-
 need to decide how to denote compile time, and runtime compile.
+
+## control flow
+
+figure out binding, would be nice to in conditions and matches to be able to bind variables
 
 ## misc
 
 remaining symbols are @, #, $ 
+
+
+add tail keyword and specification, or rec keyword which would allow for recursing on anon functions.
+
+## tokens
+
+add :=, add tail, add rec 

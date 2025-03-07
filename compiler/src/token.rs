@@ -10,6 +10,7 @@ pub enum TokenType {
 	IntType(u8),
 	UIntType(u8),
 	FloatType(u8),
+	BoolType,
 
 	Ident(String),
 
@@ -18,6 +19,13 @@ pub enum TokenType {
 	Let,
 	If,
 	Match,
+	To,
+	As,
+	Is,
+	Tail,
+	Rec,
+	True,
+	False,
 
 	Assign,
 
@@ -63,8 +71,6 @@ pub enum TokenType {
 
 	Unknown,
 
-	To,
-	As,
 }
 impl fmt::Display for TokenType {
 	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -119,6 +125,13 @@ impl fmt::Display for TokenType {
 			Self::If => write!(f, "If"),
 			Self::Match => write!(f, "Match"),
 			Self::Dot => write!(f, "Dot"),
+			Self::Is => write!(f, "Is"),
+			Self::Tail => write!(f, "Tail"),
+			Self::Rec => write!(f, "Rec"),
+			Self::True => write!(f, "True"),
+			Self::False => write!(f, "False"),
+			Self::BoolType => write!(f, "BoolType"),
+
 		}
 	}
 }

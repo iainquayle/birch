@@ -67,6 +67,14 @@ impl Lexer {
 							"let" => token_type = TokenType::Let,
 							"if" => token_type = TokenType::If,
 							"match" => token_type = TokenType::Match,
+							"as" => token_type = TokenType::As,
+							"to" => token_type = TokenType::To,
+							"is" => token_type = TokenType::Is,
+							"true" => token_type = TokenType::True,
+							"false" => token_type = TokenType::False,
+							"tail" => token_type = TokenType::Tail,
+							"rec" => token_type = TokenType::Rec,
+							"bool" => token_type = TokenType::BoolType,
 							_ => token_type = TokenType::Ident(current_string.clone()), 
 						}
 					}

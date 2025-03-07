@@ -9,6 +9,7 @@ pub enum Assignee {
 }
 
 pub enum Expression {
+	Identifier(Token),
 	If {
 		conditions: Vec<(Expression, Expression)>,
 		catch: Option<Box<Expression>>,
@@ -49,7 +50,15 @@ pub enum Expression {
 		values: Vec<Expression>,
 	},
 	PrimitiveInit(Token),
-	StructType{
+	AsType {
+		expression: Box<Expression>,
+		reinterpret_type: Box<Expression>,
+	},
+	ToType {
+		expression: Box<Expression>,
+		cast_type: Box<Expression>,
+	},
+	StructType{ 
 		fields: Vec<(Token, Expression)>,
 	},
 	EnumType{
@@ -64,8 +73,8 @@ pub enum Expression {
 		return_type: Box<Expression>,
 	},
 	PrimitiveType(Token),
-	TypeType,
-	Identifier(Token),
 }
+
+
 
 

@@ -31,7 +31,7 @@ Values can be declared in the expression, in any order, and there must be one re
     x
 )
 
-Variables can be overwritten in nested scopes, but they will not leak back out.
+Variables can be shadowed in nested scopes, but they will not leak back out.
 (
     x = 1
     (
@@ -134,6 +134,17 @@ casting of basic types will use the to keyword.
 (how this will work exactly will be decided by decisions on function overloading)
 
 as well, casting will be explicit.
+
+### reinterpretation
+
+reinterpretation will be used in the case of passing anonymous types to defined types, and will be done with the as keyword.
+for it to work, the underlying types must be compatible, and the type being interpretted as must be in scope.
+thus by the underlying compatibility, it cannot be used to interpret a i32 as a f32, but:
+X = {a: u32}
+
+c = {a: 1} as X
+is
+c: X = {a: 1}
 
 ## types 
 

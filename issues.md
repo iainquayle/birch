@@ -7,6 +7,14 @@ as well, something like tail forcing tail recursion would be nice for explicit o
 
 ## types
 
+while duck typing will be most natural, pushing towards more restrictive definition based typing can help with restrictions.
+
+defined types may only have one f their own types passed in, in the case of anon types, this will use the as keyword to cast it.
+if the type definition has not been made available, then the user wont be able to make the type without using some other function that returns data of that type.
+
+t: Type = { ... }
+{ ... } as t |> f
+
 ## definition
 
 ## compiler
@@ -18,17 +26,13 @@ all compiled code will be immutable unlike the reflection stupidity of other lan
 ast/asg of the code should be available at runtime, that can be used in new asg,
 and a asg should be easily created at runtime.
 
-issues with this are that, asg when using a array is harder to merge than.
-ast/asg is more specific to a written code syntax, and less to a runtime graph that generates code. 
-so, perhaps, make a first class ir system, that can be generated from code or built.
-this ir is opinionated in the fact that it still follows the functional no side effect rules of the language.
-
 on second thought, asg is likely the way to go, make it part of the std lib.
 example of why is calling functions, or if statements, asg will be close enough to minimal,
 but understable in the context of the language and calling already implemented functions that take structs etc.
 
-need to decide how to denote compile time, and runtime compile.
 
+
+need to decide how to denote compile time, and runtime compile.
 
 ## misc
 

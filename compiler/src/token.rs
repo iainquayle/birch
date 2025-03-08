@@ -1,4 +1,4 @@
-use std::fmt;
+use std::{fmt, str::Chars};
 
 pub enum TokenType {
 	Whitespace,
@@ -70,6 +70,9 @@ pub enum TokenType {
 	Xor,
 
 	Unknown,
+
+}
+impl Token {
 
 }
 impl fmt::Display for TokenType {
@@ -176,6 +179,18 @@ impl Token {
 	pub fn new(token_type: TokenType, position: Position) -> Self {
 		Self { token_type, position}
 	}
+	/* maybe do this later, or not
+	pub fn eat(mut string_iter: Chars, previous_position: Position) -> (Self, Chars) {
+		let mut current_position = previous_position.clone();
+		let mut previous_iter = string_iter.clone();
+		let mut next_char: Option<char> = string_iter.next();
+		let mut current_string = String::new();
+		match next_char {
+			_ => {}
+		}
+		return (Self::new(TokenType::Unknown, Position::new(0, 0, 0)), previous_iter);
+	}
+	*/
 }
 impl fmt::Display for Token {
 	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

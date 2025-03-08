@@ -2,6 +2,7 @@ use std::fmt;
 
 use token::{Token, TokenType, Position};
 
+
 pub struct Lexer {
 	source: String,
 	tokens: Vec<Token>,

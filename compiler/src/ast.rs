@@ -1,3 +1,4 @@
+use std::fmt;
 use token::Token;
 use petgraph::graph::{Graph, NodeIndex};
 
@@ -77,6 +78,11 @@ pub enum Expression {
 	PrimitiveType(Token),
 }
 
-
-
-
+impl fmt::Display for Expression {
+	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+		match self {
+			Expression::Identifier(token) => write!(f, "{}", token),
+			_ => write!(f, "Expression")
+		}
+	}
+}

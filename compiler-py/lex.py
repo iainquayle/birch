@@ -3,13 +3,29 @@ from dataclasses import dataclass
 from typing import Iterator
 from copy import copy
 
+class Lexer:
+	def __init__(self, string: str):
+		self.string = string
+		self.string_iter = iter(string)
+		self.position = TokenPosition(0, 0, 0)
+	def __iter__(self):
+		return self
+	def __next__(self) -> Token:
+		if (token := Token.eat(self.string_iter, self.position)) is None:
+			raise StopIteration
+		self.position = token[0].position
+		self.string_iter = token[1]
+		return token[0]
+
 class Token:
 	def __init__(self, token_type: TokenType, position: TokenPosition): 
 		self.token_type: TokenType = token_type
 		self.position: TokenPosition = position
 	@staticmethod
-	def eat(string_iter: Iterator[str], prev_position: TokenPosition) -> tuple[Token, Iterator[str]] | None:
+	def eat(string_iter: Iterator[str], prev_position: TokenPosition | None = None) -> tuple[Token, Iterator[str]] | None:
 		c = next(string_iter, None)
+		if prev_position is None:
+			prev_position = TokenPosition(0, 0, 0)
 		out_string_iter = copy(string_iter)
 		position = copy(prev_position)
 		if c is None:
@@ -36,13 +52,138 @@ class Token:
 						position.add(c)
 						cumulative += c
 					return Token(LitFloat(float(cumulative)), position), out_string_iter
+				else:
+					return Token(LitInt(int(cumulative)), position), out_string_iter
 			case x if ('a' <= x <= 'z' or 'A' <= x <= 'Z' or x == '_'):
+				number_count = 0
 				while (c := next(string_iter, None)) is not None and ('a' <= c <= 'z' or 'A' <= c <= 'Z' or c == '_' or c.isdigit()):
 					out_string_iter = copy(string_iter)
 					position.add(c)
 					cumulative += c
+					if c.isdigit():
+						number_count += 1
+				if len(cumulative) - number_count == 1 and number_count > 0:
+					match cumulative[0]:
+						case 'i':
+							return Token(IntType(int(cumulative[1:])), position), out_string_iter
+						case 'u':
+							return Token(UIntType(int(cumulative[1:])), position), out_string_iter
+						case 'f':
+							return Token(FloatType(int(cumulative[1:])), position), out_string_iter
+						case _:
+							return Token(Ident(cumulative), position), out_string_iter
+				else:
+					match cumulative:
+						case 'type':
+							return Token(TypeType(), position), out_string_iter
+						case 'fn':
+							return Token(Fn(), position), out_string_iter
+						case 'let':
+							return Token(Let(), position), out_string_iter
+						case 'if':
+							return Token(If(), position), out_string_iter
+						case 'match':
+							return Token(Match(), position), out_string_iter
+						case 'to':
+							return Token(To(), position), out_string_iter
+						case 'as':
+							return Token(As(), position), out_string_iter
+						case 'is':
+							return Token(Is(), position), out_string_iter
+						case 'tail':
+							return Token(Tail(), position), out_string_iter
+						case 'rec':
+							return Token(Rec(), position), out_string_iter
+						case 'bool':
+							return Token(BoolType(), position), out_string_iter
+						case 'true':
+							return Token(LitBool(True), position), out_string_iter
+						case 'false':
+							return Token(LitBool(False), position), out_string_iter
+						case '_':
+							return Token(Underscore(), position), out_string_iter
+						case _:
+							return Token(Ident(cumulative), position), out_string_iter
+			case '(':
+				return Token(LParen(), position), out_string_iter
+			case ')':
+				return Token(RParen(), position), out_string_iter
+			case '[':
+				return Token(LSquare(), position), out_string_iter
+			case ']':
+				return Token(RSquare(), position), out_string_iter
+			case '{':
+				return Token(LCurly(), position), out_string_iter
+			case '}':
+				return Token(RCurly(), position), out_string_iter
+			case ',':
+				return Token(Comma(), position), out_string_iter
+			case ':':
+				return Token(Colon(), position), out_string_iter
+			case ';':
+				return Token(Semi(), position), out_string_iter
+			case '.': #could move this to where numbers are parsed 
+				return Token(Dot(), position), out_string_iter
+			case '+':
+				return Token(Plus(), position), out_string_iter
+			case '-':
+				if next(string_iter, None) == '>':
+					return Token(RArrow(), position), string_iter
+				return Token(Minus(), position), out_string_iter
+			case '*':
+				return Token(Star(), position), out_string_iter	
+			case '/':
+				return Token(FSlash(), position), out_string_iter
+			case '\\':
+				return Token(BSlash(), position), out_string_iter
+			case '|':
+				next_char = next(string_iter, None)
+				if next_char == '|':
+					return Token(Or(), position), string_iter
+				elif next_char == '>':
+					return Token(RPoint(), position), string_iter
+				return Token(Pipe(), position), out_string_iter
+			case '&':
+				if next(string_iter, None) == '&':
+					return Token(And(), position), string_iter 
+				return Token(Amp(), position), out_string_iter
+			case '^':
+				return Token(Caret(), position), out_string_iter
+			case '=':
+				next_char = next(string_iter, None)
+				if next_char == '>':
+					return Token(RFatArrow(), position), string_iter
+				elif next_char == '=':
+					return Token(Eq(), position), string_iter
+				return Token(Eq(), position), out_string_iter
+			case '!':
+				if next(string_iter, None) == '=':
+					return Token(Ne(), position), string_iter
+				return Token(Bang(), position), out_string_iter
+			case '<':
+				next_char = next(string_iter, None)
+				if next_char == '=':
+					return Token(Le(), position), string_iter
+				elif next_char == '-':
+					return Token(LArrow(), position), string_iter
+				elif next_char == '|':
+					return Token(LPoint(), position), string_iter
+				return Token(Lt(), position), out_string_iter
+			case '>':
+				if next(string_iter, None) == '=':
+					return Token(Ge(), position), string_iter
+				return Token(Gt(), position), out_string_iter
+			case '%':
+				return Token(Mod(), position), out_string_iter
+			case '?':
+				return Token(QMark(), position), out_string_iter
 			case _:
-				pass
+				return Token(Unknown(), position), out_string_iter
+	def __str__(self):
+		return f"{self.token_type}"
+	def __repr__(self):
+		return f"{self.token_type} at {self.position.line}:{self.position.column}"
+
 					
 
 
@@ -50,7 +191,7 @@ type TokenType = (
 	Whitespace |
 	LitInt | LitFloat | LitBool |
 	TypeType | IntType | UIntType | FloatType | BoolType |
-	Ident | Type | Fn | Let | If | Match | To | As | Is | Tail | Rec |
+	Ident | Type | Fn | Let | If | Match | To | As | Is | Tail | Rec | Underscore |
 	Assign |
 	LParen | RParen | LSquare | RSquare | LCurly | RCurly |
 	Comma | Colon | Semi | RArrow | LArrow | RPoint | LPoint | RFatArrow | Dot |
@@ -124,7 +265,9 @@ class Tail:
 @dataclass
 class Rec:
 	pass
-
+@dataclass
+class Underscore:
+	pass
 
 @dataclass
 class Assign:

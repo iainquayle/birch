@@ -9,13 +9,18 @@ class Lexer:
 		self.string_iter = iter(string)
 		self.position = TokenPosition(0, 0, 0)
 	def __iter__(self):
-		return self
+		return Lexer(self.string)
 	def __next__(self) -> Token:
 		if (token := Token.eat(self.string_iter, self.position)) is None:
 			raise StopIteration
 		self.position = token[0].position
 		self.string_iter = token[1]
 		return token[0]
+	def __copy__(self):
+		lexer = Lexer(self.string)
+		lexer.string_iter = copy(self.string_iter)
+		lexer.position = copy(self.position)
+		return lexer 
 
 class Token:
 	def __init__(self, token_type: TokenType, position: TokenPosition): 
@@ -123,6 +128,8 @@ class Token:
 			case ';':
 				return Token(Semi(), position), out_string_iter
 			case '.': #could move this to where numbers are parsed 
+				if next(string_iter, None) == '.':
+					return Token(Spread(), position), string_iter
 				return Token(Dot(), position), out_string_iter
 			case '+':
 				return Token(Plus(), position), out_string_iter
@@ -192,7 +199,7 @@ type TokenType = (
 	LitInt | LitFloat | LitBool |
 	TypeType | IntType | UIntType | FloatType | BoolType |
 	Ident | Type | Fn | Let | If | Match | To | As | Is | Tail | Rec | Underscore |
-	Assign |
+	Assign | Spread |
 	LParen | RParen | LSquare | RSquare | LCurly | RCurly |
 	Comma | Colon | Semi | RArrow | LArrow | RPoint | LPoint | RFatArrow | Dot |
 	FSlash | BSlash | Pipe | Amp | Caret |
@@ -271,6 +278,9 @@ class Underscore:
 
 @dataclass
 class Assign:
+	pass
+@dataclass
+class Spread:
 	pass
 
 @dataclass

@@ -207,7 +207,7 @@ add: {a: u32, b: u32} -> u32 = in => in.a + in.b
 or
 add: {a: u32, b: u32} -> u32 = {a, b} => a + b
 or
-add: u32 -> u32 -> u32 = a => b => a + b 
+add: u32 -> u32 -> u32 = a, b => a + b 
 
 The syntax for currying may change to the haskell type of all arguments seperated by commas.
 
@@ -230,7 +230,7 @@ this will return a function that takes the remaining fields.
 
 obviously curried functions will work just like in haskell. 
 
-this mechanic will allow for interface mimicking.
+this mechanic along with the regular currying will allow for interface mimicking.
 
 ## organization 
 

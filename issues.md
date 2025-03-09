@@ -1,5 +1,15 @@
 # issues
 
+## blocks
+
+it could be that blocks are imperative, and in the case of wanting mutual recursion,
+follow the ocaml precedent of using the and keyword, or something that opts into mutual recursion.
+this would also possibly if done correctly would prevent the issue of people trying to use mutual recursion on values. 
+
+the one thing this will make worse if code organization, as everything will have to be in order.
+
+another thing it would help with would be the ordering of io operations, as it would set a clear order of operations.
+
 ## functions
 
 also will be good to add something like tail, or rec, or something to replace loops in a manner that doesnt require the user think of names for the function.
@@ -22,6 +32,21 @@ becuase really the type system is just checks that two types are equal, and chec
 ## init
 
 add spread operator, and add the singular spread to ast nodes that can use it.
+
+the syntax for the init of a struct needs to differ from the syntax to make a struct type.
+go has typing like: 
+{ 
+    a int
+    b int 
+}
+and the intit is like c
+
+haskell has typing like:
+data T = T { a :: Int, b :: Int }
+and the init is like T { a = 1, b = 2 }
+
+kind of leaning towards haskell init and rust/python type definition, as it fits the rest of the language better.
+can maybe even disgard the commas in a number of places, though that may make inline syntax more confusing.
 
 ## expressions
 

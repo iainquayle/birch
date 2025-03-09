@@ -6,21 +6,14 @@ from copy import copy
 class Lexer:
 	def __init__(self, string: str):
 		self.string = string
-		self.string_iter = iter(string)
-		self.position = TokenPosition(0, 0, 0)
-	def __iter__(self):
-		return Lexer(self.string)
-	def __next__(self) -> Token:
-		if (token := Token.eat(self.string_iter, self.position)) is None:
-			raise StopIteration
-		self.position = token[0].position
-		self.string_iter = token[1]
-		return token[0]
-	def __copy__(self):
-		lexer = Lexer(self.string)
-		lexer.string_iter = copy(self.string_iter)
-		lexer.position = copy(self.position)
-		return lexer 
+		self.tokens: list[Token] = []
+		string_iter = iter(string)
+		while (result := Token.eat(string_iter)) is not None:
+			token, string_iter = result
+			if token.token_type != Whitespace():
+				self.tokens.append(token)
+	def __iter__(self) -> Iterator[Token]:
+		return iter(self.tokens) 
 
 class Token:
 	def __init__(self, token_type: TokenType, position: TokenPosition): 

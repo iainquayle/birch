@@ -5,26 +5,43 @@ from dataclasses import dataclass
 
 from lex import * 
 
-def parse(tokens: Lexer) -> Expression: #returns the root
-	pass
-
-
 class Expression(Abstract):
+	@staticmethod
 	@abstractmethod
 	def eat(tokens: Iterator[Token]) -> tuple[Expression, Iterator[Token]] | None:
 		pass
 
+#perhaps break stuff up into comptime, and runtime expressions, better typing then
 
 @dataclass
-class Identifier:
+class Identifier(Expression):
 	ident: Token 
+	@staticmethod
+	def eat(tokens: Iterator[Token]) -> tuple[Expression, Iterator[Token]] | None:
+		if (token := next(tokens, None)) is None:
+			return None
+		if isinstance(token, Ident):
+			return Identifier(token), tokens
+		return None
 @dataclass
-class Literal:
+class Literal(Expression):
 	value: Token
+	@staticmethod
+	def eat(tokens: Iterator[Token]) -> tuple[Expression, Iterator[Token]] | None:
+		if (token := next(tokens, None)) is None:
+			return None
+		if isinstance(token, LitBool) or isinstance(token, LitFloat) or isinstance(token, LitInt):
+			return Literal(token), tokens
+		return None
 @dataclass
-class Block:
-	assignments: list[tuple[Token, Expression]]
+class Block(Expression):
+	assignments: list[tuple[Token, Expression | None, Expression]] # assignee, type, value
 	return_expression: Expression
+	@staticmethod
+	def eat(tokens: Iterator[Token]) -> tuple[Expression, Iterator[Token]] | None:
+		if (token := next(tokens, None)) is None:
+			return None
+		pass
 @dataclass
 class Conditional:
 	conditions: list[tuple[Expression, Expression]]
@@ -32,7 +49,7 @@ class Conditional:
 @dataclass
 class PatternMatch:
 	expression: Expression
-	cases: list[tuple[Expression, Expression]] # need to figure out if the match shouldnt an expr?
+	cases: list[tuple[Expression, Expression]]
 	catch_all: Expression
 @dataclass
 class Call:

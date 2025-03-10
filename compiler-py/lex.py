@@ -12,8 +12,27 @@ class Lexer:
 			token, string_iter = result
 			if token.token_type != Whitespace():
 				self.tokens.append(token)
-	def __iter__(self) -> Iterator[Token]:
-		return iter(self.tokens) 
+	def __iter__(self) -> TokenIter:
+		return TokenIter(self.tokens) 
+
+class TokenIter:
+	def __init__(self, tokens: list[Token]):
+		self.tokens: list[Token] = tokens
+		self.index: int = 0
+	def __len__(self):
+		return len(self.tokens) - self.index
+	def __iter__(self):
+		return self
+	def __next__(self) -> Token:
+		if self.index < len(self.tokens):
+			token = self.tokens[self.index]
+			self.index += 1
+			return token
+		raise StopIteration
+	def __copy__(self):
+		new_iter = TokenIter(self.tokens)
+		new_iter.index = self.index
+		return new_iter 
 
 class Token:
 	def __init__(self, token_type: TokenType, position: TokenPosition): 

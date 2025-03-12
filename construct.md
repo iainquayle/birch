@@ -374,7 +374,7 @@ function:
 
 call:
 - expression **<|** expression_list 
-- expression_list **|>** expression
+- expression_list **|>** expression 
 
 if:
 - **if** condition_list **| _ =>** expression
@@ -401,7 +401,7 @@ statement_list:
 
 statement:
 - assignee **=** expression
-- assignee **:** type **=** expression
+- assignee **:** expression **=** expression
 
 assignee:
 - identifier
@@ -415,6 +415,7 @@ struct_init:
 - **{** struct_list **}**
 
 struct_init_list:
+- identifier
 - identifier **=** expression
 - identifier **=** expression struct_list
 
@@ -428,10 +429,41 @@ expression_list:
 - expression
 - expression **,** expression_list
 
+comptime:
+- **comptime** expression
+
 function_type:
-- type **->** type
+- expression **->** expression 
 
+struct_type:
+- **{** struct_type_list **}**
 
+struct_type_list:
+- identifier **:** expression
+- identifier **:** expression struct_type_list
+
+enum_type:
+- enum_type_variant **|** enum_type_variant 
+- enum_type_variant **|** enum_type
+
+enum_type_variant:
+- identifier: expression
+- identifier
+
+array_type:
+- **\[** expression **;** expression **\]**
+
+option_type:
+- expression **?**
+
+result_type:
+- expression **!** expression
 
 expression:
-- something
+- identifier
+- primitive_literal
+- primitive_type
+- anything above that doesnt have to do with a list, or a statement
+
+Too lazy to remove left recursion.
+May still be some mistakes, or a couple ambiguities, and primary expressions are missing, but should be mostly correct.

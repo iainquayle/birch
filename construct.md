@@ -22,26 +22,36 @@ The aim is for extreme simplicity, and massive maleability but safety with metap
 Everything is an expression except for assignments. 
 Even blocks, which always culminate with an expression which is the return value.
 
-(   x = 1
-    x + 1 
+```
+_ = (
+    x = 1
+    x + 1
 )
+```
 
 Variables in the same scope are declaration order independent, though style wise it is best to declare them in the order they are used unless.
 This may still be changed to be imperative, and just not allow for mutual recursion.
 
-(   x = 1 + y
+```
+_ = (
+    x = 1 + y
     y = 2
-    x + 1 
+    x + 1
 )
+```
 
 Variables in nested scopes are not visible in outer scopes, and variables in outer scopes are shadowed by variables in inner scopes.
 
-(   x = 1
-    (   x = 2
+```
+_ = (
+    x = 1
+    _ = (
+        x = 2
         x
     )
     x
 )
+```
 
 ## control flow
 
@@ -49,10 +59,13 @@ Variables in nested scopes are not visible in outer scopes, and variables in out
 
 If is an expression, and will return a value.
 Ifs have mutliple conditions, and always a default condition unless static analysis can make that unnecessary.
+
+```
 if
 | x == 1 -> 1
 | x == 2 -> 2
 | _ -> 0
+```
 
 the guard syntax may be changed to not have the _ ->, but it is not yet decided.
 alternatives are an else keyword, or just a single expression.
@@ -61,10 +74,14 @@ alternatives are an else keyword, or just a single expression.
 
 Match is an expression, and will return a value.
 Match is exhaustive, and will return a value for every possible value of the input.
+
+```
 match x
 | 1 -> 1
 | 2 -> 2
 | _ -> 0
+```
+
 Ranges and ors are planned, but not yet implemented.
 
 ## data 
@@ -78,9 +95,13 @@ Currently, data structures such as structs and algebraic types shouldnt need the
 #### instantiation
 
 structs are instantiated with curly braces.
+
+```
 a = 2
 x = { a, b: 3 }
 y = { ..x, a: 1 }
+```
+
 Shown is the spread operator, which only one of is allowed, and which will copy fields but will be overridden by specified fields.
 b takes both the value and name of b.
 and a is a simple field.
@@ -88,11 +109,22 @@ and a is a simple field.
 #### access
 
 single element access is done by dot notation.
+
+```
 s.a
+```
+
 and destructuring is done by curly braces.
+
+```
 {a, b} = s
+```
+
 aliasing for destructuring will be done using the as keyword.
+
+```
 {a, b as c} = s
+```
 
 ### algebraic types
 
@@ -100,42 +132,65 @@ aliasing for destructuring will be done using the as keyword.
 
 (exact syntax is not yet decided)
 
+```
 a: 1
 b: 2
+```
 
 if returned from a branching expression such as if or match, the type will be inferred, as follows
 
+```
 if
 | x == 1 -> b: 1
-| _ -> d: 1.0 
+| _ -> d: 1.0
+```
 
 this will result in a type of 
+
+```
 b: i32 | d: f32 
+```
 
 #### access
 
 access is done by pattern matching.
+
+```
 match a
 | b: x -> x
 | d: x -> x
+```
+
 or, for use in conditions, the is keyword will be used.
+
+```
 if
 | a is b: x -> x
 ...
+```
 
 ### arrays
 
 #### instantiation
 
 arrays are instantiated by square brackets, and are fixed. 
+
+```
 \[1, 2, 3\]
-or
-\[\]
+```
 
 and to get an updated array, the spread operator can be used.
+
+```
 \[..a, i: 0, j: 1\]
+```
+
 or (not sure yet, would like to diffeerniate between arrays and structs, but also the same is nice)
+
+```
 \[..a, i = 0, j = 1\]
+```
+
 Not yet sure if attempting to 
 
 And as to whether the syntax will be supported for vectors is also not yet decided.
@@ -143,8 +198,10 @@ And as to whether the syntax will be supported for vectors is also not yet decid
 #### access
 
 access is done by square brackets.
-a\[0\]
 
+```
+a\[0\]
+```
 
 ## types 
 
@@ -155,9 +212,11 @@ defined types may be pass for anonymous types of the same structure, but not vic
 ### definitions
 
 Types can be an alias of any type, including, primitives, structs, arrays, algebraic types, and functions.
+
+```
 Int = u32
 A = {
-    a: u32, 
+    a: u32,
     b: \[u32; 3\]
     e: {
         f: u32 |
@@ -165,12 +224,16 @@ A = {
     },
     h: u32 -> u32
 }
+```
 
 Short hand for an option algebraic will be supported with a ? after the type.
+
 type OptionInt = u32?
+
 Short hand for the result type will be supported with a ! between the return type and the error type. 
 
 Struct type syntax may also be changed to {a: u32 & b: u32} to show that it is specifically a type.
+Or struct initialization may be changed to {a = 1, b = 2} to show that it is specifically a struct.
 
 ### casting
 
@@ -184,11 +247,20 @@ as well, casting will be explicit.
 reinterpretation will be used in the case of passing anonymous types to defined types, and will be done with the as keyword.
 for it to work, the underlying types must be compatible, and the type being interpretted as must be in scope.
 thus by the underlying compatibility, it cannot be used to interpret a i32 as a f32, but:
-X = {a: u32}
 
+```
+X = {a: u32}
+```
+
+```
 c = {a: 1} as X
+```
+
 is
+
+```
 c: X = {a: 1}
+```
 
 ## functions
 
@@ -198,29 +270,50 @@ Typeing will be optional where inference is possible.
 
 ### overloading
 
-no overloading, wont work with partial application of arguments.
-this includes no overloading of operators.
+No overloading, wont work with partial application of arguments.
+This includes no overloading of operators.
 
 ### definitions
 
+```
 add: {a: u32, b: u32} -> u32 = in => in.a + in.b
+```
+
 or
+
+```
 add: {a: u32, b: u32} -> u32 = {a, b} => a + b
+```
+
 or
+
+```
 add: u32 -> u32 -> u32 = a, b => a + b 
+```
 
 The syntax for currying may change to the haskell type of all arguments seperated by commas.
 
 ### calling
 
 pipe operator with a struct,
+
+```
 {a: 1, b: 2} |> add
+```
+
 and with curried functions
+
+```
 1, 2 |> add
+```
 
 as for a more common syntax, it may be somthing like a reverse pipe instead of parens.
+
+```
 add <| {1, 2}
 add <| 1, 2
+```
+
 or, like haskell where a function is just applied to the following expressions.
 
 ### partial application
@@ -271,3 +364,8 @@ for function inputs, structs should be used when the order matters, or there is 
 otherwise, currying may be used.
 
 variable names are preferred to be descriptive, and not heavily abbreviated unless the abbreviation is common.
+
+## specification
+
+expression:
+    something

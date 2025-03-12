@@ -228,7 +228,9 @@ A = {
 
 Short hand for an option algebraic will be supported with a ? after the type.
 
+```
 type OptionInt = u32?
+```
 
 Short hand for the result type will be supported with a ! between the return type and the error type. 
 
@@ -367,5 +369,69 @@ variable names are preferred to be descriptive, and not heavily abbreviated unle
 
 ## specification
 
+function:
+- assignee_list **=>** expression 
+
+call:
+- expression **<|** expression_list 
+- expression_list **|>** expression
+
+if:
+- **if** condition_list **| _ =>** expression
+
+condition_list:
+- **|** condition **=>** expression
+- **|** condition **=>** expression condition_list
+
+match:
+- **match** expression match_list
+
+match_list:
+- **|** pattern **=>** expression
+- **| _ =>** expression
+- **|** pattern **=>** expression match_list
+
+block:
+- statement_list expression
+- **(** expression **)**
+
+statement_list:
+- statement  
+- statement statement_list
+
+statement:
+- assignee **=** expression
+- assignee **:** type **=** expression
+
+assignee:
+- identifier
+- **{** assignee_list **}** 
+
+assignee_list:
+- assignee
+- assignee **,** assignee_list
+
+struct_init:
+- **{** struct_list **}**
+
+struct_init_list:
+- identifier **=** expression
+- identifier **=** expression struct_list
+
+enum_init:
+- identifier **:** expression 
+
+array_init:
+- **\[** expression_list **\]**
+
+expression_list:
+- expression
+- expression **,** expression_list
+
+function_type:
+- type **->** type
+
+
+
 expression:
-    something
+- something

@@ -17,6 +17,12 @@ as well, something like tail forcing tail recursion would be nice for explicit o
 
 ## types
 
+regarding composite types, may want to move back to original ideas
+with enum type being {ident type | ident type | ...}
+and then for enum init, { ident expr }
+gives a somewhat unified feel to composite types.
+
+
 while duck typing will be most natural, pushing towards more restrictive definition based typing can help with restrictions.
 
 defined types may only have one f their own types passed in, in the case of anon types, this will use the as keyword to cast it.

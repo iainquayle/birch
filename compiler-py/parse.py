@@ -21,6 +21,7 @@ class Parsed:
 	tokens: TokenIter
 
 
+
 @dataclass
 class Identifier(Expression):
 	ident: Token 
@@ -51,6 +52,10 @@ class Block(Expression):
 	def eat(tokens: TokenIter) -> Result:
 		while (token := next(tokens, None)) is not None:
 			pass
+# statements with types may be nearly ambigous to parse with the current instantiation syntax of enums
+# as it is currently "assign_ident: type", and "variant_ident: expression"
+# the one saving fact is that a full statement is "ident: type = expression", and the equal should differentiate it.
+# the other option is to instantiate enum variants in a syntax like "ident expression"
 @dataclass
 class Conditional(Expression):
 	conditions: list[tuple[Expression, Expression]]

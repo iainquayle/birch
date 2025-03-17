@@ -17,42 +17,47 @@ as well, something like tail forcing tail recursion would be nice for explicit o
 
 ## types
 
-regarding composite types, may want to move back to original ideas
-with enum type being {ident type | ident type | ...}
-and then for enum init, { ident expr }
-gives a somewhat unified feel to composite types.
+### complex type syntax
 
+move towards a type system with constructors and anon complex types
+ie, Type {...} or _{...}
+decide on whether enums will can use predefined types, or if they will need to have their own types and constructors defined.
+ie, {PredefType | ...} or {Type {} | ...}
+allowing predef types would require a blank type, to show the difference between a predef type, and an inline type.
+ie { Type _ | ... } vs { Type | ... }
 
-while duck typing will be most natural, pushing towards more restrictive definition based typing can help with restrictions.
+also all complex types will now be wrapped in curls, only possible issue may be with enum variant inits, but that may not be an issue.
 
-defined types may only have one f their own types passed in, in the case of anon types, this will use the as keyword to cast it.
-if the type definition has not been made available, then the user wont be able to make the type without using some other function that returns data of that type.
+### expression restrictions
 
-t: Type = { ... }
-{ ... } as t |> f
+only expressions that could be restricted from type defs would be bin ops, all others need to be allowed.
+dont want to have to write comptime infront of everything, and making a func that takes in a func is ambiguous.
+t -> t -> t will be parsed as t -> (t -> t), and not (t -> t) -> t, thus need to allow for expressions to define the latter.
 
-all that being said, the more rigid system is still not very natural compared to how the rest has fit together.
-duck typing is byfar the most natural.
-becuase really the type system is just checks that two types are equal, and checking equality obviously is based on values, not definitions.
+## control flow
+
+### match expressions ambiguity 
+
+since there is no guarenteed default case to delimit the end, nested matches could be ambigous.
+likely just use parens to solve this, but non the less.
+
+### if/guard ambiguity
+
+if using a | to denote each guard in an if statement, it could be ambigous with the preceding expression.
+... 
+expr
+| expr => ... 
+the bar could merely be a binary operator, and with other binary ops in there, parsing wouldnt be reliable.
+
+either find some other way to denote guards, or switch to if else if else.
+
+### misc
+
+add regular if else expressions
+
+figure out binding, would be nice to in conditions and matches to be able to bind variables
 
 ## init
-
-add spread operator, and add the singular spread to ast nodes that can use it.
-
-the syntax for the init of a struct needs to differ from the syntax to make a struct type.
-go has typing like: 
-{ 
-    a int
-    b int 
-}
-and the intit is like c
-
-haskell has typing like:
-data T = T { a :: Int, b :: Int }
-and the init is like T { a = 1, b = 2 }
-
-kind of leaning towards haskell init and rust/python type definition, as it fits the rest of the language better.
-can maybe even disgard the commas in a number of places, though that may make inline syntax more confusing.
 
 ## expressions
 
@@ -76,9 +81,6 @@ but understable in the context of the language and calling already implemented f
 
 need to decide how to denote compile time, and runtime compile.
 
-## control flow
-
-figure out binding, would be nice to in conditions and matches to be able to bind variables
 
 ## misc
 

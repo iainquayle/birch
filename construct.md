@@ -58,17 +58,15 @@ _ = (
 ### if
 
 If is an expression, and will return a value.
-Ifs have mutliple conditions, and always a default condition unless static analysis can make that unnecessary.
+They follow the if then else pattern.
 
 ```
-if
-| x == 1 -> 1
-| x == 2 -> 2
-| _ -> 0
+if x == 1 then x else y
 ```
 
-the guard syntax may be changed to not have the _ ->, but it is not yet decided.
-alternatives are an else keyword, or just a single expression.
+Haskell like guard blocks are planned, but syntax not yet decided.
+
+As well, something akin to rusts if let, perhaps using 'is' is being considered.
 
 ### match
 
@@ -84,71 +82,119 @@ match x
 
 Ranges and ors are planned, but not yet implemented.
 
-## data 
+## data and types 
 
 Data is always immutable, and is defined by structs, arrays and algebraic types.
 
-Currently, data structures such as structs and algebraic types shouldnt need the braces to be parsed, but syntax wise it is not yet decided.
+Everything is statically typed, however, types will be infered when possible.
 
-### structs
+### primitives
+
+Primitives are the most basic types of data, and are currently limited to unsigned and signed integers of varying sizes,
+and floats of varying sizes, and bool.
+(first versions of the compiler will likely just support 32 bit ints and floats)
 
 #### instantiation
 
-structs are instantiated with curly braces.
+Primitives are instantiated by their literal value.
 
 ```
-a = 2
-x = { a, b: 3 }
-y = { ..x, a: 1 }
+1
+1.0
+true
 ```
 
-Shown is the spread operator, which only one of is allowed, and which will copy fields but will be overridden by specified fields.
-b takes both the value and name of b.
-and a is a simple field.
+#### typing
+
+```
+u32
+i32
+f32
+```
+
+### named data
+
+#### instantiation
+
+Data can be named, or anonymous:
+
+```
+x = 1
+y = A 1
+x != y
+```
+
+This facilitates algebraic types, and function use restriction.
+
+#### typing
+
+```
+t = A: u32
+```
 
 #### access
 
-single element access is done by dot notation.
+Access is not fully decided yet, but it would be nice to syntaxtically skip needing to reference the name part of the data.
+(obviously except for algebraics.)
+Though this would possibly hinder the type inference system.
+
+### structs
+
+Structs are a collection of named data.
+
+#### instantiation
+
+Structs are instantiated with curly braces.
+
+```
+a = 2
+x = { a, b 3 }
+y = { ..x, a 1 }
+```
+
+Shown is the spread operator, which only one of is allowed, and which will copy fields but will be overridden by specified fields.
+
+#### typing
+
+```
+t1 = {a: u32, b: i32}
+```
+
+#### access
+
+Single element access is done by dot notation, destructuring is done by curly braces, and aliasing is done by the as keyword.
 
 ```
 s.a
-```
-
-and destructuring is done by curly braces.
-
-```
 {a, b} = s
-```
-
-aliasing for destructuring will be done using the as keyword.
-
-```
 {a, b as c} = s
 ```
 
 ### algebraic types
 
+Algebraic types are merely a union of named data, thus anonymous types cant be used in algebraic types.
+
 #### instantiation
 
-(exact syntax is not yet decided)
+If two or more named datas are returned from a function, it is infered to be returning an algebraic type.
 
 ```
-a: 1
-b: 2
+if x == 1 then A 1 else B 2
 ```
 
-if returned from a branching expression such as if or match, the type will be inferred, as follows
+Empty named data is a thing in the language to allow for variants that hold no data.
 
 ```
-if
-| x == 1 -> b: 1
-| _ -> d: 1.0
+A _
 ```
 
-this will result in a type of 
+This is the only data where the data, and the type are the same.
+
+#### typing
+
 
 ```
-b: i32 | d: f32 
+t1 = {A u32 | B i32}
 ```
 
 #### access
@@ -156,12 +202,12 @@ b: i32 | d: f32
 access is done by pattern matching.
 
 ```
-match a
-| b: x -> x
-| d: x -> x
+match x
+| A y -> y
+| B y -> y
 ```
 
-or, for use in conditions, the is keyword will be used.
+or, for use in conditions, the is keyword will be used. (this isnt decided yet)
 
 ```
 if
@@ -182,18 +228,16 @@ arrays are instantiated by square brackets, and are fixed.
 and to get an updated array, the spread operator can be used.
 
 ```
-\[..a, i: 0, j: 1\]
-```
-
-or (not sure yet, would like to diffeerniate between arrays and structs, but also the same is nice)
-
-```
 \[..a, i = 0, j = 1\]
 ```
 
-Not yet sure if attempting to 
+it would be nice to support this syntax for vectors, however there is no operator overloading yet or planned, so how that would work is not yet decided.
 
-And as to whether the syntax will be supported for vectors is also not yet decided.
+#### typing
+
+```
+t1 = \[u32; 3\]
+```
 
 #### access
 

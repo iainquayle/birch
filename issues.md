@@ -1,5 +1,14 @@
 # issues
 
+## named data
+
+The one thing that really lends towards the idea of names follow the data, and not having anonymous data, is the destructuring of structs.
+Perhaps structs need to be seperate from named data, even thought they seem to share common ideas.
+in the case of matching on named data, the data is not accessed through the name, but seperately,
+unlike destructuring and structs where it is through the name.
+
+that being said, named data could have its own destructuring, and then match statements would then use that.
+
 ## typing
 
 make structs just a collection of named data, and its type a collection of named types.

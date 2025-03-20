@@ -112,6 +112,48 @@ i32
 f32
 ```
 
+### functions
+
+Functions are first class, only take one argument and return one value, however support currying.
+
+#### instantiation
+
+All functions are denoted by an assignee followed by a fat arrow.
+
+```
+x => expression
+```
+
+Curried functions are currently just a chain of function inputs, and do not yet have a special syntax.
+
+```
+x => y => x + y
+```
+
+May follow a haskell like syntax, which would make inputing more natural.
+
+```
+x, y => x + y
+```
+
+#### typing
+
+```
+u32 -> u32
+```
+
+#### calling
+
+Not yet decided.
+There will be piping.
+
+May do something like:
+
+```
+1, 2 \> add
+add <| 1, 2
+```
+
 ### named data
 
 #### instantiation
@@ -135,8 +177,7 @@ t = A: u32
 #### access
 
 Access is not fully decided yet, but it would be nice to syntaxtically skip needing to reference the name part of the data.
-(obviously except for algebraics.)
-Though this would possibly hinder the type inference system.
+This may be possible, but it may also be an issue for type inference.
 
 ### structs
 
@@ -159,6 +200,8 @@ Shown is the spread operator, which only one of is allowed, and which will copy 
 ```
 t1 = {a: u32, b: i32}
 ```
+
+While an field could technically be declared, and then used in the struct type, they are currently not allowed.
 
 #### access
 

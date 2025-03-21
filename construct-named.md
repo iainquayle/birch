@@ -113,14 +113,6 @@ f32
 bool
 ```
 
-#### casting
-
-Casting is explicit, and will be done with the to keyword.
-
-```
-1 to u32
-```
-
 ### functions
 
 Functions are first class, only take one argument and return one value, however support currying.
@@ -190,6 +182,8 @@ This may be possible, but it may also be an issue for type inference.
 
 ### structs
 
+Structs are a collection of named data.
+
 #### instantiation
 
 Structs are instantiated with curly braces.
@@ -208,6 +202,8 @@ Shown is the spread operator, which only one of is allowed, and which will copy 
 t1 = {a: u32, b: i32}
 ```
 
+While an field could technically be declared, and then used in the struct type, they are currently not allowed.
+
 #### access
 
 Single element access is done by dot notation, destructuring is done by curly braces, and aliasing is done by the as keyword.
@@ -220,7 +216,7 @@ s.a
 
 ### algebraic types
 
-Algebraic types are a union of named data, thus anonymous types cant be used in algebraic types.
+Algebraic types are merely a union of named data, thus anonymous types cant be used in algebraic types.
 
 #### instantiation
 
@@ -236,13 +232,14 @@ Empty named data is a thing in the language to allow for variants that hold no d
 A _
 ```
 
+This is the only data where the data, and the type are the same.
+
 #### typing
 
-```
-t1 = A: u32 | B: i32
-```
 
-A type followed by a ? is the shortcut for an option type, and two types separated by a ! is the shortcut for a result type.
+```
+t1 = {A u32 | B i32}
+```
 
 #### access
 
@@ -293,6 +290,130 @@ access is done by square brackets.
 ```
 a\[0\]
 ```
+
+## types 
+
+Types are 
+
+defined types may be pass for anonymous types of the same structure, but not vice versa.
+
+### definitions
+
+Types can be an alias of any type, including, primitives, structs, arrays, algebraic types, and functions.
+
+```
+Int = u32
+A = {
+    a: u32,
+    b: \[u32; 3\]
+    e: {
+        f: u32 |
+        g: u32
+    },
+    h: u32 -> u32
+}
+```
+
+Short hand for an option algebraic will be supported with a ? after the type.
+
+```
+type OptionInt = u32?
+```
+
+Short hand for the result type will be supported with a ! between the return type and the error type. 
+
+Struct type syntax may also be changed to {a: u32 & b: u32} to show that it is specifically a type.
+Or struct initialization may be changed to {a = 1, b = 2} to show that it is specifically a struct.
+
+### casting
+
+casting of basic types will use the to keyword.
+(how this will work exactly will be decided by decisions on function overloading)
+
+as well, casting will be explicit.
+
+### reinterpretation
+
+reinterpretation will be used in the case of passing anonymous types to defined types, and will be done with the as keyword.
+for it to work, the underlying types must be compatible, and the type being interpretted as must be in scope.
+thus by the underlying compatibility, it cannot be used to interpret a i32 as a f32, but:
+
+```
+X = {a: u32}
+```
+
+```
+c = {a: 1} as X
+```
+
+is
+
+```
+c: X = {a: 1}
+```
+
+## functions
+
+Functions only take one argument, and return one value.
+Both the use of anonymous struct typing, and haskell type currying is supported.
+Typeing will be optional where inference is possible.
+
+### overloading
+
+No overloading, wont work with partial application of arguments.
+This includes no overloading of operators.
+
+### definitions
+
+```
+add: {a: u32, b: u32} -> u32 = in => in.a + in.b
+```
+
+or
+
+```
+add: {a: u32, b: u32} -> u32 = {a, b} => a + b
+```
+
+or
+
+```
+add: u32 -> u32 -> u32 = a, b => a + b 
+```
+
+The syntax for currying may change to the haskell type of all arguments seperated by commas.
+
+### calling
+
+pipe operator with a struct,
+
+```
+{a: 1, b: 2} |> add
+```
+
+and with curried functions
+
+```
+1, 2 |> add
+```
+
+as for a more common syntax, it may be somthing like a reverse pipe instead of parens.
+
+```
+add <| {1, 2}
+add <| 1, 2
+```
+
+or, like haskell where a function is just applied to the following expressions.
+
+### partial application
+
+partial application is done by passing a struct with the fields that are to be partially applied.
+this will return a function that takes the remaining fields.
+
+obviously curried functions will work just like in haskell. 
+
+this mechanic along with the regular currying will allow for interface mimicking.
 
 ## organization 
 

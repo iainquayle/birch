@@ -1,13 +1,66 @@
 # issues
 
-## named data
+## variable names as data
 
-The one thing that really lends towards the idea of names follow the data, and not having anonymous data, is the destructuring of structs.
-Perhaps structs need to be seperate from named data, even thought they seem to share common ideas.
-in the case of matching on named data, the data is not accessed through the name, but seperately,
-unlike destructuring and structs where it is through the name.
+### pros
 
-that being said, named data could have its own destructuring, and then match statements would then use that.
+- unifies complex types
+- forces thought out naming
+
+### cons
+
+- doesnt really fit with data as a whole, structs are just a way to address data, actual enumerated data is data itself.
+- removes flexibility
+- non industry standard
+- presents more of a pain regarding restricting types for functions
+- causes more ambiguity, in what would be a struct type vs a struct
+
+### sketch
+
+```
+Option: type -> type = generic =>
+    {Some: generic | None: _}
+
+f: {x: u32} -> Option <| u32 = {x} => 
+    a = 1
+    if x == 1 then
+        {Some = a}
+    else
+        {None = _}
+
+match f <| {x = 1} with
+| {Some} => Some * 2
+| {None} => 0
+
+
+Rect: type = {x: u32 , y: u32}
+transpose: Rect -> Rect = {x, y} => {x = y, y = x}
+t_rect = transpose <| {x = 1, y = 2}
+{x, y} = t_rect
+
+LockedShape: type = {x: ...}
+OpenShape: type = {x: ...}
+Shape: type = { LockedShape | OpenShape } 
+
+or
+
+LockedShape: type = {LockedShape: {x: ...}}
+OpenShape: type = {OpenShape: {x: ...}}
+Shape: type = { LockedShape | OpenShape } 
+
+or
+
+locked: type = {x: ...}
+open: type = {x: ...}
+Shape: type = { locked | open }
+LockedShape: type = {locked}
+OpenShape: type = {open}
+```
+
+really everything above works fine, except for the restricting of types for functions.
+since it cant be chosen when to use the name/when not to, sometime it will end up layering in more names when not necessary, or not enough.
+
+unless matches could match on type rather than name.
 
 ## typing
 

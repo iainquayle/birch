@@ -3,6 +3,12 @@
 ## overview
 
 Very minimalistic functional language, with goals of supporting full ctr and rtc metaprogramming.
+
+The overall goal of the language is to make a typed lambda calculus,
+with syntaxtic sugar for the common patterns such as booleans, church products/tuples, and church sums/either or types and common data types.
+By following the lambda calculus, and keeping the language as simple as possible, 
+the programmer does not need to spend time considering what is the best language construct to use, but instead how best to solve the problem at hand.
+
 The main points of note are:
 
 - Immutability all the time 
@@ -11,11 +17,11 @@ The main points of note are:
 - Algebraic types
 - Anonymous types
 - No modules, only functions
-- Partial argument application 
+- Currying
 - Piping support
 
-The aim is for extreme simplicity, and massive maleability but safety with metaprogramming.
-
+While the general feel and syntax of the language has been for the most part decided,
+certain parts such as always requiring curly braces for algebraic types will likely be tweaked.
 
 ## scoping 
 
@@ -53,34 +59,6 @@ _ = (
 )
 ```
 
-## control flow
-
-### if
-
-If is an expression, and will return a value.
-They follow the if then else pattern.
-
-```
-if x == 1 then x else y
-```
-
-Haskell like guard blocks are planned, but syntax not yet decided.
-
-As well, something akin to rusts if let, perhaps using 'is' is being considered.
-
-### match
-
-Match is an expression, and will return a value.
-Match is exhaustive, and will return a value for every possible value of the input.
-
-```
-match x
-| 1 -> 1
-| 2 -> 2
-| _ -> 0
-```
-
-Ranges and ors are planned, but not yet implemented.
 
 ## data and types 
 
@@ -113,17 +91,9 @@ f32
 bool
 ```
 
-#### casting
-
-Casting is explicit, and will be done with the to keyword.
-
-```
-1 to u32
-```
-
 ### functions
 
-Functions are first class, only take one argument and return one value, however support currying.
+Only take one argument and return one value.
 
 #### instantiation
 
@@ -139,7 +109,7 @@ Curried functions are currently just a chain of function inputs, and do not yet 
 x => y => x + y
 ```
 
-May follow a haskell like syntax, which would make inputing more natural.
+May follow a haskell like syntax, which would be a litte more readable. 
 
 ```
 x, y => x + y
@@ -148,7 +118,7 @@ x, y => x + y
 #### typing
 
 ```
-u32 -> u32
+type -> type 
 ```
 
 #### calling
@@ -159,36 +129,19 @@ There will be piping.
 May do something like:
 
 ```
+add 1 2
 1, 2 \> add
-add <| 1, 2
 ```
+Need to figure out what exactly to do with functions that dont take arguments, will they just ne treated as a value?
+Will values even be treated as functions that can take in any number of arguments, but obviously only return a specific value?
 
-### named data
+All functions support currying, as well, currying over tuples will likely be supported, where a partially complete tuple can be passed in,
+and a new function will be returned.
 
-#### instantiation
+### product types/tuples
 
-Data can be named, or anonymous:
-
-```
-x = 1
-y = A 1
-x != y
-```
-
-This facilitates algebraic types, and function use restriction.
-
-#### typing
-
-```
-t = A: u32
-```
-
-#### access
-
-Access is not fully decided yet, but it would be nice to syntaxtically skip needing to reference the name part of the data.
-This may be possible, but it may also be an issue for type inference.
-
-### structs
+Tuples are more akin to structs in other languages,
+they have named fields, and represent a church product.
 
 #### instantiation
 
@@ -205,7 +158,7 @@ Shown is the spread operator, which only one of is allowed, and which will copy 
 #### typing
 
 ```
-t1 = {a: u32, b: i32}
+t = {a: u32, b: i32}
 ```
 
 #### access
@@ -218,48 +171,41 @@ s.a
 {a, b as c} = s
 ```
 
-### algebraic types
+### sum types/unions
 
-Algebraic types are a union of named data, thus anonymous types cant be used in algebraic types.
+Sums are more akin to algebraic types/variants/tagged unions in other languages.
+They represent a church sum.
+
+(These may not be implemented in the first version of the compiler.)
 
 #### instantiation
 
-If two or more named datas are returned from a function, it is infered to be returning an algebraic type.
+The value returned is essentially a defered function call.
+The syntax for this is not yet fully decided.
 
 ```
-if x == 1 then A 1 else B 2
-```
-
-Empty named data is a thing in the language to allow for variants that hold no data.
-
-```
-A _
+if expression then {a value} else {b value}
 ```
 
 #### typing
 
 ```
-t1 = A: u32 | B: i32
+t = {a: type | b: type | c: type}
 ```
-
-A type followed by a ? is the shortcut for an option type, and two types separated by a ! is the shortcut for a result type.
 
 #### access
 
-access is done by pattern matching.
+```
+x {
+    | a = y => expression 
+    | b = y => expression 
+    | _ = expression 
+}
+```
+
+There will also be some syntax for conditions likely, but it is not yet decided.
 
 ```
-match x
-| A y -> y
-| B y -> y
-```
-
-or, for use in conditions, the is keyword will be used. (this isnt decided yet)
-
-```
-if
-| a is b: x -> x
-...
 ```
 
 ### arrays
@@ -294,10 +240,60 @@ access is done by square brackets.
 a\[0\]
 ```
 
-## organization 
+### named data
 
-scoping will be done entirely through functions, and there will be no need for modules.
-likely will be that, files and folders are merely treated as functions that take no args, and return whatever is return from the file
+This is not decided yet, but it would be nice to have a way to name data, and have it be restricted to only be used in certain functions.
+Aswell the syntax for this would be different.
+
+#### instantiation
+
+Data can be named, or anonymous:
+
+```
+x = 1
+y = A 1 //not like this
+x != y
+```
+
+This facilitates function use restriction.
+
+#### typing
+
+```
+t = A: u32
+```
+
+#### access
+
+Access is not fully decided yet, but it would be nice to syntaxtically skip needing to reference the name part of the data.
+This may be possible, but it may also be an issue for type inference.
+
+
+## types 
+
+### casting
+
+casting of basic types will use the to keyword.
+(how this will work exactly will be decided by decisions on function overloading)
+
+as well, casting will be explicit.
+
+### reinterpretation
+
+## control flow
+
+### if
+
+If is an expression, and will return a value.
+They follow the if then else pattern.
+
+```
+if x == 1 then x else y
+```
+
+Haskell like guard blocks are planned, but syntax not yet decided.
+
+As well, something akin to rusts if let, perhaps using 'is' is being considered.
 
 ## metaprogramming
 
@@ -337,26 +333,17 @@ variable names are preferred to be descriptive, and not heavily abbreviated unle
 ## specification
 
 function:
-- assignee_list **=>** expression 
+- assignee **=>** expression 
+
+function_type:
+- expression **->** expression 
 
 call:
-- expression **<|** expression_list 
 - expression_list **|>** expression 
+- expression expression 
 
 if:
-- **if** condition_list **| _ =>** expression
-
-condition_list:
-- **|** condition **=>** expression
-- **|** condition **=>** expression condition_list
-
-match:
-- **match** expression match_list
-
-match_list:
-- **|** pattern **=>** expression
-- **| _ =>** expression
-- **|** pattern **=>** expression match_list
+- **if** expression **then** expression **else** expression 
 
 block:
 - statement_list expression
@@ -378,16 +365,42 @@ assignee_list:
 - assignee
 - assignee **,** assignee_list
 
-struct_init:
-- **{** struct_list **}**
+product:
+- **{** product_list **}**
 
-struct_init_list:
+product_list:
 - identifier
 - identifier **=** expression
-- identifier **=** expression struct_list
+- identifier **=** expression **,** product_list
 
-enum_init:
-- identifier **:** expression 
+product_type:
+- **{** product_type_list **}**
+
+product_type_list:
+- identifier **:** expression
+- identifier **:** expression **,** product_type_list
+
+sum:
+- { identifier sum_list }
+
+sum_list:
+- expression
+- expression sum_list
+
+sum_call:
+- expression **{** sum_call_list **}**
+
+sum_call_list:
+- **|** identifier **=** expression
+- **|** **_** **=** expression
+- **|** identifier **=** expression sum_call_list
+
+sum_type:
+- **{** sum_type_list **}**
+
+sum_type_list:
+- identifier **:** expression **|** identifier **:** expression
+- identifier **:** expression **|** sum_type_list 
 
 array_init:
 - **\[** expression_list **\]**
@@ -396,29 +409,11 @@ expression_list:
 - expression
 - expression **,** expression_list
 
-comptime:
-- **comptime** expression
-
-function_type:
-- expression **->** expression 
-
-struct_type:
-- **{** struct_type_list **}**
-
-struct_type_list:
-- identifier **:** expression
-- identifier **:** expression struct_type_list
-
-enum_type:
-- enum_type_variant **|** enum_type_variant 
-- enum_type_variant **|** enum_type
-
-enum_type_variant:
-- identifier: expression
-- identifier
-
 array_type:
 - **\[** expression **;** expression **\]**
+
+comptime:
+- **comptime** expression
 
 option_type:
 - expression **?**

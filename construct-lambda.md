@@ -3,6 +3,12 @@
 ## overview
 
 Very minimalistic functional language, with goals of supporting full ctr and rtc metaprogramming.
+
+The overall goal of the language is to make a typed lambda calculus,
+with syntaxtic sugar for the common patterns such as booleans, church products/tuples, and church sums/either or types and common data types.
+By following the lambda calculus, and keeping the language as simple as possible, 
+the programmer does not need to spend time considering what is the best language construct to use, but instead how best to solve the problem at hand.
+
 The main points of note are:
 
 - Immutability all the time 
@@ -11,7 +17,7 @@ The main points of note are:
 - Algebraic types
 - Anonymous types
 - No modules, only functions
-- Partial argument application 
+- Currying
 - Piping support
 
 The aim is for extreme simplicity, and massive maleability but safety with metaprogramming.
@@ -53,34 +59,6 @@ _ = (
 )
 ```
 
-## control flow
-
-### if
-
-If is an expression, and will return a value.
-They follow the if then else pattern.
-
-```
-if x == 1 then x else y
-```
-
-Haskell like guard blocks are planned, but syntax not yet decided.
-
-As well, something akin to rusts if let, perhaps using 'is' is being considered.
-
-### match
-
-Match is an expression, and will return a value.
-Match is exhaustive, and will return a value for every possible value of the input.
-
-```
-match x
-| 1 -> 1
-| 2 -> 2
-| _ -> 0
-```
-
-Ranges and ors are planned, but not yet implemented.
 
 ## data and types 
 
@@ -115,7 +93,7 @@ bool
 
 ### functions
 
-Functions are first class, only take one argument and return one value, however support currying.
+Only take one argument and return one value.
 
 #### instantiation
 
@@ -140,7 +118,7 @@ x, y => x + y
 #### typing
 
 ```
-u32 -> u32
+type -> type 
 ```
 
 #### calling
@@ -152,37 +130,18 @@ May do something like:
 
 ```
 1, 2 \> add
-add <| 1, 2
+add 1 2
 ```
+Need to figure out what exactly to do with functions that dont take aarguments,will they just ne treated as a value?
+Will values even be treated as functions that can take in any number of arguments, but obviously only return a specific value?
 
-### named data
+All functions support currying, as well, currying over tuples will likely be supported, where a partially complete tuple can be passed in,
+and a new function will be returned.
 
-#### instantiation
+### product types/tuples
 
-Data can be named, or anonymous:
-
-```
-x = 1
-y = A 1
-x != y
-```
-
-This facilitates algebraic types, and function use restriction.
-
-#### typing
-
-```
-t = A: u32
-```
-
-#### access
-
-Access is not fully decided yet, but it would be nice to syntaxtically skip needing to reference the name part of the data.
-This may be possible, but it may also be an issue for type inference.
-
-### structs
-
-Structs are a collection of named data.
+Tuples are more akin to structs in other languages,
+they have named fields, and represent a church product.
 
 #### instantiation
 
@@ -199,10 +158,8 @@ Shown is the spread operator, which only one of is allowed, and which will copy 
 #### typing
 
 ```
-t1 = {a: u32, b: i32}
+t = {a: u32, b: i32}
 ```
-
-While an field could technically be declared, and then used in the struct type, they are currently not allowed.
 
 #### access
 
@@ -214,49 +171,39 @@ s.a
 {a, b as c} = s
 ```
 
-### algebraic types
+### sum types/unions
 
-Algebraic types are merely a union of named data, thus anonymous types cant be used in algebraic types.
+Sums are more akin to algebraic types/variants/tagged unions in other languages.
+They represent a church sum.
+
+(These may not be implemented in the first version of the compiler.)
 
 #### instantiation
 
-If two or more named datas are returned from a function, it is infered to be returning an algebraic type.
+The value returned is essentially a defered function call.
 
 ```
-if x == 1 then A 1 else B 2
+if expression then {a value} else {b value}
 ```
-
-Empty named data is a thing in the language to allow for variants that hold no data.
-
-```
-A _
-```
-
-This is the only data where the data, and the type are the same.
 
 #### typing
 
-
 ```
-t1 = {A u32 | B i32}
+t = {a: type | b: type}
 ```
 
 #### access
 
-access is done by pattern matching.
+```
+x {
+    | a = y => y
+    | b = y => y
+}
+```
+
+There will also be some syntax for conditions likely, but it is not yet decided.
 
 ```
-match x
-| A y -> y
-| B y -> y
-```
-
-or, for use in conditions, the is keyword will be used. (this isnt decided yet)
-
-```
-if
-| a is b: x -> x
-...
 ```
 
 ### arrays
@@ -291,39 +238,36 @@ access is done by square brackets.
 a\[0\]
 ```
 
+### named data
+
+This is not decided yet, but it would be nice to have a way to name data, and have it be restricted to only be used in certain functions.
+Aswell the syntax for this would be different.
+
+#### instantiation
+
+Data can be named, or anonymous:
+
+```
+x = 1
+y = A 1 //not like this
+x != y
+```
+
+This facilitates function use restriction.
+
+#### typing
+
+```
+t = A: u32
+```
+
+#### access
+
+Access is not fully decided yet, but it would be nice to syntaxtically skip needing to reference the name part of the data.
+This may be possible, but it may also be an issue for type inference.
+
+
 ## types 
-
-Types are 
-
-defined types may be pass for anonymous types of the same structure, but not vice versa.
-
-### definitions
-
-Types can be an alias of any type, including, primitives, structs, arrays, algebraic types, and functions.
-
-```
-Int = u32
-A = {
-    a: u32,
-    b: \[u32; 3\]
-    e: {
-        f: u32 |
-        g: u32
-    },
-    h: u32 -> u32
-}
-```
-
-Short hand for an option algebraic will be supported with a ? after the type.
-
-```
-type OptionInt = u32?
-```
-
-Short hand for the result type will be supported with a ! between the return type and the error type. 
-
-Struct type syntax may also be changed to {a: u32 & b: u32} to show that it is specifically a type.
-Or struct initialization may be changed to {a = 1, b = 2} to show that it is specifically a struct.
 
 ### casting
 
@@ -334,91 +278,20 @@ as well, casting will be explicit.
 
 ### reinterpretation
 
-reinterpretation will be used in the case of passing anonymous types to defined types, and will be done with the as keyword.
-for it to work, the underlying types must be compatible, and the type being interpretted as must be in scope.
-thus by the underlying compatibility, it cannot be used to interpret a i32 as a f32, but:
+## control flow
+
+### if
+
+If is an expression, and will return a value.
+They follow the if then else pattern.
 
 ```
-X = {a: u32}
+if x == 1 then x else y
 ```
 
-```
-c = {a: 1} as X
-```
+Haskell like guard blocks are planned, but syntax not yet decided.
 
-is
-
-```
-c: X = {a: 1}
-```
-
-## functions
-
-Functions only take one argument, and return one value.
-Both the use of anonymous struct typing, and haskell type currying is supported.
-Typeing will be optional where inference is possible.
-
-### overloading
-
-No overloading, wont work with partial application of arguments.
-This includes no overloading of operators.
-
-### definitions
-
-```
-add: {a: u32, b: u32} -> u32 = in => in.a + in.b
-```
-
-or
-
-```
-add: {a: u32, b: u32} -> u32 = {a, b} => a + b
-```
-
-or
-
-```
-add: u32 -> u32 -> u32 = a, b => a + b 
-```
-
-The syntax for currying may change to the haskell type of all arguments seperated by commas.
-
-### calling
-
-pipe operator with a struct,
-
-```
-{a: 1, b: 2} |> add
-```
-
-and with curried functions
-
-```
-1, 2 |> add
-```
-
-as for a more common syntax, it may be somthing like a reverse pipe instead of parens.
-
-```
-add <| {1, 2}
-add <| 1, 2
-```
-
-or, like haskell where a function is just applied to the following expressions.
-
-### partial application
-
-partial application is done by passing a struct with the fields that are to be partially applied.
-this will return a function that takes the remaining fields.
-
-obviously curried functions will work just like in haskell. 
-
-this mechanic along with the regular currying will allow for interface mimicking.
-
-## organization 
-
-scoping will be done entirely through functions, and there will be no need for modules.
-likely will be that, files and folders are merely treated as functions that take no args, and return whatever is return from the file
+As well, something akin to rusts if let, perhaps using 'is' is being considered.
 
 ## metaprogramming
 

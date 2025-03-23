@@ -196,7 +196,7 @@ t = {a: type | b: type | c: type}
 #### access
 
 ```
-x {
+out = { x 
     | a = y => expression 
     | b = y => expression 
     | _ = expression 
@@ -362,7 +362,8 @@ assignee:
 - **{** assignee_list **}** 
 
 assignee_list:
-- assignee
+- identifier
+- identifier **as** identifier
 - assignee **,** assignee_list
 
 product:
@@ -388,11 +389,11 @@ sum_list:
 - expression sum_list
 
 sum_call:
-- expression **{** sum_call_list **}**
+- **{** expression sum_call_list **}**
 
 sum_call_list:
-- **|** identifier **=** expression
 - **|** **_** **=** expression
+- **|** identifier **=** expression **|** identifier **=** expression  
 - **|** identifier **=** expression sum_call_list
 
 sum_type:
@@ -402,10 +403,10 @@ sum_type_list:
 - identifier **:** expression **|** identifier **:** expression
 - identifier **:** expression **|** sum_type_list 
 
-array_init:
-- **\[** expression_list **\]**
+array:
+- **\[** array_list **\]**
 
-expression_list:
+array_list:
 - expression
 - expression **,** expression_list
 

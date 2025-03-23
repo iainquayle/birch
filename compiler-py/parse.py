@@ -21,7 +21,6 @@ class Parsed:
 	tokens: TokenIter
 
 
-
 @dataclass
 class Identifier(Expression):
 	ident: Token 
@@ -42,6 +41,48 @@ class Literal(Expression):
 		if isinstance(token, LitBool) or isinstance(token, LitFloat) or isinstance(token, LitInt):
 			return Parsed(Literal(token), tokens)
 		return None
+
+class Assignee(Abstract):
+	@staticmethod
+	@abstractmethod
+	def eat(tokens: TokenIter) -> Result:
+		pass
+@dataclass
+class SingleAssignee(Assignee):
+	assignee: Token
+	@staticmethod
+	def eat(tokens: TokenIter) -> Result:
+		if (token := next(tokens, None)) is None:
+			return None
+		if isinstance(token, Ident):
+			return Parsed(SingleAssign(token), tokens)
+		return None
+@dataclass
+class DestructureAssignee(Assignee):
+	assignees: list[Assignee]
+	@staticmethod
+	def eat(tokens: TokenIter) -> Result:
+		if (token := next(tokens, None)) is None:
+			return None
+		if not isinstance(token, LCurly):
+			return None
+		assignees = []
+		continue_list = True
+		while (token := next(tokens, None)) is not None:
+			if isinstance(token, RCurly):
+				return Parsed(DestructureAssignee(assignees), tokens)
+			assignee = None
+			if isinstance(token, Ident):
+				assignee = token
+			pass
+		if token is None:
+			return None
+
+			
+			
+
+		
+
 #if the only time where parens are needed are already in a block, then it can be parsed such that if one is found, a new block is parsed
 #rather than looking for it at the beginning of the expression
 @dataclass
@@ -52,10 +93,22 @@ class Block(Expression):
 	def eat(tokens: TokenIter) -> Result:
 		while (token := next(tokens, None)) is not None:
 			pass
+@dataclass
+class Function(Expression):
+	argument: Token
+	return_expression: Expression
 # statements with types may be nearly ambigous to parse with the current instantiation syntax of enums
 # as it is currently "assign_ident: type", and "variant_ident: expression"
 # the one saving fact is that a full statement is "ident: type = expression", and the equal should differentiate it.
 # the other option is to instantiate enum variants in a syntax like "ident expression"
+@dataclass
+class Struct(Expression):
+	spread: Expression
+	fields: list[tuple[Token, Expression]]
+@dataclass
+class Array(Expression):
+	spread: Expression
+	values: list[Expression]
 @dataclass
 class Conditional(Expression):
 	conditions: list[tuple[Expression, Expression]]
@@ -68,7 +121,7 @@ class PatternMatch(Expression):
 @dataclass
 class Call(Expression):
 	function: Expression
-	arguement: Expression
+	argument: Expression
 @dataclass
 class StructAccess(Expression):
 	struct: Expression
@@ -77,18 +130,6 @@ class StructAccess(Expression):
 class ArrayAccess(Expression):
 	array: Expression
 	index: Expression
-@dataclass
-class StructInit(Expression):
-	spread: Expression
-	fields: list[tuple[Token, Expression]]
-@dataclass
-class ArrayInit(Expression):
-	spread: Expression
-	values: list[Expression]
-@dataclass
-class FunctionInit(Expression):
-	arguement: Token
-	return_expression: Expression
 @dataclass
 class AsType(Expression):
 	expression: Expression
@@ -109,7 +150,7 @@ class EnumType(Expression):
 	variants: list[tuple[Token, Expression | None]]
 @dataclass
 class FunctionType(Expression):
-	arguement_type: Expression
+	argument_type: Expression
 	return_type: Expression
 @dataclass
 class PrimitiveType(Expression):
@@ -131,13 +172,6 @@ class Compare(Expression):
 	left: Expression
 	right: Expression
 
-type Assignee = SingleAssign | DestructureAssign
-@dataclass
-class SingleAssign:
-	assignee: Token
-@dataclass
-class DestructureAssign:
-	assignees: list[Assignee]
 
 @dataclass
 class Statement:

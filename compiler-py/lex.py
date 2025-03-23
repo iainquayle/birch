@@ -93,6 +93,8 @@ class Token:
 					match cumulative:
 						case 'type':
 							return Token(TypeType(), position), out_string_iter
+						case 'unknown':
+							return Token(UnknownType(), position), out_string_iter
 						case 'fn':
 							return Token(Fn(), position), out_string_iter
 						case 'let':
@@ -209,7 +211,7 @@ class Token:
 type TokenType = (
 	Whitespace |
 	LitInt | LitFloat | LitBool |
-	TypeType | IntType | UIntType | FloatType | BoolType |
+	TypeType | IntType | UIntType | FloatType | BoolType | UnknownType |
 	Ident | Type | Fn | Let | If | Match | To | As | Is | Tail | Rec | Underscore |
 	Assign | Spread |
 	LParen | RParen | LSquare | RSquare | LCurly | RCurly |
@@ -249,6 +251,9 @@ class FloatType:
 	size: int
 @dataclass
 class BoolType:
+	pass
+@dataclass
+class UnknownType:
 	pass
 
 @dataclass

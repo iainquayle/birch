@@ -6,8 +6,6 @@ from functools import reduce
 
 from lex import * 
 
-from typing import TypeVar, Generic
-
 class AstNode(Abstract):
 	@staticmethod
 	@abstractmethod
@@ -42,46 +40,67 @@ class Literal(AstNode):
 			return Parsed(Literal(token), tokens)
 		return None
 
+@dataclass
 class Assignee(AstNode):
 	@staticmethod
 	@abstractmethod
 	def eat(tokens: TokenIter) -> Result:
-		pass
+		if (result := SingleAssignee.eat(tokens)) is not None:
+			return result 
+		if (result := DestructureAssignee.eat(tokens)) is not None:
+			return result 
+		return None
 @dataclass
 class SingleAssignee(Assignee):
-	assignee: Token
+	single_assignee: Token
 	@staticmethod
 	def eat(tokens: TokenIter) -> Result:
 		if (token := next(tokens, None)) is None:
 			return None
+		print(token)
+		print(type(token))
 		if isinstance(token, Ident):
 			return Parsed(SingleAssignee(token), tokens)
 		return None
 @dataclass
 class DestructureAssignee(Assignee):
-	assignees: list[tuple[Token, Token | None]] #ident, optional alias
+	assignees: list[tuple[Token, Token | None] | DestructureAssignee] #ident, optional alias
 	@staticmethod
 	def eat(tokens: TokenIter) -> Result:
-		if (token := next(tokens, None)) is None:
-			return None
+		token = next(tokens, None)
 		if not isinstance(token, LCurly):
 			return None
 		assignees = []
-		while (token := next(tokens, None)) is not None:
-			if isinstance(token, RCurly):
+		parse_list = True
+		while parse_list:
+			if (result := DestructureAssignee.eat(copy(tokens))) is not None:
+				assignees.append(result.node)
+				tokens = result.tokens
+			else:
+				token = next(tokens, None)
+				if isinstance(token, RCurly):
+					return Parsed(DestructureAssignee(assignees), tokens)
+				elif isinstance(token, Ident):
+					assignee = token
+					alias_iter = copy(tokens)
+					if isinstance(next(alias_iter, None), As):
+						if isinstance((alias := next(alias_iter, None)), Ident):
+							assignees.append((assignee, alias))
+							tokens = alias_iter
+						else:
+							return None
+					else:
+						assignees.append((assignee, None))
+				else:
+					return None
+			delim_iter = copy(tokens)
+			token = next(delim_iter, None)
+			if isinstance(token, Comma):
+				tokens = delim_iter 
+			elif isinstance(token, RCurly):
 				return Parsed(DestructureAssignee(assignees), tokens)
-			assignee = None
-			alias = None
-			if isinstance(token, Ident):
-				assignee = token
 			else:
 				return None
-			if isinstance((token := next(tokens, None)), As):
-				if isinstance((token := next(tokens, None)), Ident):
-					alias = token
-			if not isinstance((token := next(tokens, None)), Comma):
-				return None
-			assignees.append((assignee, alias))
 		return None
 		
 

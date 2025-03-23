@@ -364,7 +364,8 @@ assignee:
 assignee_list:
 - identifier
 - identifier **as** identifier
-- assignee **,** assignee_list
+- identifier **,** assignee_list
+- identifier **as** identifier **,** assignee_list
 
 product:
 - **{** product_list **}**

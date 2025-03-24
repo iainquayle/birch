@@ -72,6 +72,7 @@ defmodule Birch.Lexer do
             ?* -> {%Token{token: :star, position: position}, start_position, rest}
             ?/ -> {%Token{token: :f_slash, position: position}, start_position, rest}
             ?+ -> {%Token{token: :plus, position: position}, start_position, rest}
+            ?% -> {%Token{token: :mod, position: position}, start_position, rest}
             ?- -> new_position = Position.increment(start_position, ?-)
               case rest do
                 [?> | rest] -> {%Token{token: :r_arrow, position: position}, new_position, rest}
@@ -104,7 +105,14 @@ defmodule Birch.Lexer do
                 [?- | rest] -> {%Token{token: :l_arrow, position: position}, new_position, rest}
                 [?| | rest] -> {%Token{token: :l_point, position: position}, new_position, rest}
                 [?= | rest] -> {%Token{token: :leq, position: position}, new_position, rest}
+                [?< | rest] -> {%Token{token: :l_shift, position: position}, new_position, rest}
                 _ -> {%Token{token: :lt, position: position}, start_position, rest}
+              end
+            ?> -> new_position = Position.increment(start_position, ?>)
+              case rest do
+                [?= | rest] -> {%Token{token: :geq, position: position}, new_position, rest}
+                [?> | rest] -> {%Token{token: :r_shift, position: position}, new_position, rest}
+                _ -> {%Token{token: :gt, position: position}, start_position, rest}
               end
             ?( -> {%Token{token: :l_paren, position: position}, start_position, rest}
             ?) -> {%Token{token: :r_paren, position: position}, start_position, rest}
@@ -150,6 +158,5 @@ defmodule Birch.Lexer do
       end
     end
   end
-
 end
 

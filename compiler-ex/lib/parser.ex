@@ -21,23 +21,30 @@ defmodule Birch.Parser do
     case tokens do
       [] -> {:error, "No tokens to parse"} 
       [token | rest] -> result = case token do
-        {:l_curly, _} -> result = parse_destructure_binding([], rest)
-          case result do
-            {:error, _} -> result 
-            {nested_bindings, rest} -> parse_destructure_binding([nested_bindings | bindings], rest)
-            _ -> {:error, "Invalid result from nested destructure binding"}
-          end
-        {:comma, _} -> parse_destructure_binding(bindings, rest)
-        {{:identifier, _}, _} -> case rest do
-          [{:as, _} | rest] -> [alias_token | rest] = rest
-            case alias_token do
-              {{:identifier, _}, _} -> parse_destructure_binding([{token, alias_token} | bindings], rest)
-              _ -> {:error, "Invalid token for alias"} 
+        {:r_curly, _} -> {:ok, {:destructure_binding, bindings}, rest}
+        _ -> 
+          result = case token do 
+            {:l_curly, _} -> parse_destructure_binding([], rest)
+            {{:identifier, _}, _} -> case rest do
+              [{:as, _} | rest] -> [alias_token | rest] = rest
+                case alias_token do
+                  {{:identifier, _}, _} -> {:ok, {:alias_binding, token, alias_token}, rest} 
+                  _ -> {:error, "Invalid token for alias"} 
+                end
+              _ -> {:ok, {:binding, token}, rest} 
             end
-          _ -> parse_destructure_binding([{token, nil} | bindings], rest)
-        end
-        {:r_curly, _} -> {{:destructure_binding, bindings}, rest}
-        _ -> {:error, "Invalid token for destructuring binding"}
+            _ -> {:error, "Invalid token for destructure binding"} 
+          end
+          case result do
+            {:error, _} -> result
+            {:ok, binding, rest} -> case rest do
+              [] -> {:error, "No tokens to parse"}
+              [:comma | rest] -> parse_destructure_binding([binding | bindings], rest)
+              [:r_curly | rest] -> {:ok, {:destructure_binding, [binding | bindings]}, rest}
+              _ -> {:error, "Invalid token for destructure binding"}
+            _ -> {:error, "Invalid result for destructure binding"}
+            end
+          end
       end
     end
   end

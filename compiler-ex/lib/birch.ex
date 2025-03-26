@@ -20,6 +20,9 @@ defmodule Birch do
   def test_binding_parser do
     source = String.graphemes("{x, {y, z}}")
     tokens = Birch.Lexer.tokenize(source, %Birch.Lexer.Position{})
+    for {token, position} <- tokens do
+      IO.puts("#{inspect(token)} at #{position.index}")
+    end
     parsed = Birch.Parser.parse_binding(tokens)
     IO.inspect(parsed)
   end

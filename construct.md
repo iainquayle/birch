@@ -190,22 +190,17 @@ if expression then {a value} else {b value}
 #### typing
 
 ```
-t = {a: type | b: type | c: type}
+t = {a type | b type | c type}
 ```
 
 #### access
 
 ```
-out = { x 
+out = x { 
     | a = y => expression 
-    | b = y => expression 
+    | b | c = y => expression 
     | _ = expression 
 }
-```
-
-There will also be some syntax for conditions likely, but it is not yet decided.
-
-```
 ```
 
 ### arrays
@@ -241,6 +236,8 @@ a\[0\]
 ```
 
 ### named data
+
+NOT sure if this will be implemented yet.
 
 This is not decided yet, but it would be nice to have a way to name data, and have it be restricted to only be used in certain functions.
 Aswell the syntax for this would be different.
@@ -290,10 +287,6 @@ They follow the if then else pattern.
 ```
 if x == 1 then x else y
 ```
-
-Haskell like guard blocks are planned, but syntax not yet decided.
-
-As well, something akin to rusts if let, perhaps using 'is' is being considered.
 
 ## metaprogramming
 

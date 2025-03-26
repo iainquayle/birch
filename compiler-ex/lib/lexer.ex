@@ -122,9 +122,21 @@ defmodule Birch.Lexer do
             ?: -> {:colon, rest}
             ?? -> {:q_mark, rest}
             ?\\ -> {:b_slash, rest}
+            ?' -> {:s_quote, rest}
+            ?" -> {:d_quote, rest}
+            ?` -> {:b_quote, rest}
+            ?@ -> {:at, rest}
+            ?$ -> {:dollar, rest}
+            ?# -> {:hash, rest}
+            ?~ -> {:tilde, rest}
+            ?^ -> {:caret, rest}
+            ?_ -> {:underscore, rest}
+            ?. -> {:dot, rest}
+            ?, -> {:comma, rest}
             _ -> {{:unknown, char}, rest}
           end
           case result do
+            {:whitespace, final_position, rest} -> tokenize(rest, final_position)
             {token, final_position, rest} -> [{token, position} | tokenize(rest, final_position)]
             {token, rest} -> [{token, position} | tokenize(rest, start_position)]
           end

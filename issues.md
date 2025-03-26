@@ -1,5 +1,65 @@
 # issues
 
+## syntax 
+
+currently the syntax of adts does not really matchup with their background construct.
+products are pretty good, but sums are not as good.
+
+- product 
+
+```
+x = ..
+y = ..
+p = f => f x y      # tuple takes in a function and applies tupled values to it
+f = x => y => x + y # a function to use the tuple
+z = p f 
+```
+
+```
+..
+p = {x, y}
+f = {x, y} => x + y
+z = p f
+```
+
+- sum
+
+```
+x = ..
+s = if x > 0
+    then f => g => f x
+    else f => g => g x
+y = s (x => x) (x => x + 1)
+```
+
+```
+..
+t = {
+    | f i32
+    | g i32
+}
+s = if x > 0
+    then {f x}
+    else {g x}
+y = s {
+    | f = x => x
+    | g = x => x + 1
+}
+```
+hypothetically the sum functions could just be a struct, but this would allow for a catch all, and mapping multiple cases to the same function/value.
+
+
+on a more fundamental level, function calls may still be a little to hard to read,
+and also leave open questions of issues in parsing. 
+that being said, it is very clean, and I havent seen a parsing concern yet.
+
+```
+f = x => y => x + y
+z = f 1 2
+```
+
+
+
 ## blocks
 
 it could be that blocks are imperative, and in the case of wanting mutual recursion,

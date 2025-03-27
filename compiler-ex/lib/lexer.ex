@@ -114,8 +114,8 @@ defmodule Birch.Lexer do
               end
             ?( -> {:l_paren, rest}
             ?) -> {:r_paren, rest}
-            ?{ -> {:l_brace, rest}
-            ?} -> {:r_brace, rest}
+            ?{ -> {:l_curly, rest}
+            ?} -> {:r_curly, rest}
             ?[ -> {:l_square, rest}
             ?] -> {:r_square, rest}
             ?; -> {:semicolon, rest}

@@ -30,9 +30,9 @@ Even blocks, which always culminate with an expression which is the return value
 
 ```
 _ = (
-    x = 1
+    x = 1;
     x + 1
-)
+);
 ```
 
 Variables in the same scope are declaration order independent, though style wise it is best to declare them in the order they are used unless.
@@ -40,23 +40,23 @@ This may still be changed to be imperative, and just not allow for mutual recurs
 
 ```
 _ = (
-    x = 1 + y
-    y = 2
+    x = 1 + y;
+    y = 2;
     x + 1
-)
+);
 ```
 
 Variables in nested scopes are not visible in outer scopes, and variables in outer scopes are shadowed by variables in inner scopes.
 
 ```
 _ = (
-    x = 1
+    x = 1;
     _ = (
-        x = 2
+        x = 2;
         x
-    )
+    );
     x
-)
+);
 ```
 
 
@@ -343,8 +343,8 @@ block:
 - **(** expression **)**
 
 statement_list:
-- statement  
-- statement statement_list
+- statement **;**
+- statement **;** statement_list
 
 statement:
 - assignee **=** expression

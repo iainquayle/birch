@@ -6,6 +6,18 @@ defmodule Birch.Parser do
     
   end
 
+  def parse_binops(tokens) do
+        
+  end
+
+  defp parse_mul(tokens) do
+
+  end
+
+  def parse_unops(tokens) do
+    
+  end
+
   def parse_binding(tokens) do
     case tokens do
       [] -> {:error, "No tokens to parse"} 
@@ -16,7 +28,6 @@ defmodule Birch.Parser do
       end
     end
   end
-
   defp parse_destructure_binding(bindings, tokens) do
     case tokens do
       [] -> {:error, "No tokens to parse"} 
@@ -29,20 +40,20 @@ defmodule Birch.Parser do
               [{:as, _} | rest] -> [alias_token | rest] = rest
                 case alias_token do
                   {{:identifier, _}, _} -> {:ok, {:alias_binding, token, alias_token}, rest} 
-                  _ -> {:error, "Invalid token for alias"} 
+                  _ -> {:error, {"Invalid token for alias", alias_token}} 
                 end
               _ -> {:ok, {:binding, token}, rest} 
             end
-            _ -> {:error, "Invalid token for destructure binding"} 
+            _ -> {:error, {"Invalid token for destructure binding", token}} 
           end
           case result do
             {:error, _} -> result
             {:ok, binding, rest} -> case rest do
               [] -> {:error, "No tokens to parse"}
-              [:comma | rest] -> parse_destructure_binding([binding | bindings], rest)
-              [:r_curly | rest] -> {:ok, {:destructure_binding, [binding | bindings]}, rest}
-              _ -> {:error, "Invalid token for destructure binding"}
-            _ -> {:error, "Invalid result for destructure binding"}
+              [{:comma, _} | rest] -> parse_destructure_binding([binding | bindings], rest)
+              [{:r_curly, _} | rest] -> {:ok, {:destructure_binding, [binding | bindings]}, rest}
+              [token | _] -> {:error, {"Invalid delimiter token", token}}
+            #_ -> {:error, "Invalid result for destructure binding"}
             end
           end
       end

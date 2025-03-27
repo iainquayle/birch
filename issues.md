@@ -1,5 +1,39 @@
 # issues
 
+## parsing
+
+as it stands, because of the current function calls, without delimiting the end of statements,
+or making the function calls more explicit, the return value of a block is completely ambiguous.
+
+```
+x = f 1
+2
+```
+
+while trying to return 2, it will parse as apply f to 1 and 2, and then assign that to x.
+
+will likely use a semicolon to delimit statements
+
+```
+x = f 1;
+2
+```
+
+or make function calls more explicit
+
+```
+x = f <| 1
+2
+```
+
+while this looks nice, it would make the sum type syntax substantially more verbose,
+unless some other syntax was used for that.
+
+one option for the sum type is to lean into requiring that it use product types for multiple arguments, instead of curried functions.
+though this does not seem like a good idea.
+
+other option is to bring in true tuples? but that does not seem necessary
+
 ## syntax 
 
 currently the syntax of adts does not really matchup with their background construct.
@@ -33,6 +67,17 @@ y = s (x => x) (x => x + 1)
 ```
 
 ```
+x = ..
+s = if x > 0
+    then {f, g} => f x
+    else {f, g} => g x
+y = s {
+    f = x => x, 
+    g = x => x + 1,
+}
+```
+
+```
 ..
 t = {
     | f i32
@@ -46,8 +91,6 @@ y = s {
     | g = x => x + 1
 }
 ```
-hypothetically the sum functions could just be a struct, but this would allow for a catch all, and mapping multiple cases to the same function/value.
-
 
 on a more fundamental level, function calls may still be a little to hard to read,
 and also leave open questions of issues in parsing. 

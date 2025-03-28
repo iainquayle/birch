@@ -29,117 +29,113 @@ defmodule Birch.Lexer do
       [] -> []
       [char | rest] -> <<char::utf8>> = char
         start_position = Position.increment(position, char)
-          result = case char do
-            c when c in @whitespace -> {new_position, rest} = tokenize_whitespace(rest, start_position)
-              {:whitespace, new_position, rest}
-            c when c in @numbers  -> {num, new_position, rest} = tokenize_number(rest, <<c::utf8>>,  start_position)
-              {{:int, num}, new_position, rest}
-              #add more options, as well as perhaps the size 
-            c when is_alphabet(c) -> {size, new_position, rest} = tokenize_number(rest, <<c::utf8>>, start_position)
-              if new_position != start_position do
-                token = case c do
-                  ?i -> {:int_type, size}
-                  ?u -> {:uint_type, size}
-                  ?f -> {:float_type, size}
-                  _ -> {:identifier, <<c::utf8>> <> size}
-                end
-                {token, new_position, rest}
-              else
-                {identifier, new_position, rest} = tokenize_identifier(rest, <<c::utf8>>, start_position)
-                token = case identifier do
-                  "true" -> :true
-                  "false" -> :false
-                  "if" -> :if
-                  "then" -> :then
-                  "else" -> :else
-                  "bool" -> :bool_type
-                  "fn" -> :fn
-                  "let" -> :let
-                  "to" -> :to
-                  "as" -> :as
-                  "in" -> :in
-                  "match" -> :match
-                  "tail" -> :tail
-                  "rec" -> :rec
-                  "type" -> :type
-                  "self" -> :self
-                  _ -> {:identifier, identifier}
-                end
-                {token, new_position, rest}
+        result = case char do
+          c when c in @whitespace -> {new_position, rest} = tokenize_whitespace(rest, start_position)
+            {:whitespace, new_position, rest}
+          c when c in @numbers  -> {num, new_position, rest} = tokenize_number(rest, <<c::utf8>>,  start_position)
+            {{:int, num}, new_position, rest}
+            #add more options, as well as perhaps the size 
+          c when is_alphabet(c) -> {size, new_position, rest} = tokenize_number(rest, <<c::utf8>>, start_position)
+            if new_position != start_position do
+              token = case c do
+                ?i -> {:int_type, size}
+                ?u -> {:uint_type, size}
+                ?f -> {:float_type, size}
+                _ -> {:identifier, <<c::utf8>> <> size}
               end
-            ?* -> {:star, rest}
-            ?/ -> {:f_slash, rest}
-            ?+ -> {:plus, rest}
-            ?% -> {:mod, rest}
-            ?- -> new_position = Position.increment(start_position, ?-)
-              case rest do
-                [?> | rest] -> {:r_arrow, new_position, rest}
-                _ -> {:minus, rest}
+              {token, new_position, rest}
+            else
+              {identifier, new_position, rest} = tokenize_identifier(rest, <<c::utf8>>, start_position)
+              token = case identifier do
+                "true" -> :true
+                "false" -> :false
+                "if" -> :if
+                "then" -> :then
+                "else" -> :else
+                "bool" -> :bool_type
+                "fn" -> :fn
+                "let" -> :let
+                "to" -> :to
+                "as" -> :as
+                "in" -> :in
+                "match" -> :match
+                "tail" -> :tail
+                "rec" -> :rec
+                "type" -> :type
+                "self" -> :self
+                _ -> {:identifier, identifier}
               end
-            ?= -> new_position = Position.increment(start_position, ?=)
-              case rest do
-                [?> | rest] -> {:r_fat_arrow, new_position, rest}
-                [?= | rest] -> {:eq, new_position, rest}
-                _ -> {:eq, rest}
-              end
-            ?| -> new_position = Position.increment(start_position, ?|)
-              case rest do
-                [?> | rest] -> {:r_point, new_position, rest}
-                [?| | rest] -> {:or, new_position, rest}
-                _ -> {:pipe, rest}
-              end
-            ?& -> new_position = Position.increment(start_position, ?&)
-              case rest do
-                [?& | rest] -> {:and, new_position, rest}
-                _ -> {:amp, rest}
-              end
-            ?! -> new_position = Position.increment(start_position, ?!)
-              case rest do
-                [?= | rest] -> {:neq, new_position, rest}
-                _ -> {:bang, rest}
-              end 
-            ?< -> new_position = Position.increment(start_position, ?<)
-              case rest do
-                [?- | rest] -> {:l_arrow, new_position, rest}
-                [?| | rest] -> {:l_point, new_position, rest}
-                [?= | rest] -> {:leq, new_position, rest}
-                [?< | rest] -> {:l_shift, new_position, rest}
-                _ -> {:lt, rest}
-              end
-            ?> -> new_position = Position.increment(start_position, ?>)
-              case rest do
-                [?= | rest] -> {:geq, new_position, rest}
-                [?> | rest] -> {:r_shift, new_position, rest}
-                _ -> {:gt, rest}
-              end
-            ?( -> {:l_paren, rest}
-            ?) -> {:r_paren, rest}
-            ?{ -> {:l_curly, rest}
-            ?} -> {:r_curly, rest}
-            ?[ -> {:l_square, rest}
-            ?] -> {:r_square, rest}
-            ?; -> {:semicolon, rest}
-            ?: -> {:colon, rest}
-            ?? -> {:q_mark, rest}
-            ?\\ -> {:b_slash, rest}
-            ?' -> {:s_quote, rest}
-            ?" -> {:d_quote, rest}
-            ?` -> {:b_quote, rest}
-            ?@ -> {:at, rest}
-            ?$ -> {:dollar, rest}
-            ?# -> {:hash, rest}
-            ?~ -> {:tilde, rest}
-            ?^ -> {:caret, rest}
-            ?_ -> {:underscore, rest}
-            ?. -> {:dot, rest}
-            ?, -> {:comma, rest}
-            _ -> {{:unknown, char}, rest}
-          end
-          case result do
-            {:whitespace, final_position, rest} -> tokenize(rest, final_position)
-            {token, final_position, rest} -> [{token, position} | tokenize(rest, final_position)]
-            {token, rest} -> [{token, position} | tokenize(rest, start_position)]
-          end
+              {token, new_position, rest}
+            end
+          ?* -> {:star, rest}
+          ?/ -> {:f_slash, rest}
+          ?+ -> {:plus, rest}
+          ?% -> {:mod, rest}
+          ?- -> case rest do
+              [?> | rest] -> {:r_arrow, Position.increment(start_position, ?>), rest}
+              _ -> {:minus, rest}
+            end
+          ?= -> case rest do
+              [?> | rest] -> {:r_fat_arrow, Position.increment(start_position, ?>), rest}
+              [?= | rest] -> {:eq_eq, Position.increment(start_position, ?=), rest}
+              _ -> {:eq, rest}
+            end
+          ?| ->  case rest do
+              [?> | rest] -> {:r_point, Position.increment(start_position, ?>), rest}
+              [?| | rest] -> {:pipe_pipe, Position.increment(start_position, ?|), rest}
+              _ -> {:pipe, rest}
+            end
+          ?& -> case rest do
+              [?& | rest] -> {:amp_amp, Position.increment(start_position, ?&), rest}
+              _ -> {:amp, rest}
+            end
+          ?! -> case rest do
+              [?= | rest] -> {:bang_ep, Position.increment(start_position, ?=), rest}
+              _ -> {:bang, rest}
+            end 
+          ?~ -> case rest do
+              [?= | rest] -> {:tilde_ep, Position.increment(start_position, ?=), rest}
+              _ -> {:tilde, rest}
+            end
+          ?< -> case rest do
+              [?- | rest] -> {:l_arrow, Position.increment(start_position, ?-), rest}
+              [?| | rest] -> {:l_point,  Position.increment(start_position, ?|), rest}
+              [?= | rest] -> {:leq, Position.increment(start_position, ?=), rest}
+              [?< | rest] -> {:l_shift, Position.increment(start_position, ?<), rest}
+              _ -> {:lt, rest}
+            end
+          ?> -> case rest do
+              [?= | rest] -> {:geq, Position.increment(start_position, ?=), rest}
+              [?> | rest] -> {:r_shift,Position.increment(start_position, ?>), rest}
+              _ -> {:gt, rest}
+            end
+          ?( -> {:l_paren, rest}
+          ?) -> {:r_paren, rest}
+          ?{ -> {:l_curly, rest}
+          ?} -> {:r_curly, rest}
+          ?[ -> {:l_square, rest}
+          ?] -> {:r_square, rest}
+          ?; -> {:semicolon, rest}
+          ?: -> {:colon, rest}
+          ?? -> {:q_mark, rest}
+          ?\\ -> {:b_slash, rest}
+          ?' -> {:s_quote, rest}
+          ?" -> {:d_quote, rest}
+          ?` -> {:b_quote, rest}
+          ?@ -> {:at, rest}
+          ?$ -> {:dollar, rest}
+          ?# -> {:hash, rest}
+          ?^ -> {:caret, rest}
+          ?_ -> {:underscore, rest}
+          ?. -> {:dot, rest}
+          ?, -> {:comma, rest}
+          _ -> {{:unknown, char}, rest}
+        end
+        case result do
+          {:whitespace, final_position, rest} -> tokenize(rest, final_position)
+          {token, final_position, rest} -> [{token, position} | tokenize(rest, final_position)]
+          {token, rest} -> [{token, position} | tokenize(rest, start_position)]
+        end
     end
   end
   defp tokenize_identifier(chars, identifier_str, position) do

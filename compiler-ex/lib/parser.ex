@@ -6,12 +6,43 @@ defmodule Birch.Parser do
     
   end
 
-  def parse_binops(tokens) do
-        
+  def parse_prim_op(tokens) do
+    case tokens do
+      [] -> {:error, "No tokens to parse"}
+      [token | rest] -> case token do
+        {{:identifier, _}, _} -> nil 
+          
+        _ -> {:error, "Invalid token for add"}
+      end
+    end
+  end
+
+  defp parse_add(tokens) do
+    case tokens do
+      [] -> {:error, "No tokens to parse"}
+      [token | rest] -> case token do
+        {{:identifier, _}, _} -> parse_binding(tokens)
+        _ -> {:error, "Invalid token for add"}
+      end
+    end
+  end
+
+  defp parse_logical(tokens) do
+    case tokens do
+      [] -> {:error, "No tokens to parse"}
+    end
+  end
+
+  defp parse_relational(tokens) do
+    case tokens do
+      [] -> {:error, "No tokens to parse"}
+    end
   end
 
   defp parse_mul(tokens) do
-
+    case tokens do
+      [] -> {:error, "No tokens to parse"}
+    end
   end
 
   def parse_unops(tokens) do

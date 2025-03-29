@@ -11,6 +11,9 @@ one flat namespace of token types, dont worry about how the tokens will interact
 
 ### blocks
 
+PERHAPS, function parse can first check for a statement, if it finds one, it will parse it and return the original ast and the optional new statement ast
+this can then be passed back up somehow
+
 dealing with function calls, it would be best to essentially have the parsing check back every time
 for the function call, you give it the current parsed chain, it will only give back the chain incremented by one.
 then the next statement can be checked for, it nothing, continue with the current chain.

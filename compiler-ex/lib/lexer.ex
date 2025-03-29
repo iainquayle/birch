@@ -9,6 +9,9 @@ defmodule Birch.Lexer do
         _ -> %Position{index: position.index + 1, line: position.line, column: position.column + 1}
       end
     end
+    def to_string(position) do
+      "Line: #{position.line}, Column: #{position.column}, Index: #{position.index}"
+    end
   end
 
   defmacrop is_alphabet(char) do

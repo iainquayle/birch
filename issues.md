@@ -36,6 +36,19 @@ other option is to bring in true tuples? but that does not seem necessary
 
 ## syntax 
 
+currently there is an issue with ambiguity in the syntax of structs with single implicit field,
+and sum type calls with no arguments.
+options:
+- require that sum types with no arguments are called with _
+    likely the least consitent option
+- have some other syntax for sum type calls
+    this is likely the second best option, but not sure exactly how it would look.
+- require that product fields are explicitly named.
+    would be easy, but not follow the precident set by destructuring
+- require that product types have multiple fields
+    would follow the language precidents the best, but would make development more of a pain.
+    likely the best option though so far.
+
 currently the syntax of adts does not really matchup with their background construct.
 products are pretty good, but sums are not as good.
 

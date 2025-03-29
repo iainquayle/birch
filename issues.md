@@ -36,6 +36,8 @@ other option is to bring in true tuples? but that does not seem necessary
 
 ## syntax 
 
+
+
 currently there is an issue with ambiguity in the syntax of structs with single implicit field,
 and sum type calls with no arguments.
 options:

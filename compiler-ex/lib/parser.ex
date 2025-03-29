@@ -6,12 +6,20 @@ defmodule Birch.Parser do
     
   end
 
-  def parse_expression(tokens) do
+  defp longest_parse(tokens, parsers) do
+  end
+
+  defp parse_expression(tokens) do
     #consolidate all expressions into this
   end
 
+  defp parse_non_prim(tokesn) do
+    #for use in the parse prim op
+    #can also be used by the parse expression
+  end
+
   def parse_prim_op(tokens) do
-    #attempt ident, literal(prim, func, adt), parens, unops, call, 
+    #attempt ident, literal(prim, func, adt), parens, unops, call, if 
     #then match what is left with +, - ...
     #then recurse right side
     case tokens do
@@ -45,6 +53,7 @@ defmodule Birch.Parser do
   end
 
   def parse_product(tokens) do
+
   end
 
   def parse_sum(tokens) do

@@ -332,19 +332,32 @@ function_type:
 - expression **->** expression 
 
 call:
-- expression_list **|>** expression 
-- expression expression 
+- expression **|>** expression 
+- expression (expression)
+- expression identifier
+- expression call_literal 
+
+call_literal:
+- primitive
+- primitive_type
+- product
+- product_type
+- sum
+- sum_call
+- sum_type
+- array
+- array_type
 
 if:
 - **if** expression **then** expression **else** expression 
 
 block:
-- statement_list expression
+- statement_list **;** expression
 - **(** expression **)**
 
 statement_list:
-- statement **;**
-- statement **;** statement_list
+- statement 
+- statement statement_list
 
 statement:
 - assignee **=** expression

@@ -9,6 +9,16 @@ one flat namespace of token types, dont worry about how the tokens will interact
 
 ## ast 
 
+### blocks
+
+dealing with function calls, it would be best to essentially have the parsing check back every time
+for the function call, you give it the current parsed chain, it will only give back the chain incremented by one.
+then the next statement can be checked for, it nothing, continue with the current chain.
+
+would be cool to allow this for most constructs in the language.
+
+### misc
+
 nodes will be a single struct, accompanied by an enum type also from a flat namespace, and any number of children. 
 
 data holds type (which will be value until semantic analysis?) and value,

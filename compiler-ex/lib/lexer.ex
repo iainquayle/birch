@@ -12,6 +12,13 @@ defmodule Birch.Lexer do
     def to_string(position) do
       "Line: #{position.line}, Column: #{position.column}, Index: #{position.index}"
     end
+    def compare(pos1, pos2) do
+      if pos1.index > pos2.index do
+        :gt
+      else
+        :lt
+      end
+    end
   end
 
   defmacrop is_alphabet(char) do

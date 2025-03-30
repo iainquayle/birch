@@ -7,6 +7,21 @@ defmodule Birch.Parser do
   end
 
   defp longest_parse(tokens, parsers) do
+    #parse all parsers and return the longest parse
+    results = Enum.map(parsers, fn parser -> parser.(tokens) end)
+    Enum.reduce(results, {:error, "No tokens to parse"}, fn result, acc -> 
+      case result do
+        {:error, _} -> acc
+        {:ok, _, _, position} -> case acc do
+          {:error, _} -> result
+          {:ok, _, _, acc_position} -> if Position.compare(position, acc_position) == :gt do
+            result
+          else
+            acc
+          end
+        end
+      end
+    end)
   end
 
   defp parse_expression(tokens) do

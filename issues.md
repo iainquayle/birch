@@ -1,5 +1,11 @@
 # issues
 
+## products
+
+currently products require multople fields, which is a little artificially limiting.
+it could be that the instantiation of products adn product types require at least one comma,
+in order to distinguish them from sum type calls with no arguments.
+
 ## parsing
 
 as it stands, because of the current function calls, without delimiting the end of statements,

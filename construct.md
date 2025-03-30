@@ -117,8 +117,8 @@ type -> type
 #### calling
 
 ```
-function arg 
-arg \> function 
+f . x 
+x \> f 
 ```
 
 Functions are first class and are curried.
@@ -348,22 +348,12 @@ function:
 function_type:
 - expression **->** expression 
 
-call:
+call: 
 - expression **|>** expression 
-- expression (expression)
-- expression identifier
-- expression call_literal 
+- expression . expression
 
-call_literal:
-- primitive
-- primitive_type
-- product
-- product_type
-- sum
-- sum_call
-- sum_type
-- array
-- array_type
+Call also includes accessing a field of a product type.
+It will essentially be mimicking passing in a function, which retrieves a single field of a product type.
 
 if:
 - **if** expression **then** expression **else** expression 
@@ -405,20 +395,21 @@ product_type_list:
 - identifier **:** expression
 - identifier **:** expression **,** product_type_list
 
-sum:
-- { identifier sum_list }
-
-sum_list:
-- expression
-- expression sum_list
-
 sum_call:
-- **{** expression sum_call_list **}**
+- { identifier }
+- { identifier . call }
 
-sum_call_list:
+sum_functions:
+- **{** sum_function_list **}**
+
+sum_functions_list:
 - **|** **_** **=** expression
-- **|** identifier **=** expression **|** identifier **=** expression  
-- **|** identifier **=** expression sum_call_list
+- sum_function_identifier_list **=** expression sum_function_identifier_list  **=** expression  
+- sum_function_identifier_list **=** expression sum_functions_list
+
+sum_function_identifier_list:
+- **|** identifier
+- **|** identifier sum_function_identifier_list
 
 sum_type:
 - **{** sum_type_list **}**

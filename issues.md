@@ -36,8 +36,18 @@ could actuall use semicolon, though may be a little confusing,
 could also move elemnt access to colon which would somewhat fall in line with other languages.
 and wouldnt be too much of a pain if destructuring is mainly used...
 
+could technically use the same token for both, they are booth in a sense.
+and in some sense, a tuple can take in a function an return the associated value, which this would actually fit in line with.
+
 ```
 x = f . 1 . z
+2
+```
+
+or
+
+```
+x = f \ 1 \ z
 2
 ```
 

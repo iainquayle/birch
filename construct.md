@@ -59,7 +59,6 @@ _ = (
 );
 ```
 
-
 ## data and types 
 
 Data is always immutable, and is defined by structs, arrays and algebraic types.
@@ -100,19 +99,13 @@ Only take one argument and return one value.
 All functions are denoted by an assignee followed by a fat arrow.
 
 ```
-x => expression
+binding => expression
 ```
 
 Curried functions are currently just a chain of function inputs, and do not yet have a special syntax.
 
 ```
 x => y => x + y
-```
-
-May follow a haskell like syntax, which would be a litte more readable. 
-
-```
-x, y => x + y
 ```
 
 #### typing
@@ -123,20 +116,19 @@ type -> type
 
 #### calling
 
-Not yet decided.
-There will be piping.
+```
+function arg 
+arg \> function 
+```
 
-May do something like:
+Functions are first class and are curried.
+There may even be a way to curry functions that take in product types.
 
 ```
-add 1 2
-1, 2 \> add
+{x} => x + y
 ```
-Need to figure out what exactly to do with functions that dont take arguments, will they just ne treated as a value?
-Will values even be treated as functions that can take in any number of arguments, but obviously only return a specific value?
 
-All functions support currying, as well, currying over tuples will likely be supported, where a partially complete tuple can be passed in,
-and a new function will be returned.
+This will return a new function that takes in the 'y'.
 
 ### product types/tuples
 
@@ -171,6 +163,13 @@ s.a
 {a, b as c} = s
 ```
 
+It may be changed such that in order to alias a field, it uses a '=' sign instead of the 'as' keyword.
+Though this may be confusing. 
+
+```
+{a, c = b} = s
+```
+
 ### sum types/unions
 
 Sums are more akin to algebraic types/variants/tagged unions in other languages.
@@ -184,20 +183,20 @@ The value returned is essentially a defered function call.
 The syntax for this is not yet fully decided.
 
 ```
-if expression then {a value} else {b value}
+if expression then {a x y} else {b x}
 ```
 
 #### typing
 
 ```
-t = {a type | b type | c type}
+t = {a types | b types }
 ```
 
 #### access
 
 ```
 out = x { 
-    | a = y => expression 
+    | a = x => y => expression 
     | b | c = y => expression 
     | _ = expression 
 }
@@ -288,6 +287,24 @@ They follow the if then else pattern.
 if x == 1 then x else y
 ```
 
+### match
+
+There isnt a match ecpression yet but likely will be.
+
+## blocks
+
+Blocks are list a of statements, culminating in an expression.
+
+```
+_ = 
+    x = 1;
+    y = 2;
+    x + 1
+;
+```
+
+Right now statements are separated by semicolons, however this will change to be less verbose.
+
 ## metaprogramming
 
 compile time run and runtime compile metaprogramming will be supported.
@@ -352,12 +369,12 @@ if:
 - **if** expression **then** expression **else** expression 
 
 block:
-- statement_list **;** expression
+- statement_list expression
 - **(** expression **)**
 
 statement_list:
-- statement 
-- statement statement_list
+- statement **;** 
+- statement **;** statement_list
 
 statement:
 - assignee **=** expression

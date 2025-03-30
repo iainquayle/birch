@@ -26,6 +26,29 @@ x = f <| 1
 2
 ```
 
+HERE!!!!!
+or use a single token to denote applying a function to an argument
+this will make the syntax a little more apparent, and will allow for the removeal of the semicolon entirely.
+this would need to be either moved to a different token from ., or move struct access to a different token.
+, cannot be used and would be confusing,
+and it should be a token that is easy to access, not backslash or tilde or tick.
+could actuall use semicolon, though may be a little confusing,
+could also move elemnt access to colon which would somewhat fall in line with other languages.
+and wouldnt be too much of a pain if destructuring is mainly used...
+
+```
+x = f . 1 . z
+2
+```
+
+one other option is to make statement blocks return the last expression using a symbol or keyword.
+this would only be necessary in statement blocks.
+
+```
+x = f 1
+<- 2
+```
+
 while this looks nice, it would make the sum type syntax substantially more verbose,
 unless some other syntax was used for that.
 

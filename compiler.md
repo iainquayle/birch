@@ -1,5 +1,7 @@
 # data structure 
 
+
+
 ## tokens
 
 make new eat function in token class, will take iterator, return next token and iterator.
@@ -8,19 +10,6 @@ just copy iterator before reading, return last iterator once done.
 one flat namespace of token types, dont worry about how the tokens will interact with each other such as in the case of them all being data.
 
 ## ast 
-
-### blocks
-
-PERHAPS, function parse can first check for a statement, if it finds one, it will parse it and return the original ast and the optional new statement ast
-this can then be passed back up somehow
-
-dealing with function calls, it would be best to essentially have the parsing check back every time
-for the function call, you give it the current parsed chain, it will only give back the chain incremented by one.
-then the next statement can be checked for, it nothing, continue with the current chain.
-
-would be cool to allow this for most constructs in the language.
-
-### misc
 
 nodes will be a single struct, accompanied by an enum type also from a flat namespace, and any number of children. 
 
@@ -38,7 +27,21 @@ likely quicker navigation and analysis, but whether it is worth it.
 
 ## parsing
 
-the parser will be a simple recursive descent parser, that will generate the ast as it goes.
+### statements 
+
+if the final part of a statement expression could be a function,
+then it will parse the start of the statement as an argument?
+
+solutions:
+- make it such that every statement is followed by a semicolon once again, instead of just the last statement
+    this would be more consistent syntax wise, with others languages, and just in general
+- make a state based function parsing system, where it will represent both states until a deciding token is found
+    would be more complex, but allow for more flexibility
+
+PERHAPS, function parse can first check for a statement, if it finds one, it will parse it and return the original ast and the optional new statement ast
+this can then be passed back up somehow
+
+
 
 ## semantic analysis
 

@@ -76,7 +76,7 @@ type -> type
 
 ```
 f . x 
-x \> f 
+x |> f 
 ```
 
 Functions are first class and are curried.
@@ -419,8 +419,8 @@ sum_type:
 - **{** sum_type_list **}**
 
 sum_type_list:
-- identifier **.** expression **|** identifier **.** expression
-- identifier **.** expression **|** sum_type_list 
+- sum_type_variant **|** sum_type_variant
+- sum_type_variant **|** sum_type_list 
 
 sum_type_variant:
 - identifier 

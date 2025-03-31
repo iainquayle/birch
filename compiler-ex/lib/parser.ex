@@ -7,7 +7,6 @@ defmodule Birch.Parser do
   end
 
   defp longest_parse(tokens, parsers) do
-    #parse all parsers and return the longest parse
     results = Enum.map(parsers, fn parser -> parser.(tokens) end)
     Enum.reduce(results, {:error, "No tokens to parse"}, fn result, acc -> 
       case result do
@@ -28,24 +27,6 @@ defmodule Birch.Parser do
     #consolidate all expressions into this
   end
 
-  defp parse_non_prim(tokesn) do
-    #for use in the parse prim op
-    #can also be used by the parse expression
-  end
-
-  def parse_prim_op(tokens) do
-    #attempt ident, literal(prim, func, adt), parens, unops, call, if 
-    #then match what is left with +, - ...
-    #then recurse right side
-    case tokens do
-      [] -> {:error, "No tokens to parse"}
-      [token | rest] -> case token do
-        {{:identifier, _}, _} -> nil 
-        _ -> {:error, "Invalid token for add"}
-      end
-    end
-  end
-
   def parse_function(tokens) do
     binding_result = parse_binding(tokens)
     case binding_result do
@@ -55,7 +36,7 @@ defmodule Birch.Parser do
         [{:r_fat_arrow, _} | rest] -> expr_result = parse_expression(rest)
           case expr_result do
             {:error, _} -> expr_result
-            {:ok, expr, rest} -> {:ok, {:function, binding, expr}, rest}
+            {:ok, expr, rest, position} -> {:ok, {:function, binding, expr}, rest, position}
           end
         _ -> {:error, "Invalid token after binding"}
       end
@@ -64,7 +45,7 @@ defmodule Birch.Parser do
 
 
   def parse_adt(tokens) do
-    
+    #just attempt parse of adts below
   end
 
   def parse_product(tokens) do
@@ -72,9 +53,11 @@ defmodule Birch.Parser do
   end
 
   def parse_sum(tokens) do
+
   end
 
   def parse_sum_block(tokens) do
+
   end
     
 

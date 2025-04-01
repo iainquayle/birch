@@ -23,88 +23,111 @@ defmodule Birch.Parser do
     end)
   end
 
-  defp parse_expression(tokens) do
-    #consolidate all expressions into this
-  end
 
 # binary expressions
 
-  defp parse_binary(token_node_pairs, parse_next, parse_self, left_side, tokens) do
-    left_side = case left_side do
-      nil -> parse_next.(nil, tokens)
-      _ -> left_side
+  defp parse_binary(token_node_pairs, parse_next, parse_self, left_result, tokens) do
+    left_result = case left_result do
+      nil -> parse_next.(tokens)
+      _ -> left_result
     end
-    case left_side do
-      {:error, _} -> left_side
-      {:ok, left_side, rest, position} -> 
-        
-        nil
-    end
-  end
-
-  defp parse_logical_expression(left_side, tokens) do
-    left_side = case left_side do
-      nil -> parse_bitwise_expression(nil, tokens)
-      _ -> left_side
-    end
-    case left_side do
-      {:error, _} -> left_side
-      {:ok, left_side, rest, position} -> case rest do
-        _ -> left_side
-        [{:logical_and, _} | rest] -> right_side = parse_bitwise_expression(nil, rest)
-          case right_side do
-            {:error, _} -> right_side
-            {:ok, right_side, rest, position} -> result = {:ok, {:logical_and, left_side, right_side}, rest, position}
-              new_result = parse_logical_expression(result, rest)
-              case new_result do
-                {:error, _} -> result
-                {:ok, _, _, _} -> new_result
-              end
-          end
-        [{:logical_or, _} | rest] -> right_side = parse_logical_expression(nil, rest)
-          case right_side do
-            {:error, _} -> right_side
-            {:ok, right_side, rest, position} -> {:ok, {:logical_or, left_side, right_side}, rest, position}
-          end
+    case left_result do
+      {:error, _} -> left_result
+      {:ok, left_node, rest, _} -> case rest do
+          [] -> left_result
+          [token | rest] -> token_pair = Enum.find(token_node_pairs, fn {token_pair_type, _} -> 
+              {token_type, _} = token
+              token_type == token_pair_type 
+            end)
+            case token_pair do
+              nil -> left_result
+              {_, node_type} -> right_result = parse_next.(rest)
+                case right_result do
+                  {:error, _} -> right_result
+                  {:ok, right_node, rest, position} -> node = {node_type, left_node, right_node}
+                    result = {:ok, node, rest, position}
+                    new_result = parse_self.(result, rest)
+                    case new_result do
+                      {:error, _} -> result
+                      {:ok, _, _, _} -> new_result
+                    end
+                end
+            end
         end
     end
   end
-
-  defp parse_bitwise_expression(left_side, tokens) do
-    
+  defp apply_nil(func) do
+    fn tokens -> func.(nil, tokens) end
   end
 
-  defp parse_equality_expression(left_side, tokens) do
-    
+  def parse_expression(tokens) do
+    parse_logical_expression(nil, tokens)
   end
 
-  defp parse_relational_expression(left_side, tokens) do
-    
+  defp parse_logical_expression(left_result, tokens) do
+    parse_binary([{:amp_amp, :logical_and}, {:pipe_pipe, :logical_or}], apply_nil(&parse_bitwise_expression/2), &parse_logical_expression/2, left_result, tokens)
   end
 
-  defp parse_bitwise_shift_expression(left_side, tokens) do
-    
+  defp parse_bitwise_expression(left_result, tokens) do
+    parse_binary([{:amp, :bitwise_and}, {:pipe, :bitwise_or}, {:caret, :bitwise_xor}], apply_nil(&parse_equality_expression/2), &parse_bitwise_expression/2, left_result, tokens)
   end
 
-  defp parse_additive_expression(left_side, tokens) do
-    
+  defp parse_equality_expression(left_result, tokens) do
+    parse_binary([{:eq_eq, :eq}, {:bang_eq, :neq}], apply_nil(&parse_relational_expression/2), &parse_equality_expression/2, left_result, tokens)
   end
 
-  defp parse_multiplicative_expression(left_side, tokens) do
-    
+  defp parse_relational_expression(left_result, tokens) do
+    parse_binary([{:lt, :lt}, {:leq, :leq}, {:gt, :gt}, {:geq, :geq}], apply_nil(&parse_bitwise_shift_expression/2), &parse_relational_expression/2, left_result, tokens)
+  end
+
+  defp parse_bitwise_shift_expression(left_result, tokens) do
+    parse_binary([{:l_shift, :l_shift}, {:r_shift, :r_shift}], apply_nil(&parse_additive_expression/2), &parse_bitwise_shift_expression/2, left_result, tokens)
+  end
+
+  defp parse_additive_expression(left_result, tokens) do
+    parse_binary([{:plus, :add}, {:minus, :sub}], apply_nil(&parse_multiplicative_expression/2), &parse_additive_expression/2, left_result, tokens)
+  end
+
+  defp parse_multiplicative_expression(left_result, tokens) do
+    parse_binary([{:star, :mul}, {:f_slash, :div}, {:mod, :mod}], &parse_unary_expression/1, &parse_multiplicative_expression/2, left_result, tokens)
   end
 
   defp parse_unary_expression(tokens) do
-    
+    case tokens do
+      [] -> {:error, "No tokens to parse"}
+      [token | rest] -> case token do
+        {:minus, _} -> expr_result = parse_unary_expression(rest)
+          case expr_result do
+            {:error, _} -> expr_result
+            {:ok, expr, rest, position} -> {:ok, {:negate, expr}, rest, position}
+          end
+        {:bang, _} -> expr_result = parse_unary_expression(rest)
+          case expr_result do
+            {:error, _} -> expr_result
+            {:ok, expr, rest, position} -> {:ok, {:not, expr}, rest, position}
+          end
+        {:tilde, _} -> expr_result = parse_unary_expression(rest)
+          case expr_result do
+            {:error, _} -> expr_result
+            {:ok, expr, rest, position} -> {:ok, {:bitwise_not, expr}, rest, position}
+          end
+        _ -> parse_call_expression(nil, tokens)
+      end
+    end
   end
 
-  defp parse_call_expression(left_side, tokens) do
-    
+  defp parse_call_expression(left_result, tokens) do
+    parse_binary([{:dot, :call}], &parse_primary_expression/1, &parse_call_expression/2, left_result, tokens)
   end
 
   #lits, idents, parens, adts, control flow, could do blocks maybe
   defp parse_primary_expression(tokens) do
-    
+    case tokens do
+      [] -> {:error, "No more tokens"}
+      [token | rest] -> case token do
+        {{:identifier, _}, position} -> {:ok, token, rest, position}
+      end
+    end
   end
 
 

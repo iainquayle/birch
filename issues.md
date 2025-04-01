@@ -1,7 +1,7 @@
 # issues
 
 need to set out an actual order of of ops in the language spec
-logic > cmp > add > mul > unary > call > binding/value/parens/control flow
+logic > binary logical > cmp > add > mul > unary > call > binding/value/parens/control flow
 
 it is likely best tto continue following this, however,
 having the second expression in the call be capture more may be a nicer syntax.

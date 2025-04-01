@@ -27,6 +27,93 @@ defmodule Birch.Parser do
     #consolidate all expressions into this
   end
 
+# binary expressions
+
+  defp parse_binary(token_node_pairs, parse_next, parse_self, left_side, tokens) do
+    left_side = case left_side do
+      nil -> parse_next.(nil, tokens)
+      _ -> left_side
+    end
+    case left_side do
+      {:error, _} -> left_side
+      {:ok, left_side, rest, position} -> 
+        
+        nil
+    end
+  end
+
+  defp parse_logical_expression(left_side, tokens) do
+    left_side = case left_side do
+      nil -> parse_bitwise_expression(nil, tokens)
+      _ -> left_side
+    end
+    case left_side do
+      {:error, _} -> left_side
+      {:ok, left_side, rest, position} -> case rest do
+        _ -> left_side
+        [{:logical_and, _} | rest] -> right_side = parse_bitwise_expression(nil, rest)
+          case right_side do
+            {:error, _} -> right_side
+            {:ok, right_side, rest, position} -> result = {:ok, {:logical_and, left_side, right_side}, rest, position}
+              new_result = parse_logical_expression(result, rest)
+              case new_result do
+                {:error, _} -> result
+                {:ok, _, _, _} -> new_result
+              end
+          end
+        [{:logical_or, _} | rest] -> right_side = parse_logical_expression(nil, rest)
+          case right_side do
+            {:error, _} -> right_side
+            {:ok, right_side, rest, position} -> {:ok, {:logical_or, left_side, right_side}, rest, position}
+          end
+        end
+    end
+  end
+
+  defp parse_bitwise_expression(left_side, tokens) do
+    
+  end
+
+  defp parse_equality_expression(left_side, tokens) do
+    
+  end
+
+  defp parse_relational_expression(left_side, tokens) do
+    
+  end
+
+  defp parse_bitwise_shift_expression(left_side, tokens) do
+    
+  end
+
+  defp parse_additive_expression(left_side, tokens) do
+    
+  end
+
+  defp parse_multiplicative_expression(left_side, tokens) do
+    
+  end
+
+  defp parse_unary_expression(tokens) do
+    
+  end
+
+  defp parse_call_expression(left_side, tokens) do
+    
+  end
+
+  #lits, idents, parens, adts, control flow, could do blocks maybe
+  defp parse_primary_expression(tokens) do
+    
+  end
+
+
+# unary expressions
+
+
+
+# datas
+
   def parse_function(tokens) do
     binding_result = parse_binding(tokens)
     case binding_result do

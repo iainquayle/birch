@@ -73,6 +73,7 @@ defmodule Birch.Lexer do
                 "rec" -> :rec
                 "type" -> :type
                 "self" -> :self
+                "unknown" -> :unknown_type
                 _ -> {:identifier, identifier}
               end
               {token, new_position, rest}
@@ -137,9 +138,14 @@ defmodule Birch.Lexer do
           ?# -> {:hash, rest}
           ?^ -> {:caret, rest}
           ?_ -> {:underscore, rest}
-          ?. -> {:dot, rest}
+          ?. -> case rest do
+            [?. | rest] -> {:dot_dot, Position.increment(start_position, ?.), rest}
+            [?? | rest] -> {:dot_qmark, Position.increment(start_position, ??), rest}
+            [?! | rest] -> {:dot_bang, Position.increment(start_position, ?!), rest}
+            _ -> {:dot, rest}
+          end
           ?, -> {:comma, rest}
-          _ -> {{:unknown, char}, rest}
+          _ -> {{:error, char}, rest}
         end
         case result do
           {:whitespace, final_position, rest} -> tokenize(rest, final_position)

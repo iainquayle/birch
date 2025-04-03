@@ -1,16 +1,5 @@
 # issues
 
-need to set out an actual order of of ops in the language spec
-logic > binary logical > cmp > add > mul > unary > call > binding/value/parens/control flow
-
-it is likely best tto continue following this, however,
-having the second expression in the call be capture more may be a nicer syntax.
-
-this would have issues, it would cause parsing issues with product types,
-which would either need to be wrapped in parens, or have a different syntax.
-
-for the moment stick with ml style, look at other syntax options as well.
-
 ## products
 
 currently products require multople fields, which is a little artificially limiting.
@@ -20,6 +9,10 @@ in order to distinguish them from sum type calls with no arguments.
 ## parsing
 
 ## syntax 
+
+HERE!, consider moving back to just single dot for adt access
+as well, make .? and .! available for all function calls not just adt access
+
 
 ## blocks
 

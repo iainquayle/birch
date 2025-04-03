@@ -1,35 +1,32 @@
-# birch 
+# Birch
 
-## overview
-
-Very minimalistic functional language, with goals of supporting full ctr and rtc metaprogramming.
+A very minimalistic functional language, with goals of supporting full CTR and RTC metaprogramming.
 
 The overall goal of the language is to make a typed lambda calculus,
-with syntaxtic sugar for the common patterns such as booleans, church products/tuples, and church sums/either or types and common data types.
-By following the lambda calculus, and keeping the language as simple as possible, 
-the programmer does not need to spend time considering what is the best language construct to use, but instead how best to solve the problem at hand.
+with syntactic sugar for common patterns such as booleans, Church products/tuples, Church sums/either-or types, and other common data types.
+By following the lambda calculus and keeping the language as simple as possible,
+the programmer does not need to spend time considering which language construct is best, but instead on how best to solve the problem at hand.
 
 The main points of note are:
 
-- Immutability all the time 
-- Declaration order independence all the time
-- Strongly typed, with inference 
-- Algebraic types
-- Anonymous types
-- No modules, only functions
-- Currying
-- Piping support
+- Immutability all the time.
+- Declaration order independence all the time.
+- Strongly typed, with inference.
+- Algebraic types.
+- Anonymous types.
+- No modules, only functions.
+- Currying.
+- Piping support.
 
-While the general feel and syntax of the language has been for the most part decided,
-certain parts such as always requiring curly braces for algebraic types will likely be tweaked.
+While the general feel and syntax of the language has been mostly decided,
+certain parts, such as always requiring curly braces for algebraic types, might be tweaked.
 
-## primitives
+## Primitives
 
-Primitives are the most basic types of data, and are currently limited to unsigned and signed integers of varying sizes,
-and floats of varying sizes, and bool.
-(first versions of the compiler will likely just support 32 bit ints and floats)
+Primitives are the most basic data types and are currently limited to unsigned and signed integers of varying sizes, floats of varying sizes, and bools.
+(First versions of the compiler will likely only support 32-bit integers and floats).
 
-### instantiation
+### Instantiation
 
 Primitives are instantiated by their literal value.
 
@@ -39,7 +36,7 @@ Primitives are instantiated by their literal value.
 true
 ```
 
-### typing
+### Typing
 
 ```
 u32
@@ -48,55 +45,55 @@ f32
 bool
 ```
 
-## functions
+## Functions
 
-Only take one argument and return one value.
+Functions only take one argument and return one value.
 
-### instantiation
+### Instantiation
 
-All functions are denoted by an assignee followed by a fat arrow.
+All functions are denoted by an assignee followed by a fat arrow (`=>`).
 
 ```
 binding => expression
 ```
 
-Curried functions are currently just a chain of function inputs, and do not yet have a special syntax.
+Curried functions are currently represented as a chain of function inputs and do not yet have special syntax.
 
 ```
 x => y => x + y
 ```
 
-### typing
+### Typing
 
 ```
-type -> type 
+type -> type
 ```
 
-### calling
+### Calling
 
 ```
-f . x 
-x |> f 
+f . x
+x |> f
 ```
 
-Functions are first class and are curried.
-There may even be a way to curry functions that take in product types.
+Functions are first-class and are curried.
+There might even be a way to curry functions that accept product types.
 
 ```
 {x} => x + y
 ```
 
-This will return a new function that takes in the 'y'.
+This returns a new function that accepts 'y'.
 
-## product types/tuples
+## Product Types/Tuples
 
-Tuples are more akin to structs in other languages,
-they have named fields, and represent a church product.
+Tuples are akin to structs in other languages.
+They have named fields and represent a Church product.
 
-Product types aaand data must have at least one field, and atleat one comma.
-This is to differentiate them from sum types that take in no arguments.
+Product types and data must have at least one field and at least one comma.
+This differentiates them from sum types that take no arguments.
 
-### instantiation
+### Instantiation
 
 Structs are instantiated with curly braces.
 
@@ -106,174 +103,174 @@ x = { a, b = 3 }
 y = { ..x, a = 1 }
 ```
 
-Shown is the spread operator, which only one of is allowed, and which will copy fields but will be overridden by specified fields.
+The spread operator is shown, only one of which is allowed, and copies fields, although specified fields will override the copied ones.
 
-### typing
+### Typing
 
 ```
 t = {a: u32, b: i32}
 ```
 
-### access
+### Access
 
-Single element access is done using the calling syntax, ie dot notation.
+Single-element access right now uses double dot access, though this is likely to change.
 
 ```
-s.a
+s..a
 ```
 
-Destructuring is done by curly braces, and aliasing is done by the as keyword.
+Destructuring uses curly braces, and aliasing uses the `as` keyword.
 
 ```
 {a, b} = s
 {a, b as c} = s
 ```
 
-It may be changed such that in order to alias a field, it uses a '=' sign instead of the 'as' keyword.
-Though this may be confusing. 
+This might be changed such that aliasing a field uses an `=` sign instead of the `as` keyword.
+However, this might be confusing.
 
 ```
 {a, c = b} = s
 ```
 
-## sum types/unions
+## Sum Types/Unions
 
-Sums (chuch sums) are akin to variants/tagged unions in other languages.
+Sums (Church sums) are akin to variants/tagged unions in other languages.
 
-(These may not be implemented in the first version of the compiler.)
+(These might not be implemented in the first version of the compiler.)
 
-### instantiation
+### Instantiation
 
-The value returned is essentially a defered function call.
+The value returned is essentially a deferred function call.
 The syntax for this is not yet fully decided.
 
 ```
-if expression then {a x y} else {b x}
+if expression then {a . x . y} else {b . x}
 ```
 
-### typing
+### Typing
 
 ```
-t = {a types | b types }
+t = {a . types | b . types }
 ```
 
-### access
+### Access
 
 ```
-out = x { 
-    | a = x => y => expression 
-    | b | c = y => expression 
-    | _ = expression 
+out = x..{
+    | a = x => y => expression
+    | b | c = y => expression
+    | _ = expression
 }
 ```
 
-## arrays
+## Arrays
 
-### instantiation
+### Instantiation
 
-arrays are instantiated by square brackets, and are fixed. 
+Arrays are instantiated using square brackets and have a fixed size.
 
 ```
 \[1, 2, 3\]
 ```
 
-and to get an updated array, the spread operator can be used.
+To get an updated array, the spread operator can be used.
 
 ```
 \[..a, i = 0, j = 1\]
 ```
 
-it would be nice to support this syntax for vectors, however there is no operator overloading yet or planned, so how that would work is not yet decided.
+It would be nice to support this syntax for vectors; however, there is no operator overloading yet, nor is any planned, so it is undecided how that would work.
 
-### typing
+### Typing
 
 ```
 t1 = \[u32; 3\]
 ```
 
-### access
+### Access
 
-access is done by square brackets.
+Access is done using square brackets.
 
 ```
 a\[0\]
 ```
 
-## named data
+## Named Data
 
-NOT sure if this will be implemented yet.
+It is not yet certain if this will be implemented.
 
-This is not decided yet, but it would be nice to have a way to name data, and have it be restricted to only be used in certain functions.
-Aswell the syntax for this would be different.
+The details are not decided, but it would be nice to have a way to name data and restrict it to only be used in certain functions.
+Also, the syntax for this would be different.
 
-### instantiation
+### Instantiation
 
-Data can be named, or anonymous:
+Data can be named or anonymous:
 
 ```
 x = 1
-y = A 1 //not like this
+y = A 1 // Not like this
 x != y
 ```
 
-This facilitates function use restriction.
+This facilitates restricting function usage.
 
-### typing
+### Typing
 
 ```
 t = A: u32
 ```
 
-### access
+### Access
 
-Access is not fully decided yet, but it would be nice to syntaxtically skip needing to reference the name part of the data.
-This may be possible, but it may also be an issue for type inference.
+The access mechanism is undecided, but it would be convenient to syntactically avoid referencing the name part of the data.
+This might be possible, but it could also pose an issue for type inference.
 
 
-## types 
+## Types
 
-### casting
+### Casting
 
-casting of basic types will use the to keyword.
-(how this will work exactly will be decided by decisions on function overloading)
+Casting basic types will use the `to` keyword.
+(How exactly this will work depends on decisions regarding function overloading).
 
-as well, casting will be explicit.
+Also, casting will be explicit.
 
-### reinterpretation
+### Reinterpretation
 
-## control flow
+## Control Flow
 
-### if
+### If
 
-If is an expression, and will return a value.
-They follow the if then else pattern.
+`if` is an expression and returns a value.
+It follows the `if then else` pattern.
 
 ```
 if x == 1 then x else y
 ```
 
-### match
+### Match
 
-There isnt a match ecpression yet but likely will be.
+There isn't a `match` expression yet, but there likely will be.
 
-## blocks
+## Blocks
 
-Blocks are list a of statements, culminating in an expression.
+Blocks are a list of statements culminating in an expression.
 
 ```
-_ = 
+_ =
     x = 1;
     y = 2;
     x + 1
 ;
 ```
 
-Right now statements are separated by semicolons, however this will change to be less verbose.
+Currently, statements are separated by semicolons; however, this will likely change to be less verbose.
 
-## scoping 
+## Scoping
 
-Everything is an expression except for assignments. 
-Even blocks, which always culminate with an expression which is the return value.
+Everything is an expression except for assignments.
+Even blocks culminate with an expression, which serves as the return value.
 
 ```
 _ = (
@@ -282,8 +279,8 @@ _ = (
 );
 ```
 
-Variables in the same scope are declaration order independent, though style wise it is best to declare them in the order they are used unless.
-This may still be changed to be imperative, and just not allow for mutual recursion.
+Variables within the same scope are declaration-order independent, although stylistically, it's best to declare them in the order they are used.
+This might still be changed to be imperative, potentially disallowing mutual recursion.
 
 ```
 _ = (
@@ -306,65 +303,69 @@ _ = (
 );
 ```
 
-## metaprogramming
+## Metaprogramming
 
-compile time run and runtime compile metaprogramming will be supported.
+Compile-time run (CTR) and runtime compile (RTC) metaprogramming will be supported.
 
-compile time will be the method of choice for generics.
-runtime will offer alternate avenues for interfaces though partial application will be best for a number of reasons,
-and a massive benefit of runtime compile will be jit compilation targeting other compute devices such as gpus.
+Compile-time metaprogramming will be the method of choice for generics.
+Runtime metaprogramming will offer alternative avenues for interfaces, although partial application will likely be preferable for several reasons.
+A significant benefit of runtime compilation will be JIT compilation targeting other compute devices, such as GPUs.
 
-### first class ast
+### First-Class AST
 
-I would like the language moving forward to be able to neturally be able to generate and work on its own code.
+Ideally, the language should naturally support generating and operating on its own code.
 The exact way in which this will be accomplished is not yet decided,
-but a possibility is to make ast nodes built in types, and have syntax specific to accessing the ast at any symbol in the code.
+but one possibility is to make AST nodes built-in types, with specific syntax for accessing the AST associated with any symbol in the code.
 
-This does not mean that there will be runtime reflection, all code is immutable, but an ast can be constructed at compile time, or runtime,
-and used after it has been compiled.
+This does not imply runtime reflection—all code is immutable—but an AST can be constructed at compile-time or runtime and used after compilation.
 
-## side effects
+## Side Effects
 
-anything that deals with side effects, including networking, file io, and multithreading, will likely have some special operator, or keyword or syntax to access it.
-access to such things may look something like python futures, where they can be polled for completeness.
-this would work well for essentially all of these operations, and would be a unified way to handle them.
+Anything dealing with side effects (including networking, file I/O, and multithreading) will likely require a special operator, keyword, or syntax.
+Accessing such features might resemble Python futures, where operations can be polled for completion.
+This approach could work well for essentially all these operations, providing a unified handling mechanism.
 
-### multithreading
+### Multithreading
 
 
-## style guide
+## Compiler Hints
 
-actual tabs for indentation, snake case for vars, camel case for functions, capital camel case for types, and screaming snake case for constants.
+The programmer will be able to provide hints to the compiler for possible optimizations, but likely primarily for ffi reasons such as enforcing C struct layout.
+This will be a late thing if ever.
 
-for function inputs, structs should be used when the order matters, or there is any ambiguity as to what an argument is.
-otherwise, currying may be used.
+## Style Guide
 
-variable names are preferred to be descriptive, and not heavily abbreviated unless the abbreviation is common.
+Use actual tabs for indentation. Use snake_case for variables, camelCase for functions, CapitalCamelCase for types, and SCREAMING_SNAKE_CASE for constants.
 
-## specification
+For function inputs, use structs when argument order matters or ambiguity exists.
+Otherwise, currying can be used.
+
+Variable names should be descriptive and not heavily abbreviated unless the abbreviation is common.
+
+## Specification
 
 function:
-- assignee **=>** expression 
+- assignee **=>** expression
 
 function_type:
-- expression **->** expression 
+- expression **->** expression
 
-call: 
-- expression **|>** expression 
+call:
+- expression **|>** expression
 - expression . expression
 
 Call also includes accessing a field of a product type.
 It will essentially be mimicking passing in a function, which retrieves a single field of a product type.
 
 if:
-- **if** expression **then** expression **else** expression 
+- **if** expression **then** expression **else** expression
 
 block:
 - statement_list expression
 - **(** expression **)**
 
 statement_list:
-- statement **;** 
+- statement **;**
 - statement **;** statement_list
 
 statement:
@@ -373,7 +374,7 @@ statement:
 
 assignee:
 - identifier
-- **{** assignee_list **}** 
+- **{** assignee_list **}**
 
 assignee_list:
 - identifier
@@ -387,7 +388,9 @@ product:
 product_list:
 - identifier
 - identifier **=** expression
+- **..** expression
 - identifier **=** expression **,** product_list
+- **..** expression **,** product_list
 
 product_type:
 - **{** product_type_list **}**
@@ -408,7 +411,7 @@ sum_functions:
 
 sum_functions_list:
 - **|** **_** **=** expression
-- sum_function_identifier_list **=** expression sum_function_identifier_list  **=** expression  
+- sum_function_identifier_list **=** expression sum_function_identifier_list  **=** expression
 - sum_function_identifier_list **=** expression sum_functions_list
 
 sum_function_identifier_list:
@@ -420,10 +423,10 @@ sum_type:
 
 sum_type_list:
 - sum_type_variant **|** sum_type_variant
-- sum_type_variant **|** sum_type_list 
+- sum_type_variant **|** sum_type_list
 
 sum_type_variant:
-- identifier 
+- identifier
 - identifier **.** expression
 
 array:
@@ -432,6 +435,10 @@ array:
 array_list:
 - expression
 - expression **,** expression_list
+- **..** expression
+- identifier **=** expression
+- **..** expression **,** array_list
+- identifier **=** expression **,** array_list
 
 array_type:
 - **\[** expression **;** expression **\]**

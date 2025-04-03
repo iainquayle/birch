@@ -33,7 +33,7 @@ defmodule Birch do
     for {token, position} <- tokens do
       IO.puts("#{inspect(token)} at #{position.index}")
     end
-    parsed = Birch.Parser.parse_expression(tokens)
+    parsed = Birch.Parser.parse_binary_expression(tokens)
     IO.inspect(parsed)
   end
 end

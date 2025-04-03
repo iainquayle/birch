@@ -6,61 +6,10 @@ defmodule Birch.Parser do
     
   end
 
-  defp longest_parse(tokens, parsers) do
-    results = Enum.map(parsers, fn parser -> parser.(tokens) end)
-    Enum.reduce(results, {:error, "No tokens to parse"}, fn result, acc -> 
-      case result do
-        {:error, _} -> acc
-        {:ok, _, _, position} -> case acc do
-          {:error, _} -> result
-          {:ok, _, _, acc_position} -> if Position.compare(position, acc_position) == :gt do
-            result
-          else
-            acc
-          end
-        end
-      end
-    end)
-  end
-
-
 # binary expressions
 
-  defp parse_binary(token_node_pairs, parse_next, parse_self, left_result, tokens) do
-    left_result = case left_result do
-      nil -> parse_next.(tokens)
-      _ -> left_result
-    end
-    case left_result do
-      {:error, _} -> left_result
-      {:ok, left_node, rest, _} -> case rest do
-          [] -> left_result
-          [token | rest] -> token_pair = Enum.find(token_node_pairs, fn {token_pair_type, _} -> 
-              {token_type, _} = token
-              token_type == token_pair_type 
-            end)
-            case token_pair do
-              nil -> left_result
-              {_, node_type} -> right_result = parse_next.(rest)
-                case right_result do
-                  {:error, _} -> right_result
-                  {:ok, right_node, rest, position} -> node = {node_type, left_node, right_node}
-                    result = {:ok, node, rest, position}
-                    new_result = parse_self.(result, rest)
-                    case new_result do
-                      {:error, _} -> result
-                      {:ok, _, _, _} -> new_result
-                    end
-                end
-            end
-        end
-    end
-  end
-  defp apply_nil(func) do
-    fn tokens -> func.(nil, tokens) end
-  end
 
-  def parse_expression(tokens) do
+  def parse_binary_expression(tokens) do
     parse_logical_expression(nil, tokens)
   end
 
@@ -117,7 +66,11 @@ defmodule Birch.Parser do
   end
 
   defp parse_call_expression(left_result, tokens) do
-    parse_binary([{:dot, :call}], &parse_primary_expression/1, &parse_call_expression/2, left_result, tokens)
+    parse_binary([{:dot, :call}], apply_nil(&parse_adt_call_expression/2), &parse_call_expression/2, left_result, tokens)
+  end
+
+  defp parse_adt_call_expression(left_result, tokens) do
+    parse_binary([{:dot_dot, :adt_call}], &parse_primary_expression/1, &parse_adt_call_expression/2, left_result, tokens)
   end
 
   #lits, idents, parens, adts, control flow, could do blocks maybe
@@ -125,17 +78,44 @@ defmodule Birch.Parser do
     case tokens do
       [] -> {:error, "No more tokens"}
       [token | rest] -> case token do
-        {{:identifier, _}, position} -> {:ok, token, rest, position}
+        {{:int, _}, position} -> {:ok, token, rest, position}
+        {{:int_type, _}, position} -> {:ok, token, rest, position}
+        {{:uint_type, _}, position} -> {:ok, token, rest, position} 
+        {{:float, _}, position} -> {:ok, token, rest, position}
+        {{:float_type, _}, position} -> {:ok, token, rest, position}
+        {:lparen, _} -> result = parse_binary_expression(rest)
+          case result do
+            {:error, _} -> result
+            {:ok, expr, rest, position} -> case rest do
+              [{:rparen, _} | rest] -> {:ok, expr, rest, position}
+              _ -> {:error, "No closing parenthesis"}
+            end
+          end
+        {:l_square, position} -> nil
+        {:if, position} -> nil
+        _ -> longest_parse(tokens, [
+          &parse_ident/1,
+          &parse_function/1,
+          #&parse_adt/1,
+          #&parse_block/1
+        ])
       end
     end
   end
 
 
-# unary expressions
-
-
-
 # datas
+
+  def parse_ident(tokens) do
+    case tokens do
+      [] -> {:error, "No tokens to parse"}
+      [token | rest] -> case token do 
+        {{:identifier, _}, position} -> 
+          {:ok, token, rest, position}
+        _ -> {:error, "Invalid token for identifier"}
+      end
+    end
+  end
 
   def parse_function(tokens) do
     binding_result = parse_binding(tokens)
@@ -143,7 +123,7 @@ defmodule Birch.Parser do
       {:error, _} -> binding_result
       {:ok, binding, rest, _} -> case rest do
         [] -> {:error, "No tokens to parse"}
-        [{:r_fat_arrow, _} | rest] -> expr_result = parse_expression(rest)
+        [{:r_fat_arrow, _} | rest] -> expr_result = parse_binary_expression(rest)
           case expr_result do
             {:error, _} -> expr_result
             {:ok, expr, rest, position} -> {:ok, {:function, binding, expr}, rest, position}
@@ -156,20 +136,36 @@ defmodule Birch.Parser do
 
   def parse_adt(tokens) do
     #just attempt parse of adts below
+    case tokens do
+      [] -> {:error, "No tokens to parse"}
+      [{:l_curly, _} | rest] -> longest_parse(rest, [
+        &parse_product/1,
+        &parse_sum_call/1,
+        &parse_sum_block/1
+      ]) 
+    end
   end
 
-  def parse_product(tokens) do
+  defp parse_product(tokens) do
+  end
+
+  defp parse_sum_call(tokens) do
+    case tokens do
+      [] -> {:error, "No tokens to parse"}
+    end
+  end
+
+  defp parse_sum_block(tokens) do
 
   end
 
-  def parse_sum(tokens) do
+# block
+
+  defp parse_block(tokens) do
 
   end
 
-  def parse_sum_block(tokens) do
-
-  end
-    
+# bindings
 
   def parse_binding(tokens) do
     case tokens do
@@ -210,6 +206,67 @@ defmodule Birch.Parser do
             end
           end
       end
+    end
+  end
+
+  defp longest_parse(tokens, parsers) do
+    results = Enum.map(parsers, fn parser -> parser.(tokens) end)
+    Enum.reduce(results, {:error, "No tokens to parse"}, fn result, acc -> 
+      case result do
+        {:error, _} -> acc
+        {:ok, _, _, position} -> case acc do
+          {:error, _} -> result
+          {:ok, _, _, acc_position} -> if Position.compare(position, acc_position) == :gt do
+            result
+          else
+            acc
+          end
+        end
+      end
+    end)
+  end
+
+  defp parse_binary(token_node_pairs, parse_next, parse_self, left_result, tokens) do
+    left_result = case left_result do
+      nil -> parse_next.(tokens)
+      _ -> left_result
+    end
+    case left_result do
+      {:error, _} -> left_result
+      {:ok, left_node, rest, _} -> case rest do
+          [] -> left_result
+          [token | rest] -> token_pair = Enum.find(token_node_pairs, fn {token_pair_type, _} -> 
+              {token_type, _} = token
+              token_type == token_pair_type 
+            end)
+            case token_pair do
+              nil -> left_result
+              {_, node_type} -> right_result = parse_next.(rest)
+                case right_result do
+                  {:error, _} -> right_result
+                  {:ok, right_node, rest, position} -> node = {node_type, left_node, right_node}
+                    result = {:ok, node, rest, position}
+                    new_result = parse_self.(result, rest)
+                    case new_result do
+                      {:error, _} -> result
+                      {:ok, _, _, _} -> new_result
+                    end
+                end
+            end
+        end
+    end
+  end
+  defp apply_nil(func) do
+    fn tokens -> func.(nil, tokens) end
+  end
+
+  defp parse_list(tokens, parse_element, delim, allow_leading_delim \\ false, allow_trailing_delim \\ true) do
+    case tokens do
+      [] -> {:error, "No tokens to parse"}
+      _ -> if allow_leading_delim do
+            
+          else
+          end
     end
   end
 end

@@ -13,6 +13,11 @@ in order to distinguish them from sum type calls with no arguments.
 HERE!, consider moving back to just single dot for adt access
 as well, make .? and .! available for all function calls not just adt access
 
+need to add the requirement for a comma a product to the specification.
+also need to add the binary operators to the specification.
+
+fix the parse errors in product parse,
+currently it will just show no rcurly error if something isnt right in the list
 
 ## blocks
 

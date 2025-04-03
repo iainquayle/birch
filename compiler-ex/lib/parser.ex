@@ -7,9 +7,7 @@ defmodule Birch.Parser do
   end
 
 # binary expressions
-
-
-  def parse_binary_expression(tokens) do
+  def parse_expression(tokens) do
     parse_logical_expression(nil, tokens)
   end
 
@@ -69,8 +67,11 @@ defmodule Birch.Parser do
     parse_binary([{:dot, :call}], apply_nil(&parse_adt_call_expression/2), &parse_call_expression/2, left_result, tokens)
   end
 
+  #still not sure about using this, while there should be some short cut for adt calls, it seems to be out of line
+  #especially with the inctroduction of dot qmark and dot bang, since they can be used with func calls, there would need to be another operator for adts for those...
   defp parse_adt_call_expression(left_result, tokens) do
-    parse_binary([{:dot_dot, :adt_call}], &parse_primary_expression/1, &parse_adt_call_expression/2, left_result, tokens)
+    #parse_binary([{:dot_dot, :adt_call}], &parse_primary_expression/1, &parse_adt_call_expression/2, left_result, tokens)
+    parse_primary_expression(tokens)
   end
 
   #lits, idents, parens, adts, control flow, could do blocks maybe
@@ -83,7 +84,7 @@ defmodule Birch.Parser do
         {{:uint_type, _}, position} -> {:ok, token, rest, position} 
         {{:float, _}, position} -> {:ok, token, rest, position}
         {{:float_type, _}, position} -> {:ok, token, rest, position}
-        {:lparen, _} -> result = parse_binary_expression(rest)
+        {:lparen, _} -> result = parse_expression(rest)
           case result do
             {:error, _} -> result
             {:ok, expr, rest, position} -> case rest do
@@ -96,7 +97,7 @@ defmodule Birch.Parser do
         _ -> longest_parse(tokens, [
           &parse_ident/1,
           &parse_function/1,
-          #&parse_adt/1,
+          &parse_adt/1,
           #&parse_block/1
         ])
       end
@@ -123,7 +124,7 @@ defmodule Birch.Parser do
       {:error, _} -> binding_result
       {:ok, binding, rest, _} -> case rest do
         [] -> {:error, "No tokens to parse"}
-        [{:r_fat_arrow, _} | rest] -> expr_result = parse_binary_expression(rest)
+        [{:r_fat_arrow, _} | rest] -> expr_result = parse_expression(rest)
           case expr_result do
             {:error, _} -> expr_result
             {:ok, expr, rest, position} -> {:ok, {:function, binding, expr}, rest, position}
@@ -138,31 +139,78 @@ defmodule Birch.Parser do
     #just attempt parse of adts below
     case tokens do
       [] -> {:error, "No tokens to parse"}
-      [{:l_curly, _} | rest] -> longest_parse(rest, [
-        &parse_product/1,
-        &parse_sum_call/1,
-        &parse_sum_block/1
-      ]) 
+      [{:l_curly, _} | rest] -> 
+        result = longest_parse(rest, [
+          &parse_product/1,
+          &parse_sum_call/1,
+          &parse_sum_block/1
+        ]) 
+        case result do
+          {:error, _} -> result
+          {:ok, adt, rest, position} -> 
+            case rest do
+              [{:r_curly, _} | rest] -> {:ok, adt, rest, position}
+              _ -> {:error, "No closing curly brace"}
+            end
+        end
     end
   end
 
   defp parse_product(tokens) do
-  end
-
-  defp parse_sum_call(tokens) do
-    case tokens do
+    result = case tokens do
       [] -> {:error, "No tokens to parse"}
+      [:comma, _] -> parse_product_rec(tokens, true)
+      _ -> parse_product_rec(tokens, false)
+    end 
+    case result do
+      {:error, _} -> result
+      {:ok, elements, rest, position} -> {:ok, {:product, elements}, rest, position}
+    end
+  end
+  defp parse_product_rec(tokens, has_comma) do
+    result = case tokens do
+      [] -> {:error, "No tokens to parse"}
+      [token | rest] -> case token do
+        {{:identifier, _}, position} -> case rest do
+          [{:eq, _} | rest] -> result = parse_expression(rest)
+            case result do
+              {:error, _} -> result
+              {:ok, expr, rest, position} -> {:ok, {token, expr}, rest, position}
+            end
+          _ -> {:ok, token, rest, position} 
+        end
+        _ -> {:error, "Invalid token for product element"}
+      end    
+    end
+    case result do
+      {:error, _} -> result
+      {:ok, element, rest, position} -> case rest do
+        [{:comma, _} | rest] -> result = parse_product_rec(rest, true)
+          case result do
+            {:error, _} -> {:ok, [element], rest, position}
+            {:ok, elements, rest, position} -> {:ok, [element | elements], rest, position}
+          end
+        _ -> if has_comma do
+          {:ok, [element], rest, position}
+        else
+          {:error, "No comma in product"}
+        end
+      end
     end
   end
 
-  defp parse_sum_block(tokens) do
+  defp parse_sum_call(tokens) do
+    {:error, "Not implemented"}
+  end
 
+  defp parse_sum_block(tokens) do
+    {:error, "Not implemented"}
   end
 
 # block
 
   defp parse_block(tokens) do
-
+    {:error, "Not implemented"}
   end
 
 # bindings
@@ -208,6 +256,8 @@ defmodule Birch.Parser do
       end
     end
   end
+
+#helpers
 
   defp longest_parse(tokens, parsers) do
     results = Enum.map(parsers, fn parser -> parser.(tokens) end)
@@ -260,10 +310,11 @@ defmodule Birch.Parser do
     fn tokens -> func.(nil, tokens) end
   end
 
+  #may be too restrictive, in the case of products requiring atleast one comma to seperate them from sum calls
   defp parse_list(tokens, parse_element, delim, allow_leading_delim \\ false, allow_trailing_delim \\ true) do
     case tokens do
       [] -> {:error, "No tokens to parse"}
-      _ -> if allow_leading_delim do
+      _ -> rest = if allow_leading_delim do
             
           else
           end

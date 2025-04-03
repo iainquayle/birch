@@ -200,10 +200,28 @@ defmodule Birch.Parser do
   end
 
   defp parse_sum_call(tokens) do
-    {:error, "Not implemented"}
+    case tokens do
+      [] -> {:error, "No tokens to parse"}
+      [token | rest] -> 
+        case token do
+          {{:identifier, _}, position} -> 
+            case rest do
+              [{:dot, _} | rest] -> result = parse_expression(rest)
+                case result do
+                  {:error, _} -> result
+                  {:ok, expr, rest, position} -> {:ok, {:sum_call, token, expr}, rest, position}
+                end
+              _ -> {:ok, {:sum_call, token}, rest, position}
+            end
+            _ -> {:error, "Invalid token for sum call"}
+        end
+    end
   end
 
   defp parse_sum_block(tokens) do
+    {:error, "Not implemented"}
+  end
+  defp parse_sum_block_rec(tokens) do
     {:error, "Not implemented"}
   end
 

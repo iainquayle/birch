@@ -19,6 +19,8 @@ also need to add the binary operators to the specification.
 fix the parse errors in product parse,
 currently it will just show no rcurly error if something isnt right in the list
 
+add spread operator to products, could even hypothetically add them to sum blocks, ..spread | ident .....
+
 ## blocks
 
 it could be that blocks are imperative, and in the case of wanting mutual recursion,

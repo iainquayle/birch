@@ -156,6 +156,7 @@ defmodule Birch.Parser do
     end
   end
 
+  #still need to add the spread operator parse in here 
   defp parse_product(tokens) do
     result = case tokens do
       [] -> {:error, "No tokens to parse"}
@@ -199,7 +200,7 @@ defmodule Birch.Parser do
     end
   end
 
-  defp parse_sum_call(tokens) do
+  defp parse_sum_call(tokens) do #could just make this parse expression, and check later that the bottom is an ident
     case tokens do
       [] -> {:error, "No tokens to parse"}
       [token | rest] -> 
@@ -219,7 +220,13 @@ defmodule Birch.Parser do
   end
 
   defp parse_sum_block(tokens) do
-    {:error, "Not implemented"}
+    case tokens do
+      [] -> {:error, "No tokens to parse"}
+      [token | rest] -> 
+        case token do
+          _ -> {:error, "not implemented"}
+        end
+    end
   end
   defp parse_sum_block_rec(tokens) do
     {:error, "Not implemented"}

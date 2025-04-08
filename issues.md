@@ -1,5 +1,7 @@
 # issues
 
+## compiler
+
 ## products
 
 currently products require multople fields, which is a little artificially limiting.
@@ -47,7 +49,6 @@ for polling loops, or recursions that interatct with the outside world, these wo
 
 ## definition
 
-## compiler
 
 ## metaprogramming
 

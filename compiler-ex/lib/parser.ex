@@ -157,6 +157,7 @@ defmodule Birch.Parser do
   end
 
   #still need to add the spread operator parse in here 
+  #guess dont need to right now
   defp parse_product(tokens) do
     result = case tokens do
       [] -> {:error, "No tokens to parse"}

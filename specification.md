@@ -104,6 +104,7 @@ y = { ..x, a = 1 }
 ```
 
 The spread operator is shown, only one of which is allowed, and copies fields, although specified fields will override the copied ones.
+Also, the syntax requires at least one comma for the moment.
 
 ### Typing
 

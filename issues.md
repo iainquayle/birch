@@ -12,16 +12,19 @@ in order to distinguish them from sum type calls with no arguments.
 
 ## syntax 
 
-HERE!, consider moving back to just single dot for adt access
-as well, make .? and .! available for all function calls not just adt access
-
-need to add the requirement for a comma a product to the specification.
+need to add the requirement for a comma in a product to the specification.
 also need to add the binary operators to the specification.
 
 fix the parse errors in product parse,
 currently it will just show no rcurly error if something isnt right in the list
 
 add spread operator to products, could even hypothetically add them to sum blocks, ..spread | ident .....
+also, need to figure out whether it should be at the start of the product or at the end, or anywhere.
+it will for sure only allow for one
+could in the parser allow for it anywhere for the moment, and then restrict it in the type checker.
+
+HERE! remove allowance for leading commas, just allow training.
+allow leading bars in sum types, but not trailing.
 
 ## blocks
 

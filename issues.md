@@ -2,13 +2,13 @@
 
 ## compiler
 
-## products
-
-currently products require multople fields, which is a little artificially limiting.
-it could be that the instantiation of products adn product types require at least one comma,
-in order to distinguish them from sum type calls with no arguments.
-
 ## parsing
+
+make sure that anything that is a syntax constraint, such as only a single spread per product, be enforced in the parser.
+not have it be a type checker issue.
+another example, is keep the sum type call such that it seperates the ident from the rest of the call.
+the one thing to keep in mind here is that as it stands, the arguments are currently defined as their own expression,
+which doesnt really make sense. this needs to probably be changed in the syntax specification first and formost.
 
 ## syntax 
 

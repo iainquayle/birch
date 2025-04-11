@@ -385,16 +385,21 @@ assignee_list:
 
 product:
 - **{** product_list **}**
+- **{** product_list **, }**
+- **{** product_list **, ..** expression **}** 
+- **{ ..** expression **}** 
 
 product_list:
+- product_element 
+- product_element **,** product_list
+
+product_element:
 - identifier
 - identifier **=** expression
-- **..** expression
-- identifier **=** expression **,** product_list
-- **..** expression **,** product_list
 
 product_type:
 - **{** product_type_list **}**
+- **{** product_type_list **, }**
 
 product_type_list:
 - identifier **:** expression
@@ -410,6 +415,8 @@ and it will just be treated different than normal for code gen and analysis.
 sum_functions:
 - **{** sum_function_list **}**
 
+
+//this absolutley requires a leading bar, so perhaps change that to optional like the trailing comma in products
 sum_functions_list:
 - **|** **_** **=** expression
 - sum_function_identifier_list **=** expression sum_function_identifier_list  **=** expression

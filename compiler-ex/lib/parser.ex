@@ -156,20 +156,22 @@ defmodule Birch.Parser do
     end
   end
 
-  #still need to add the spread operator parse in here 
-  #guess dont need to right now
+  #move comma check to here
+  #check for spread op
+  #move the check for the optional end comma to explicit check in here
+  # this would also mean that the way of checking for the presence of a comma must be changed
   defp parse_product(tokens) do
     result = case tokens do
       [] -> {:error, "No tokens to parse"}
-      [:comma, _] -> parse_product_rec(tokens, true)
-      _ -> parse_product_rec(tokens, false)
+      _ -> parse_product_list(tokens, false)
     end 
     case result do
       {:error, _} -> result
       {:ok, elements, rest, position} -> {:ok, {:product, elements}, rest, position}
     end
   end
-  defp parse_product_rec(tokens, has_comma) do
+  defp parse_product_list(tokens, has_comma) do
+    #parse binding
     result = case tokens do
       [] -> {:error, "No tokens to parse"}
       [token | rest] -> case token do
@@ -187,7 +189,7 @@ defmodule Birch.Parser do
     case result do
       {:error, _} -> result
       {:ok, element, rest, position} -> case rest do
-        [{:comma, _} | rest] -> result = parse_product_rec(rest, true)
+        [{:comma, _} | rest] -> result = parse_product_list(rest, true)
           case result do
             {:error, _} -> {:ok, [element], rest, position}
             {:ok, elements, rest, position} -> {:ok, [element | elements], rest, position}

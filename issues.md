@@ -12,19 +12,22 @@ which doesnt really make sense. this needs to probably be changed in the syntax 
 
 ## syntax 
 
-need to add the requirement for a comma in a product to the specification.
-also need to add the binary operators to the specification.
-
 fix the parse errors in product parse,
 currently it will just show no rcurly error if something isnt right in the list
 
-add spread operator to products, could even hypothetically add them to sum blocks, ..spread | ident .....
-also, need to figure out whether it should be at the start of the product or at the end, or anywhere.
-it will for sure only allow for one
-could in the parser allow for it anywhere for the moment, and then restrict it in the type checker.
+HERE!!!
+there is an option to make sum blocks more like product blocks, where you can just pass in a binding named the same as a field
+this would be cool, though it would lead to an ambiguity with the product blocks
+that being said, making the leading | optional would actually make this completely ambiguous.
+if blocks can be entered into without using parens, then it could be that the bar seperating bindings, 
+is just a bitwise or that then has a the second argument being a block expression.
+three options here:
+- make the leading | mandatory
+- move the bitwise operators to some other syntax, perhaps look for other precedences
+    this is actually backed by a few langs, haskell and ml based doesnt, older python, older lua
+    haskell and ml support with specific functions
+- cantt remember the third option lol
 
-HERE! remove allowance for leading commas, just allow training.
-allow leading bars in sum types, but not trailing.
 
 ## blocks
 

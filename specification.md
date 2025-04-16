@@ -383,9 +383,13 @@ assignee_list:
 - identifier **,** assignee_list
 - identifier **as** identifier **,** assignee_list
 
+//not sure if the lone spread is really necessary? isnt needed for copying
+//would be useful in the case that someone just hasnt made up their mind yet, and will use it later
+//check the precident that rust sets
 product:
-- **{** product_list **}**
-- **{** product_list **, }**
+- **{** product_element **, }**
+- **{** product_element **,** product_list **}**
+- **{** product_element **,** product_list **, }**
 - **{** product_list **, ..** expression **}** 
 - **{ ..** expression **}** 
 

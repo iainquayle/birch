@@ -12,24 +12,24 @@ defmodule Birch.Parser do
   end
 
   defp parse_logical_expression(left_result, tokens) do
-    parse_binary([{:amp_amp, :logical_and}, {:pipe_pipe, :logical_or}], apply_nil(&parse_bitwise_expression/2), &parse_logical_expression/2, left_result, tokens)
+    parse_binary([{:amp_amp, :logical_and}, {:pipe_pipe, :logical_or}], apply_nil(&parse_equality_expression/2), &parse_logical_expression/2, left_result, tokens)
   end
 
-  defp parse_bitwise_expression(left_result, tokens) do
-    parse_binary([{:amp, :bitwise_and}, {:pipe, :bitwise_or}, {:caret, :bitwise_xor}], apply_nil(&parse_equality_expression/2), &parse_bitwise_expression/2, left_result, tokens)
-  end
+  #defp parse_bitwise_expression(left_result, tokens) do
+  #  parse_binary([{:amp, :bitwise_and}, {:pipe, :bitwise_or}, {:caret, :bitwise_xor}], apply_nil(&parse_equality_expression/2), &parse_bitwise_expression/2, left_result, tokens)
+  #end
 
   defp parse_equality_expression(left_result, tokens) do
     parse_binary([{:eq_eq, :eq}, {:bang_eq, :neq}], apply_nil(&parse_relational_expression/2), &parse_equality_expression/2, left_result, tokens)
   end
 
   defp parse_relational_expression(left_result, tokens) do
-    parse_binary([{:lt, :lt}, {:leq, :leq}, {:gt, :gt}, {:geq, :geq}], apply_nil(&parse_bitwise_shift_expression/2), &parse_relational_expression/2, left_result, tokens)
+    parse_binary([{:lt, :lt}, {:leq, :leq}, {:gt, :gt}, {:geq, :geq}], apply_nil(&parse_additive_expression/2), &parse_relational_expression/2, left_result, tokens)
   end
 
-  defp parse_bitwise_shift_expression(left_result, tokens) do
-    parse_binary([{:l_shift, :l_shift}, {:r_shift, :r_shift}], apply_nil(&parse_additive_expression/2), &parse_bitwise_shift_expression/2, left_result, tokens)
-  end
+  #defp parse_bitwise_shift_expression(left_result, tokens) do
+  #  parse_binary([{:l_shift, :l_shift}, {:r_shift, :r_shift}], apply_nil(&parse_additive_expression/2), &parse_bitwise_shift_expression/2, left_result, tokens)
+  #end
 
   defp parse_additive_expression(left_result, tokens) do
     parse_binary([{:plus, :add}, {:minus, :sub}], apply_nil(&parse_multiplicative_expression/2), &parse_additive_expression/2, left_result, tokens)
@@ -163,16 +163,40 @@ defmodule Birch.Parser do
   defp parse_product(tokens) do
     result = case tokens do
       [] -> {:error, "No tokens to parse"}
-      _ -> parse_product_list(tokens, false)
+      _ -> parse_product_list(tokens)
     end 
     case result do
       {:error, _} -> result
-      {:ok, elements, rest, position} -> {:ok, {:product, elements}, rest, position}
+      #check for comma, r_curly  
+      {:ok, elements, rest, position} -> case rest do
+        [] -> {:error, "No tokens to parse"}
+        [{:r_curly, _} | rest] -> case elements do
+          [_ | [_ | _]] -> {:ok, {:product, elements}, rest, position} #checking for at least two elements
+          _ -> {:error, "Product must have at least one comma"}
+        end
+        [{:comma, _} | rest] -> 
+          case rest do
+            [] -> {:error, "No tokens to parse"}
+            [{:r_curly, _} | rest] -> {:ok, {:product, elements}, rest, position}
+            [{:dot_dot, _} | rest] -> on_tokens(rest, fn token, rest ->
+              case token do
+                {{:identifier, _}, position} -> on_tokens(rest, fn token, rest ->
+                  case token do
+                    {:r_curly, _} -> {:ok, {:product, elements}, rest, position}
+                    _ -> {:error, "Invalid token after product"}
+                  end
+                end)
+                _ -> {:error, "Invalid token after product"}
+              end
+            end) 
+            _ -> {:error, "Invalid token after product"}
+          end
+        _ -> {:error, "Invalid token after product"}
+      end
     end
   end
-  defp parse_product_list(tokens, has_comma) do
-    #parse binding
-    result = case tokens do
+  defp parse_product_list(tokens) do
+    element_result = case tokens do
       [] -> {:error, "No tokens to parse"}
       [token | rest] -> case token do
         {{:identifier, _}, position} -> case rest do
@@ -186,19 +210,15 @@ defmodule Birch.Parser do
         _ -> {:error, "Invalid token for product element"}
       end    
     end
-    case result do
-      {:error, _} -> result
+    case element_result do
+      {:error, _} -> element_result 
       {:ok, element, rest, position} -> case rest do
-        [{:comma, _} | rest] -> result = parse_product_list(rest, true)
-          case result do
+        [{:comma, _} | rest] -> list_result = parse_product_list(rest)
+          case list_result do
             {:error, _} -> {:ok, [element], rest, position}
-            {:ok, elements, rest, position} -> {:ok, [element | elements], rest, position}
+            {:ok, _, _, _} -> list_result
           end
-        _ -> if has_comma do
-          {:ok, [element], rest, position}
-        else
-          {:error, "No comma in product"}
-        end
+        _ -> {:ok, [element], rest, position}
       end
     end
   end
@@ -338,14 +358,41 @@ defmodule Birch.Parser do
     fn tokens -> func.(nil, tokens) end
   end
 
-  #may be too restrictive, in the case of products requiring atleast one comma to seperate them from sum calls
-  defp parse_list(tokens, parse_element, delim, allow_leading_delim \\ false, allow_trailing_delim \\ true) do
+  #expects function that returns result
+  defp on_token(tokens, func) do
     case tokens do
       [] -> {:error, "No tokens to parse"}
-      _ -> rest = if allow_leading_delim do
-            
-          else
-          end
+      [token | rest] -> func.(token, rest)
+    end
+  end 
+
+  #expects function that returns result
+  defp on_tokens(tokens, func) do
+    case tokens do
+      [] -> {:error, "No tokens to parse"}
+      _ -> func.(tokens)
+    end
+  end 
+
+  #may be too restrictive, in the case of products requiring atleast one comma to seperate them from sum calls
+  defp parse_list(tokens, parse_element, delim) do
+    element_result = on_tokens(tokens, parse_element)
+    case element_result do
+      {:error, _} -> element_result 
+      {:ok, element, rest, position} -> on_token(rest, fn token, rest ->
+        case token do
+          {token_data, _} -> if token_data == delim do
+              list_result = parse_list(rest, parse_element, delim)
+              case list_result do
+                {:error, _} -> {:ok, [element], rest, position}
+                {:ok, _, _, _} -> list_result
+              end
+            else
+              {:error, "Invalid token for list element"}
+            end
+          _ -> {:error, "Invalid token for list element"}
+        end
+      end)
     end
   end
 end

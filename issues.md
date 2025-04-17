@@ -26,7 +26,7 @@ three options here:
 - move the bitwise operators to some other syntax, perhaps look for other precedences
     this is actually backed by a few langs, haskell and ml based doesnt, older python, older lua
     haskell and ml support with specific functions
-- cantt remember the third option lol
+- cant remember the third option lol
 
 
 ## blocks

@@ -20,7 +20,7 @@ defmodule Birch.Parser do
   #end
 
   defp parse_equality_expression(left_result, tokens) do
-    parse_binary([{:eq_eq, :eq}, {:bang_eq, :neq}], apply_nil(&parse_relational_expression/2), &parse_equality_expression/2, left_result, tokens)
+    parse_binary([{:eq_eq, :eq}, {:tilde_eq, :neq}], apply_nil(&parse_relational_expression/2), &parse_equality_expression/2, left_result, tokens)
   end
 
   defp parse_relational_expression(left_result, tokens) do
@@ -48,11 +48,11 @@ defmodule Birch.Parser do
             {:error, _} -> expr_result
             {:ok, expr, rest, position} -> {:ok, {:negate, expr}, rest, position}
           end
-        {:bang, _} -> expr_result = parse_unary_expression(rest)
-          case expr_result do
-            {:error, _} -> expr_result
-            {:ok, expr, rest, position} -> {:ok, {:not, expr}, rest, position}
-          end
+#        {:bang, _} -> expr_result = parse_unary_expression(rest)
+#          case expr_result do
+#            {:error, _} -> expr_result
+#            {:ok, expr, rest, position} -> {:ok, {:not, expr}, rest, position}
+#          end
         {:tilde, _} -> expr_result = parse_unary_expression(rest)
           case expr_result do
             {:error, _} -> expr_result
@@ -156,10 +156,6 @@ defmodule Birch.Parser do
     end
   end
 
-  #move comma check to here
-  #check for spread op
-  #move the check for the optional end comma to explicit check in here
-  # this would also mean that the way of checking for the presence of a comma must be changed
   defp parse_product(tokens) do
     result = case tokens do
       [] -> {:error, "No tokens to parse"}

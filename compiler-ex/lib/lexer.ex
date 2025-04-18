@@ -68,6 +68,9 @@ defmodule Birch.Lexer do
                 "to" -> :to
                 "as" -> :as
                 "in" -> :in
+                "or" -> :or
+                "and" -> :and
+                "not" -> :not
                 "match" -> :match
                 "tail" -> :tail
                 "rec" -> :rec
@@ -117,7 +120,7 @@ defmodule Birch.Lexer do
             end
           ?> -> case rest do
               [?= | rest] -> {:geq, Position.increment(start_position, ?=), rest}
-              [?> | rest] -> {:r_shift,Position.increment(start_position, ?>), rest}
+              [?> | rest] -> {:r_shift, Position.increment(start_position, ?>), rest}
               _ -> {:gt, rest}
             end
           ?( -> {:l_paren, rest}
@@ -139,11 +142,11 @@ defmodule Birch.Lexer do
           ?^ -> {:caret, rest}
           ?_ -> {:underscore, rest}
           ?. -> case rest do
-            [?. | rest] -> {:dot_dot, Position.increment(start_position, ?.), rest}
-            [?? | rest] -> {:dot_qmark, Position.increment(start_position, ??), rest}
-            [?! | rest] -> {:dot_bang, Position.increment(start_position, ?!), rest}
-            _ -> {:dot, rest}
-          end
+              [?. | rest] -> {:dot_dot, Position.increment(start_position, ?.), rest}
+              [?? | rest] -> {:dot_qmark, Position.increment(start_position, ??), rest}
+              [?! | rest] -> {:dot_bang, Position.increment(start_position, ?!), rest}
+              _ -> {:dot, rest}
+            end
           ?, -> {:comma, rest}
           _ -> {{:error, char}, rest}
         end

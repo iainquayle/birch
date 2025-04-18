@@ -4,30 +4,14 @@
 
 ## parsing
 
-make sure that anything that is a syntax constraint, such as only a single spread per product, be enforced in the parser.
-not have it be a type checker issue.
-another example, is keep the sum type call such that it seperates the ident from the rest of the call.
-the one thing to keep in mind here is that as it stands, the arguments are currently defined as their own expression,
-which doesnt really make sense. this needs to probably be changed in the syntax specification first and formost.
-
 ## syntax 
 
 fix the parse errors in product parse,
 currently it will just show no rcurly error if something isnt right in the list
 
 HERE!!!
-there is an option to make sum blocks more like product blocks, where you can just pass in a binding named the same as a field
-this would be cool, though it would lead to an ambiguity with the product blocks
-that being said, making the leading | optional would actually make this completely ambiguous.
-if blocks can be entered into without using parens, then it could be that the bar seperating bindings, 
-is just a bitwise or that then has a the second argument being a block expression.
-three options here:
-- make the leading | mandatory
-- move the bitwise operators to some other syntax, perhaps look for other precedences
-    this is actually backed by a few langs, haskell and ml based doesnt, older python, older lua
-    haskell and ml support with specific functions
-- cant remember the third option lol
-
+move bitwise ops to different syntax, or perhaps just support as func
+this now allows for optional leading bar on sum blocks
 
 ## blocks
 
@@ -80,4 +64,4 @@ add tail keyword and specification, or rec keyword which would allow for recursi
 
 ## tokens
 
-add :=, add tail, add rec 
+and, or, not, .>, .< ..., or the haskell versions

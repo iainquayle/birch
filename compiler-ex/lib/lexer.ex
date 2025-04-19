@@ -86,11 +86,11 @@ defmodule Birch.Lexer do
           ?+ -> {:plus, rest}
           ?% -> {:mod, rest}
           ?- -> case rest do
-              [?> | rest] -> {:r_arrow, Position.increment(start_position, ?>), rest}
-              _ -> {:minus, rest}
+              [?> | rest] -> {:dash_r_angle, Position.increment(start_position, ?>), rest}
+              _ -> {:dash, rest}
             end
           ?= -> case rest do
-              [?> | rest] -> {:r_fat_arrow, Position.increment(start_position, ?>), rest}
+              [?> | rest] -> {:eq_r_angle, Position.increment(start_position, ?>), rest}
               [?= | rest] -> {:eq_eq, Position.increment(start_position, ?=), rest}
               _ -> {:eq, rest}
             end
@@ -112,16 +112,16 @@ defmodule Birch.Lexer do
               _ -> {:tilde, rest}
             end
           ?< -> case rest do
-              [?- | rest] -> {:l_arrow, Position.increment(start_position, ?-), rest}
-              [?| | rest] -> {:l_point,  Position.increment(start_position, ?|), rest}
-              [?= | rest] -> {:leq, Position.increment(start_position, ?=), rest}
+              [?- | rest] -> {:l_angle_dash, Position.increment(start_position, ?-), rest}
+              [?| | rest] -> {:l_angle_bar,  Position.increment(start_position, ?|), rest}
+              [?= | rest] -> {:l_angle_eq, Position.increment(start_position, ?=), rest}
               [?< | rest] -> {:l_shift, Position.increment(start_position, ?<), rest}
-              _ -> {:lt, rest}
+              _ -> {:l_angle, rest}
             end
           ?> -> case rest do
-              [?= | rest] -> {:geq, Position.increment(start_position, ?=), rest}
-              [?> | rest] -> {:r_shift, Position.increment(start_position, ?>), rest}
-              _ -> {:gt, rest}
+              [?= | rest] -> {:r_angle_eq, Position.increment(start_position, ?=), rest}
+              [?> | rest] -> {:r_angle_r_angle, Position.increment(start_position, ?>), rest}
+              _ -> {:r_angle, rest}
             end
           ?( -> {:l_paren, rest}
           ?) -> {:r_paren, rest}
@@ -129,7 +129,7 @@ defmodule Birch.Lexer do
           ?} -> {:r_curly, rest}
           ?[ -> {:l_square, rest}
           ?] -> {:r_square, rest}
-          ?; -> {:semicolon, rest}
+          ?; -> {:semi, rest}
           ?: -> {:colon, rest}
           ?? -> {:q_mark, rest}
           ?\\ -> {:b_slash, rest}
@@ -140,11 +140,16 @@ defmodule Birch.Lexer do
           ?$ -> {:dollar, rest}
           ?# -> {:hash, rest}
           ?^ -> {:caret, rest}
-          ?_ -> {:underscore, rest}
+          ?_ -> {:under, rest}
           ?. -> case rest do
               [?. | rest] -> {:dot_dot, Position.increment(start_position, ?.), rest}
               [?? | rest] -> {:dot_qmark, Position.increment(start_position, ??), rest}
               [?! | rest] -> {:dot_bang, Position.increment(start_position, ?!), rest}
+              [?| | rest] -> {:dot_pipe, Position.increment(start_position, ?|), rest}
+              [?& | rest] -> {:dot_amp, Position.increment(start_position, ?&), rest}
+              [?< | rest] -> {:dot_l_angle, Position.increment(start_position, ?<), rest}
+              [?> | rest] -> {:dot_r_angle, Position.increment(start_position, ?>), rest}
+              [?^ | rest] -> {:dot_caret, Position.increment(start_position, ?^), rest}
               _ -> {:dot, rest}
             end
           ?, -> {:comma, rest}

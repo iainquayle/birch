@@ -31,6 +31,17 @@ for polling loops, or recursions that interatct with the outside world, these wo
 
 ## types
 
+when it comes to assigning adts, consider allowing adts that are a sub or super set of the type to be passed in or stored.
+ie 
+```
+foo: { a: int, b: int } = { a = 1, b = 2, c = 3 }
+```
+but just restrict the access to the fields that are in the type?
+pros:
+- allows for more flexible code
+cons:
+- mistakes are harder to catch
+
 ## control flow
 
 ## init
@@ -59,9 +70,6 @@ need to decide how to denote compile time, and runtime compile.
 
 remaining symbols are @, #, $ 
 
-
 add tail keyword and specification, or rec keyword which would allow for recursing on anon functions.
 
 ## tokens
-
-and, or, not, .>, .< ..., or the haskell versions

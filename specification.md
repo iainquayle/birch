@@ -85,13 +85,14 @@ There might even be a way to curry functions that accept product types.
 
 This returns a new function that accepts 'y'.
 
-## Product Types/Tuples
+## Product ADT 
 
-Tuples are akin to structs in other languages.
+The product (Church products) types are akin to structs in other languages.
+Infact, there are no positional tuples in the language. 
 They have named fields and represent a Church product.
 
 Product types and data must have at least one field and at least one comma.
-This differentiates them from sum types that take no arguments.
+This differentiates them from sum type calls that take no arguments.
 
 ### Instantiation
 
@@ -134,22 +135,21 @@ However, this might be confusing.
 {a, c = b} = s
 ```
 
-## Sum Types/Unions
+## Sum ADT 
 
 Sums (Church sums) are akin to variants/tagged unions in other languages.
-
-(These might not be implemented in the first version of the compiler.)
 
 ### Instantiation
 
 The value returned is essentially a deferred function call.
-The syntax for this is not yet fully decided.
 
 ```
 if expression then {a . x . y} else {b . x}
 ```
 
 ### Typing
+
+(The syntax for typing of this is not decided yet)
 
 ```
 t = {a . types | b . types }
@@ -158,12 +158,15 @@ t = {a . types | b . types }
 ### Access
 
 ```
-out = x.{
+out = x . {
     | a = x => y => expression
     | b | c = y => expression
     | _ = expression
 }
 ```
+
+This cannot be used as a match expression for values, and is just specific to sum types.
+The `_` catch-all case must be put at the end of the list (It being at the end is purely a stylistic constraint).
 
 ## Arrays
 
@@ -345,6 +348,8 @@ Variable names should be descriptive and not heavily abbreviated unless the abbr
 
 ## Specification
 
+I have not added the various binary operators yet, but essentially everything else is here.
+
 function:
 - assignee **=>** expression
 
@@ -383,9 +388,6 @@ assignee_list:
 - identifier **,** assignee_list
 - identifier **as** identifier **,** assignee_list
 
-//not sure if the lone spread is really necessary? isnt needed for copying
-//would be useful in the case that someone just hasnt made up their mind yet, and will use it later
-//check the precident that rust sets
 product:
 - **{** product_element **, }**
 - **{** product_element **,** product_list **}**
@@ -413,18 +415,16 @@ sum_call:
 - { identifier }
 - { identifier . expression }
 
-Expression will be a chain of calls effectively,
-and it will just be treated different than normal for code gen and analysis.
-
 sum_functions:
-- **{** sum_function_list **}**
+- **{ |** sum_functions_list **}**
+- **{** sum_function_identifier_list **=** expression **|** sum_functions_list **}**
+- **{ |** sum_functions_list **| _ =** expression  **}**
+- **{** sum_functions_list **| _ =** expression  **}**
+- **{ _ =** expression  **}**
 
-
-//this absolutley requires a leading bar, so perhaps change that to optional like the trailing comma in products
 sum_functions_list:
-- **|** **_** **=** expression
-- sum_function_identifier_list **=** expression sum_function_identifier_list  **=** expression
-- sum_function_identifier_list **=** expression sum_functions_list
+- sum_function_identifier_list **=** expression 
+- sum_function_identifier_list **=** expression **|** sum_functions_list
 
 sum_function_identifier_list:
 - **|** identifier
@@ -470,5 +470,3 @@ expression:
 - primitive_type
 - anything above that doesnt have to do with a list, or a statement
 
-Too lazy to remove left recursion.
-May still be some mistakes, or a couple ambiguities, and primary expressions are missing, but should be mostly correct.

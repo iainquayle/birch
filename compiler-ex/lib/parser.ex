@@ -24,7 +24,7 @@ defmodule Birch.Parser do
   end
 
   defp parse_relational_expression(left_result, tokens) do
-    parse_binary([{:lt, :lt}, {:leq, :leq}, {:gt, :gt}, {:geq, :geq}], apply_nil(&parse_additive_expression/2), &parse_relational_expression/2, left_result, tokens)
+    parse_binary([{:l_angle, :lt}, {:l_angle_eq, :leq}, {:r_angle, :gt}, {:r_angle_eq, :geq}], apply_nil(&parse_additive_expression/2), &parse_relational_expression/2, left_result, tokens)
   end
 
   #defp parse_bitwise_shift_expression(left_result, tokens) do
@@ -32,7 +32,7 @@ defmodule Birch.Parser do
   #end
 
   defp parse_additive_expression(left_result, tokens) do
-    parse_binary([{:plus, :add}, {:minus, :sub}], apply_nil(&parse_multiplicative_expression/2), &parse_additive_expression/2, left_result, tokens)
+    parse_binary([{:plus, :add}, {:dash, :sub}], apply_nil(&parse_multiplicative_expression/2), &parse_additive_expression/2, left_result, tokens)
   end
 
   defp parse_multiplicative_expression(left_result, tokens) do
@@ -56,7 +56,7 @@ defmodule Birch.Parser do
         {:tilde, _} -> expr_result = parse_unary_expression(rest)
           case expr_result do
             {:error, _} -> expr_result
-            {:ok, expr, rest, position} -> {:ok, {:bitwise_not, expr}, rest, position}
+            {:ok, expr, rest, position} -> {:ok, {:not, expr}, rest, position}
           end
         _ -> parse_call_expression(nil, tokens)
       end
@@ -84,11 +84,11 @@ defmodule Birch.Parser do
         {{:uint_type, _}, position} -> {:ok, token, rest, position} 
         {{:float, _}, position} -> {:ok, token, rest, position}
         {{:float_type, _}, position} -> {:ok, token, rest, position}
-        {:lparen, _} -> result = parse_expression(rest)
+        {:l_paren, _} -> result = parse_expression(rest)
           case result do
             {:error, _} -> result
             {:ok, expr, rest, position} -> case rest do
-              [{:rparen, _} | rest] -> {:ok, expr, rest, position}
+              [{:r_paren, _} | rest] -> {:ok, expr, rest, position}
               _ -> {:error, "No closing parenthesis"}
             end
           end
@@ -124,7 +124,7 @@ defmodule Birch.Parser do
       {:error, _} -> binding_result
       {:ok, binding, rest, _} -> case rest do
         [] -> {:error, "No tokens to parse"}
-        [{:r_fat_arrow, _} | rest] -> expr_result = parse_expression(rest)
+        [{:eq_r_angle, _} | rest] -> expr_result = parse_expression(rest)
           case expr_result do
             {:error, _} -> expr_result
             {:ok, expr, rest, position} -> {:ok, {:function, binding, expr}, rest, position}
@@ -219,7 +219,8 @@ defmodule Birch.Parser do
     end
   end
 
-  defp parse_sum_call(tokens) do #could just make this parse expression, and check later that the bottom is an ident
+  #could just make this parse expression, and check later that the bottom is an ident
+  defp parse_sum_call(tokens) do 
     case tokens do
       [] -> {:error, "No tokens to parse"}
       [token | rest] -> 
@@ -239,16 +240,18 @@ defmodule Birch.Parser do
   end
 
   defp parse_sum_block(tokens) do
-    case tokens do
-      [] -> {:error, "No tokens to parse"}
-      [token | rest] -> 
-        case token do
-          _ -> {:error, "not implemented"}
-        end
-    end
+    on_token(tokens, fn token, rest ->
+      case token do
+        {:bar, _} -> result = parse_sum_block_list(rest)
+           result 
+        _ -> result = parse_expression(tokens)
+          result
+      end
+    end)
   end
-  defp parse_sum_block_rec(tokens) do
+  defp parse_sum_block_list(tokens) do
     {:error, "Not implemented"}
+    # want to expand any double bindings, ie a | b = ... goes to a = ... | b = ...
   end
 
 # block

@@ -1,7 +1,3 @@
-# lambda move
-
-Moving the language to something that is more of the lambda calculus, with syntaxtic sugar for common but verbose patterns.
-
 ## church products
 
 Products are akin to tuples and structs in other languages.

@@ -9,9 +9,12 @@
 fix the parse errors in product parse,
 currently it will just show no rcurly error if something isnt right in the list
 
-HERE!!!
-move bitwise ops to different syntax, or perhaps just support as func
-this now allows for optional leading bar on sum blocks
+### list and strings
+
+need to decide on:
+- easy concat and append to list
+- same for strings
+- would also be nice to have a natural way to do string templating
 
 ## blocks
 
@@ -62,9 +65,7 @@ on second thought, asg is likely the way to go, make it part of the std lib.
 example of why is calling functions, or if statements, asg will be close enough to minimal,
 but understable in the context of the language and calling already implemented functions that take structs etc.
 
-
 need to decide how to denote compile time, and runtime compile.
-
 
 ## misc
 

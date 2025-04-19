@@ -240,18 +240,56 @@ defmodule Birch.Parser do
   end
 
   defp parse_sum_block(tokens) do
-    on_token(tokens, fn token, rest ->
+    list_result = on_token(tokens, fn token, rest ->
       case token do
-        {:bar, _} -> result = parse_sum_block_list(rest)
-           result 
-        _ -> result = parse_expression(tokens)
+        {:bar, _} -> parse_sum_block_list(rest)
+        _ -> result = parse_sum_block_list(tokens)
+          #issue here, need to add flag tto deal with checking for atleast one bar
+          #perhaps move the check for the catch all into its own function
           result
       end
     end)
   end
+  defp parse_sum_block_catch(tokens) do
+    case tokens do
+      [{:bar, _} | [{:under, _} | [{:eq, _} | rest]]] -> result = parse_expression(rest)
+        case result do
+          {:error, _} -> result
+          {:ok, expr, rest, position} -> {:ok, {:sum_block_catch, expr}, rest, position}
+        end
+      _ -> {:error, "Invalid token for sum block catch"}
+    end
+  end
   defp parse_sum_block_list(tokens) do
-    {:error, "Not implemented"}
+    variant_idents_result = parse_sum_block_variant_idents(tokens)
+    variants_result = case variant_idents_result do
+      {:error, _} -> variant_idents_result
+      {:ok, variant_idents, rest, _} -> expr_result = case rest do
+          [{:eq, _} | rest] -> parse_expression(rest)
+            _ -> {:error, "Invalid token for sum block variant"}
+        end
+        case expr_result do
+          {:error, _} -> expr_result
+          {:ok, expr, rest, position} -> {:ok, Enum.map(variant_idents, fn variant_ident -> 
+            {:sum_block_variant, variant_ident, expr}
+          end), rest, position}
+        end
+    end
+    case variants_result do
+      {:error, _} -> variants_result
+      {:ok, variants, rest, position} -> case rest do
+        [{:bar, _} | rest] -> result = parse_sum_block_list(rest)
+          case result do
+            {:error, _} -> {:ok, variants, rest, position}
+            {:ok, new_variants, rest, position} -> {:ok, variants ++ new_variants, rest, position}
+          end
+      end
+    end
     # want to expand any double bindings, ie a | b = ... goes to a = ... | b = ...
+  end
+  defp parse_sum_block_variant_idents(tokens) do
+    {:error, "Not implemented"}
+    # parse multiple idents
   end
 
 # block

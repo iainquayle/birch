@@ -76,7 +76,7 @@ defmodule Birch.Parser do
 
   #lits, idents, parens, adts, control flow, could do blocks maybe
   defp parse_primary_expression(tokens) do
-    case tokens do
+    result = case tokens do
       [] -> {:error, "No more tokens"}
       [token | rest] -> case token do
         {{:int, _}, position} -> {:ok, token, rest, position}
@@ -102,6 +102,7 @@ defmodule Birch.Parser do
         ])
       end
     end
+    result
   end
 
 
@@ -110,9 +111,9 @@ defmodule Birch.Parser do
   def parse_ident(tokens) do
     case tokens do
       [] -> {:error, "No tokens to parse"}
-      [token | rest] -> case token do 
-        {{:identifier, _}, position} -> 
-          {:ok, token, rest, position}
+      [token | rest] -> 
+      case token do 
+        {{:ident, _}, position} -> {:ok, token, rest, position}
         _ -> {:error, "Invalid token for identifier"}
       end
     end
@@ -138,12 +139,11 @@ defmodule Birch.Parser do
   def parse_adt(tokens) do
     #just attempt parse of adts below
     case tokens do
-      [] -> {:error, "No tokens to parse"}
       [{:l_curly, _} | rest] -> 
         result = longest_parse(rest, [
           &parse_product/1,
-          &parse_sum_call/1,
-          &parse_sum_block/1
+          #&parse_sum_call/1,
+          #&parse_sum_block/1
         ]) 
         case result do
           {:error, _} -> result
@@ -153,6 +153,7 @@ defmodule Birch.Parser do
               _ -> {:error, "No closing curly brace"}
             end
         end
+      _ -> {:error, "Invalid token for adt or no tokens"}
     end
   end
 
@@ -163,31 +164,20 @@ defmodule Birch.Parser do
     end 
     case result do
       {:error, _} -> result
-      #check for comma, r_curly  
       {:ok, elements, rest, position} -> case rest do
-        [] -> {:error, "No tokens to parse"}
-        [{:r_curly, _} | rest] -> case elements do
-          [_ | [_ | _]] -> {:ok, {:product, elements}, rest, position} #checking for at least two elements
-          _ -> {:error, "Product must have at least one comma"}
-        end
         [{:comma, _} | rest] -> 
           case rest do
-            [] -> {:error, "No tokens to parse"}
-            [{:r_curly, _} | rest] -> {:ok, {:product, elements}, rest, position}
-            [{:dot_dot, _} | rest] -> on_tokens(rest, fn token, rest ->
-              case token do
-                {{:identifier, _}, position} -> on_tokens(rest, fn token, rest ->
-                  case token do
-                    {:r_curly, _} -> {:ok, {:product, elements}, rest, position}
-                    _ -> {:error, "Invalid token after product"}
-                  end
-                end)
-                _ -> {:error, "Invalid token after product"}
+            [{:dot_dot, _} | rest] -> result = parse_expression(rest) 
+              case result do
+                {:error, _} -> result
+                {:ok, expr, rest, position} -> {:ok, {:product, elements, expr}, rest, position}
               end
-            end) 
-            _ -> {:error, "Invalid token after product"}
+            _ -> {:ok, {:product, elements}, rest, position}
           end
-        _ -> {:error, "Invalid token after product"}
+        _ ->  case elements do
+            [_ | [_ | _]] -> {:ok, {:product, elements}, rest, position} #checking for at least two elements
+            _ -> {:error, "Product must have at least one comma"}
+          end
       end
     end
   end
@@ -195,7 +185,7 @@ defmodule Birch.Parser do
     element_result = case tokens do
       [] -> {:error, "No tokens to parse"}
       [token | rest] -> case token do
-        {{:identifier, _}, position} -> case rest do
+        {{:ident, _}, position} -> case rest do
           [{:eq, _} | rest] -> result = parse_expression(rest)
             case result do
               {:error, _} -> result
@@ -209,10 +199,10 @@ defmodule Birch.Parser do
     case element_result do
       {:error, _} -> element_result 
       {:ok, element, rest, position} -> case rest do
-        [{:comma, _} | rest] -> list_result = parse_product_list(rest)
+        [{:comma, _} | comma_rest] -> list_result = parse_product_list(comma_rest)
           case list_result do
             {:error, _} -> {:ok, [element], rest, position}
-            {:ok, _, _, _} -> list_result
+            {:ok, list, rest, position} -> {:ok, [element | list], rest, position} 
           end
         _ -> {:ok, [element], rest, position}
       end
@@ -225,7 +215,7 @@ defmodule Birch.Parser do
       [] -> {:error, "No tokens to parse"}
       [token | rest] -> 
         case token do
-          {{:identifier, _}, position} -> 
+          {{:ident, _}, position} -> 
             case rest do
               [{:dot, _} | rest] -> result = parse_expression(rest)
                 case result do
@@ -240,7 +230,7 @@ defmodule Birch.Parser do
   end
 
   defp parse_sum_block(tokens) do
-    list_result = on_token(tokens, fn token, rest ->
+    list_result = on_token(tokens, fn token, _, rest ->
       case token do
         {:bar, _} -> parse_sum_block_list(rest)
         _ -> result = parse_sum_block_list(tokens)
@@ -268,11 +258,9 @@ defmodule Birch.Parser do
           [{:eq, _} | rest] -> parse_expression(rest)
             _ -> {:error, "Invalid token for sum block variant"}
         end
-        case expr_result do
+        case expr_result do 
           {:error, _} -> expr_result
-          {:ok, expr, rest, position} -> {:ok, Enum.map(variant_idents, fn variant_ident -> 
-            {:sum_block_variant, variant_ident, expr}
-          end), rest, position}
+          {:ok, expr, rest, position} -> {:ok, {variant_idents, expr}, rest, position}
         end
     end
     case variants_result do
@@ -280,16 +268,22 @@ defmodule Birch.Parser do
       {:ok, variants, rest, position} -> case rest do
         [{:bar, _} | rest] -> result = parse_sum_block_list(rest)
           case result do
-            {:error, _} -> {:ok, variants, rest, position}
-            {:ok, new_variants, rest, position} -> {:ok, variants ++ new_variants, rest, position}
+            {:error, _} -> {:ok, [variants], rest, position}
+            {:ok, new_variants, rest, position} -> {:ok, [variants | new_variants], rest, position}
           end
       end
     end
-    # want to expand any double bindings, ie a | b = ... goes to a = ... | b = ...
   end
-  defp parse_sum_block_variant_idents(tokens) do
-    {:error, "Not implemented"}
-    # parse multiple idents
+  defp parse_sum_block_variant_idents(tokens) do # could techincially use parse ident here, but think that could be used for exprs
+    parse_list(tokens, fn tokens -> 
+      case tokens do
+        [] -> {:error, "No tokens to parse"}
+        [token | rest] -> case token do
+          {{:ident, _}, position} -> {:ok, token, rest, position}
+          _ -> {:error, "Invalid token for sum block variant ident"}
+        end
+      end
+    end, :bar)
   end
 
 # block
@@ -304,7 +298,7 @@ defmodule Birch.Parser do
     case tokens do
       [] -> {:error, "No tokens to parse"} 
       [token | rest] -> case token do
-        {{:identifier, _}, position} -> {:ok, {:binding, token}, rest, position} 
+        {{:ident, _}, position} -> {:ok, {:binding, token}, rest, position} 
         {:l_curly, _} -> parse_destructure_binding([], rest)
         _ -> {:error, "Invalid token for binding"} 
       end
@@ -319,10 +313,10 @@ defmodule Birch.Parser do
         _ -> 
           result = case token do 
             {:l_curly, _} -> parse_destructure_binding([], rest)
-            {{:identifier, _}, position} -> case rest do
+            {{:ident, _}, position} -> case rest do
               [{:as, _} | rest] -> [alias_token | rest] = rest
                 case alias_token do
-                  {{:identifier, _}, position} -> {:ok, {:alias_binding, token, alias_token}, rest, position} 
+                  {{:ident, _}, position} -> {:ok, {:alias_binding, token, alias_token}, rest, position} 
                   _ -> {:error, {"Invalid token for alias", alias_token}} 
                 end
               _ -> {:ok, {:binding, token}, rest, position} 
@@ -399,7 +393,7 @@ defmodule Birch.Parser do
   defp on_token(tokens, func) do
     case tokens do
       [] -> {:error, "No tokens to parse"}
-      [token | rest] -> func.(token, rest)
+      [{token, position} | rest] -> func.(token, position, rest)
     end
   end 
 
@@ -416,7 +410,7 @@ defmodule Birch.Parser do
     element_result = on_tokens(tokens, parse_element)
     case element_result do
       {:error, _} -> element_result 
-      {:ok, element, rest, position} -> on_token(rest, fn token, rest ->
+      {:ok, element, rest, position} -> on_token(rest, fn token, _, rest ->
         case token do
           {token_data, _} -> if token_data == delim do
               list_result = parse_list(rest, parse_element, delim)

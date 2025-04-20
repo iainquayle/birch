@@ -51,7 +51,7 @@ defmodule Birch.Lexer do
                 ?i -> {:int_type, size}
                 ?u -> {:uint_type, size}
                 ?f -> {:float_type, size}
-                _ -> {:identifier, <<c::utf8>> <> size}
+                _ -> {:ident, <<c::utf8>> <> size}
               end
               {token, new_position, rest}
             else
@@ -77,7 +77,7 @@ defmodule Birch.Lexer do
                 "type" -> :type
                 "self" -> :self
                 "unknown" -> :unknown_type
-                _ -> {:identifier, identifier}
+                _ -> {:ident, identifier}
               end
               {token, new_position, rest}
             end

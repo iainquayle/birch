@@ -2,10 +2,8 @@ defmodule Birch do
   @doc """
   Hello world.
   ## Examples
-
       iex> Compilerex.hello()
       :world
-
   """
 
   def test_lexer do

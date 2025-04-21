@@ -7,7 +7,6 @@ defmodule Birch do
   """
 
   def test_lexer do
-    #source = String.graphemes("f: {x: u32, y: u32} = {x, y} => x + y")
     source = String.graphemes("let ab + c 10")
     tokens = Birch.Lexer.tokenize(source, %Birch.Lexer.Position{})
     for {token, position} <- tokens do
@@ -37,13 +36,24 @@ defmodule Birch do
 
   def test_product_parser do
     source = String.graphemes("{x, y = 2, z = {a,}}")
-    #source = String.graphemes("{x, y = 2, z,}")
-    #source = String.graphemes("{x, y = 2, z}")
     tokens = Birch.Lexer.tokenize(source, %Birch.Lexer.Position{})
     for {token, position} <- tokens do
       IO.puts("#{inspect(token)} at #{position.index}")
     end
     parsed = Birch.Parser.parse_adt(tokens)
     IO.inspect(parsed)
+  end
+
+  def test_product_type_parser do
+  end
+
+  def test_sum_call_parser do
+    source = String.graphemes("{x, y = 2, z = {a,}}")
+  end
+
+  def test_sum_block_parser do
+  end
+
+  def test_sum_type_parser do
   end
 end

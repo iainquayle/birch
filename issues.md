@@ -4,10 +4,14 @@
 
 ## parsing
 
-## syntax 
-
 fix the parse errors in product parse,
 currently it will just show no rcurly error if something isnt right in the list
+
+## syntax 
+
+HERE!
+perhaps do infact go with typeing sum blocks as structs with functions
+they need to have some type, or else them straying to far from internal consitency may cause issues
 
 ### list and strings
 

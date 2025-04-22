@@ -48,7 +48,13 @@ defmodule Birch do
   end
 
   def test_sum_call_parser do
-    source = String.graphemes("{x, y = 2, z = {a,}}")
+    source = String.graphemes("{x . y . 2}")
+    tokens = Birch.Lexer.tokenize(source, %Birch.Lexer.Position{})
+    for {token, position} <- tokens do
+      IO.puts("#{inspect(token)} at #{position.index}")
+    end
+    parsed = Birch.Parser.parse_adt(tokens)
+    IO.inspect(parsed)
   end
 
   def test_sum_block_parser do

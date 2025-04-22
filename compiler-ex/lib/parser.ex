@@ -142,7 +142,7 @@ defmodule Birch.Parser do
       [{:l_curly, _} | rest] -> 
         result = longest_parse(rest, [
           &parse_product/1,
-          #&parse_sum_call/1,
+          &parse_sum_call/1,
           #&parse_sum_block/1
         ]) 
         case result do

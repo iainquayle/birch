@@ -4,6 +4,12 @@
 
 ## parsing
 
+perhaps move the sum call to use perhaps the call list function,
+then atleast it doesnt get wrapped in unecessary tuple.
+also, in the case of function calls, perhaps move to using a list for arguments,
+rather than the current proper repr.
+just will be easier to work with
+
 fix the parse errors in product parse,
 currently it will just show no rcurly error if something isnt right in the list
 

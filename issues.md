@@ -18,13 +18,24 @@ currently it will just show no rcurly error if something isnt right in the list
 HERE!
 perhaps do infact go with typeing sum blocks as structs with functions
 they need to have some type, or else them straying to far from internal consitency may cause issues
+unless a move is made to matching on patterns as discussed in the ideas.
 
-### list and strings
+if wanting to try to elmininate the need for curly braces, few things needed:
+- cant have trailing commas, or else the next expression can be confused with a block
+pros:
+- lighter syntax 
+cons:
+- above, also the braces are a good visual cue
+aswell, extending this to sums, the sum call may need to be reworked?
+it could be that with a sum call, if the function is not found, then it will merely be assumed as a sum call when typing.
+though this itself could be problematic for good lsp experience. 
+it could be that the sum call keeps the curly notation, and that since the block is moved to pattern matching, 
+it gets to be freed.
+the issue would then be bringing the typing syntax into line aswell.
 
-need to decide on:
-- easy concat and append to list
-- same for strings
-- would also be nice to have a natural way to do string templating
+would also be nice to allow for types for products to inlined in the binding, 
+though that doesnt follow the precedent and would likely be more of a pain than really worth it.
+there would then need to be two ways to define the types...
 
 ## blocks
 
@@ -79,7 +90,7 @@ need to decide how to denote compile time, and runtime compile.
 
 ## misc
 
-remaining symbols are @, #, $ 
+remaining symbols are @, #, $, &, ^
 
 add tail keyword and specification, or rec keyword which would allow for recursing on anon functions.
 

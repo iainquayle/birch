@@ -76,7 +76,7 @@ defmodule Birch.Parser do
 
   #lits, idents, parens, adts, control flow, could do blocks maybe
   defp parse_primary_expression(tokens) do
-    result = case tokens do
+    case tokens do
       [] -> {:error, "No more tokens"}
       [token | rest] -> case token do
         {{:int, _}, position} -> {:ok, token, rest, position}
@@ -102,7 +102,6 @@ defmodule Birch.Parser do
         ])
       end
     end
-    result
   end
 
 
@@ -207,6 +206,9 @@ defmodule Birch.Parser do
         _ -> {:ok, [element], rest, position}
       end
     end
+  end
+
+  defp parse_product_type(tokens) do
   end
 
   #could just make this parse expression, and check later that the bottom is an ident

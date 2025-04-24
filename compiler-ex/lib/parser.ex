@@ -136,13 +136,30 @@ defmodule Birch.Parser do
 
 
   def parse_adt(tokens) do
-    #just attempt parse of adts below
     case tokens do
       [{:l_curly, _} | rest] -> 
         result = longest_parse(rest, [
           &parse_product/1,
-          &parse_sum_call/1,
+          #&parse_sum_call/1,
           #&parse_sum_block/1
+        ]) 
+        case result do
+          {:error, _} -> result
+          {:ok, adt, rest, position} -> 
+            case rest do
+              [{:r_curly, _} | rest] -> {:ok, adt, rest, position}
+              _ -> {:error, "No closing curly brace"}
+            end
+        end
+      _ -> {:error, "Invalid token for adt or no tokens"}
+    end
+  end
+
+  def parse_adt_type(tokens) do
+    case tokens do
+      [{:l_curly, _} | rest] -> 
+        result = longest_parse(rest, [
+          &parse_product_type/1,
         ]) 
         case result do
           {:error, _} -> result

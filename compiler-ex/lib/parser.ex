@@ -119,7 +119,7 @@ defmodule Birch.Parser do
   end
 
   def parse_function(tokens) do
-    binding_result = parse_binding(tokens)
+    binding_result = parse_function_match(tokens)
     case binding_result do
       {:error, _} -> binding_result
       {:ok, binding, rest, _} -> case rest do
@@ -132,6 +132,10 @@ defmodule Birch.Parser do
         _ -> {:error, "Invalid token after binding"}
       end
     end
+  end
+  #perhaps just start by copying the block binding parser, and then start adding functionality to it
+  defp parse_function_match(tokens) do
+    {:error, "not impl yet"} 
   end
 
 
@@ -311,46 +315,20 @@ defmodule Birch.Parser do
     {:error, "Not implemented"}
   end
 
-# bindings
-
-  def parse_binding(tokens) do
+  def parse_block_binding(tokens) do
     case tokens do
       [] -> {:error, "No tokens to parse"} 
       [token | rest] -> case token do
         {{:ident, _}, position} -> {:ok, {:binding, token}, rest, position} 
-        {:l_curly, _} -> parse_destructure_binding([], rest)
+        {:l_curly, _} -> 
+          list_result = parse_list(tokens, fn tokens -> on_token(tokens, fn token, rest -> 
+            case token do
+              {{:ident, _}, position} -> on_token(tokens, fn token, rest -> case token do
+                {:as, position} -> parse_block_binding(rest) #check that failing this will fail the whole thing, not just the element.
+              end end) 
+            end
+          end) end, :comma) 
         _ -> {:error, "Invalid token for binding"} 
-      end
-    end
-  end
-  #dont really need tco here...
-  defp parse_destructure_binding(bindings, tokens) do
-    case tokens do
-      [] -> {:error, "No tokens to parse"} 
-      [token | rest] -> case token do
-        {:r_curly, position} -> {:ok, {:destructure_binding, bindings}, rest, position}
-        _ -> 
-          result = case token do 
-            {:l_curly, _} -> parse_destructure_binding([], rest)
-            {{:ident, _}, position} -> case rest do
-              [{:as, _} | rest] -> [alias_token | rest] = rest
-                case alias_token do
-                  {{:ident, _}, position} -> {:ok, {:alias_binding, token, alias_token}, rest, position} 
-                  _ -> {:error, {"Invalid token for alias", alias_token}} 
-                end
-              _ -> {:ok, {:binding, token}, rest, position} 
-            end
-            _ -> {:error, {"Invalid token for destructure binding", token}} 
-          end
-          case result do
-            {:error, _} -> result
-            {:ok, binding, rest, position} -> case rest do
-              [] -> {:error, "No tokens to parse"}
-              [{:comma, _} | rest] -> parse_destructure_binding([binding | bindings], rest)
-              [{:r_curly, _} | rest] -> {:ok, {:destructure_binding, [binding | bindings]}, rest, position}
-              [token | _] -> {:error, {"Invalid delimiter token", token}}
-            end
-          end
       end
     end
   end
@@ -416,17 +394,9 @@ defmodule Birch.Parser do
     end
   end 
 
-  #expects function that returns result
-  defp on_tokens(tokens, func) do
-    case tokens do
-      [] -> {:error, "No tokens to parse"}
-      _ -> func.(tokens)
-    end
-  end 
-
   #may be too restrictive, in the case of products requiring atleast one comma to seperate them from sum calls
   defp parse_list(tokens, parse_element, delim) do
-    element_result = on_tokens(tokens, parse_element)
+    element_result = parse_element.(tokens)
     case element_result do
       {:error, _} -> element_result 
       {:ok, element, rest, position} -> on_token(rest, fn token, _, rest ->

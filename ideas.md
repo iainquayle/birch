@@ -24,25 +24,25 @@ all functions will pattern match, but more consistent than haskell, allowing pas
 f = 1 => ... | x => ...
 ```
 
+best guess, currying over structs with any option, is not generalizably possible,
+but in certain cases is partially possible.
+
 there are two options:
 - match on structure and type
     something like
     ```
     f = {ok} => ... | {err as {value, value}} => ... | {err} => ...
     ```
-    will not be able to do struct currying or over application in a sane way,
-    and will require some hack for clean no value variants.
-    issue with currying, is if a struct has a subset of fields of another struct,
-    then it will obviously choose the smaller one even if you may still want the full.
-    while currying and over application would be hypothetically possible in these cases,
-    it would essentially be blind from the callers perspective.
-    over application could also be an issue as you are essentially saying that you dont need to match the match exactly.
+    currying over structs may be partially possible, in the case where there is overlap between fields,
+    and would work best when all cases have the same number of fields, ie a catch all case will just trigger.
+    the other issue with over application, and currying,
+    is that people could expect a certain behaviour, but then a clause that catches what they input is then added to an api.
+    though there may be rules that could be enforced that would solve this issue.
     - pros
         - very simple, along the lines of elixir simple
         - makes binding syntax simple
         - intuitive, except for perhaps no value fields.
     - cons
-        - may get in the way of features such as struct currying, and or, struct over application
         - require some essentially hack to deal with variants that hold no data
         - will put pressure on language to adopt some strange constructs
             such as disjoint unions of structs, and units types/strange syntax for no value fields.
@@ -53,6 +53,8 @@ there are two options:
     `X | `Y::type
     ```
     and then be able to match against them. 
+    While over application would work fine here, infact even better, struct currying would not work. 
+    The one thing that would help this though would be the fact that there would be a clear divide between when it would and when it wouldnt.
     - pros
         - relitively standard
         - allow structs to simply stay as structs

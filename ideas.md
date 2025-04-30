@@ -30,6 +30,13 @@ there are two options:
     ```
     f = {ok} => ... | {err as {value, value}} => ... | {err} => ...
     ```
+    will not be able to do struct currying or over application in a sane way,
+    and will require some hack for clean no value variants.
+    issue with currying, is if a struct has a subset of fields of another struct,
+    then it will obviously choose the smaller one even if you may still want the full.
+    while currying and over application would be hypothetically possible in these cases,
+    it would essentially be blind from the callers perspective.
+    over application could also be an issue as you are essentially saying that you dont need to match the match exactly.
     - pros
         - very simple, along the lines of elixir simple
         - makes binding syntax simple
@@ -43,7 +50,7 @@ there are two options:
 - special named data syntax
     something like 
     ```
-    X::type | Y::type
+    `X | `Y::type
     ```
     and then be able to match against them. 
     - pros

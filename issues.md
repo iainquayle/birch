@@ -17,7 +17,6 @@ currently it will just show no rcurly error if something isnt right in the list
 
 fix bindings lol, sub destructures will need to be field as {...}
 
-
 ## blocks
 
 could make it that normal bindings imperative,
@@ -71,7 +70,7 @@ need to decide how to denote compile time, and runtime compile.
 
 ## misc
 
-remaining symbols are @, #, $, &, ^, ;, \\, 
+remaining symbols are @, #, $, &, ^, ;, \\, `,
 
 add tail keyword and specification, or rec keyword which would allow for recursing on anon functions.
 

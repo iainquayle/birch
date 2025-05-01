@@ -321,14 +321,23 @@ defmodule Birch.Parser do
       [token | rest] -> case token do
         {{:ident, _}, position} -> {:ok, {:binding, token}, rest, position} 
         {:l_curly, _} -> 
-          list_result = parse_list(tokens, fn tokens -> on_token(tokens, fn token, rest -> 
+          list_result = parse_list(tokens, fn tokens -> on_token(tokens, fn token, position, rest -> 
             case token do
-              {{:ident, _}, position} -> on_token(tokens, fn token, rest -> case token do
-                {:as, position} -> parse_block_binding(rest) #check that failing this will fail the whole thing, not just the element.
+              {:ident, _} -> on_token(rest, fn token, _, rest -> case token do
+                :as -> alias_result = parse_block_binding(rest) 
+                  case alias_result do #this can be abstracted, to just raise the error
+                    {:ok, _, _, _} -> nil
+                    {:error, _} -> nil
+                  end
+                _ -> {:ok, {:binding, token}, rest, position}
               end end) 
             end
           end) end, :comma) 
-        _ -> {:error, "Invalid token for binding"} 
+          case list_result do
+            {:ok, _, _, _} -> nil
+            {:error, _} -> list_result  
+          end
+        _ -> {:error, "Invalid token to start bidning for binding"} 
       end
     end
   end

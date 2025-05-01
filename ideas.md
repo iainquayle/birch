@@ -6,13 +6,6 @@
 
 # ideas
 
-## with removal of | bitwise
-    
-now that the | bitwise operator is removed, it does open up some possibilities.
-it would be possible i think possible tto remove the requirement for the {}
-that being said, it wouldnt really be possible to do so in all cases without other syntax changes, 
-such as the sum call, being just a function call, and it should remain in a syntax that is seperate to the regular function call.
-
 ## considerations on named data and pattern matching
 
 while current sum type syntax is more genuine to actual sum types,
@@ -47,6 +40,9 @@ there are two options:
         - will put pressure on language to adopt some strange constructs
             such as disjoint unions of structs, and units types/strange syntax for no value fields.
             though this isnt necessarily bad...
+    for set style structs, multiple spreads could be used where they are disjoint.
+    this would also necessitate that the types allow spreads.
+    also whether this would just start to make the language too complex is a fair essesment.
 - special named data syntax
     something like 
     ```

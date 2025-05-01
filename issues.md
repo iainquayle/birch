@@ -2,6 +2,8 @@
 
 ## compiler
 
+standardize the position of rest, position or vice versa.
+
 ## parsing
 
 perhaps move the sum call to use perhaps the call list function,

@@ -316,30 +316,42 @@ defmodule Birch.Parser do
   end
 
   def parse_block_binding(tokens) do
-    case tokens do
-      [] -> {:error, "No tokens to parse"} 
-      [token | rest] -> case token do
-        {{:ident, _}, position} -> {:ok, {:binding, token}, rest, position} 
-        {:l_curly, _} -> 
-          list_result = parse_list(tokens, fn tokens -> on_token(tokens, fn token, position, rest -> 
+    on_token(tokens, fn token, position, rest -> 
+      case token do
+        {:ident, _} -> {:ok, {:binding, token}, rest, position} 
+        :l_curly -> 
+          list_result = parse_list(rest, fn tokens -> on_token(tokens, fn token, position, rest -> 
             case token do
-              {:ident, _} -> on_token(rest, fn token, _, rest -> case token do
-                :as -> alias_result = parse_block_binding(rest) 
-                  case alias_result do #this can be abstracted, to just raise the error
-                    {:ok, _, _, _} -> nil
-                    {:error, _} -> nil
-                  end
-                _ -> {:ok, {:binding, token}, rest, position}
-              end end) 
+              {:ident, _} -> on_token(rest, fn as_token, _, as_rest -> 
+                case as_token do
+                  :as -> alias_result = parse_block_binding(as_rest) 
+                    case alias_result do
+                      {:ok, bindings, rest, position} -> {:ok, {:alias, token, bindings}, rest, position}
+                      {:error, _} -> alias_result
+                    end
+                  _ -> {:ok, {:binding, token}, rest, position}
+                end 
+              end) 
+              _ -> {:error, "Unexpected token"}
             end
-          end) end, :comma) 
+            end) end, :comma) 
           case list_result do
-            {:ok, _, _, _} -> nil
+            {:ok, list, rest, _} -> 
+              rest = case rest do 
+                [{:comma, _} | rest] -> rest
+                _ -> rest
+              end
+              on_token(rest, fn token, position, rest -> 
+                case token do
+                  :r_curly -> {:ok, {:destructure_bindings, list}, rest, position}
+                  _ -> {:error, "Unexpected token"}
+                end
+              end)
             {:error, _} -> list_result  
           end
-        _ -> {:error, "Invalid token to start bidning for binding"} 
+        _ -> {:error, "Invalid token to start binding"} 
       end
-    end
+    end)
   end
 
 #helpers
@@ -403,23 +415,21 @@ defmodule Birch.Parser do
     end
   end 
 
-  #may be too restrictive, in the case of products requiring atleast one comma to seperate them from sum calls
+  #expects parse element to return a result
   defp parse_list(tokens, parse_element, delim) do
     element_result = parse_element.(tokens)
     case element_result do
+      #{:error, _} -> {:ok, [], tokens, position} 
       {:error, _} -> element_result 
-      {:ok, element, rest, position} -> on_token(rest, fn token, _, rest ->
-        case token do
-          {token_data, _} -> if token_data == delim do
-              list_result = parse_list(rest, parse_element, delim)
-              case list_result do
-                {:error, _} -> {:ok, [element], rest, position}
-                {:ok, _, _, _} -> list_result
-              end
-            else
-              {:error, "Invalid token for list element"}
-            end
-          _ -> {:error, "Invalid token for list element"}
+      {:ok, element, rest, position} -> on_token(rest, fn delim_token, _, delim_rest -> # should change to different behaviour on empty list
+        if delim_token == delim do
+          list_result = parse_list(delim_rest, parse_element, delim)
+          case list_result do
+            {:error, _} -> {:ok, [element], rest, position}
+            {:ok, elements, rest, position} -> {:ok, [element | elements], rest, position} 
+          end
+        else
+          {:ok, [element], rest, position}
         end
       end)
     end

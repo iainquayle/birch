@@ -4,6 +4,8 @@
 
 standardize the position of rest, position or vice versa.
 
+make sure that tokens retain positional data, or ast nodes have good enough positional data added.
+
 ## parsing
 
 perhaps move the sum call to use perhaps the call list function,

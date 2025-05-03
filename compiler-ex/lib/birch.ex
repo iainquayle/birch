@@ -15,12 +15,13 @@ defmodule Birch do
   end
 
   def test_binding_parser do
-    source = String.graphemes("{x as a, {y, z}}")
+    source = String.graphemes("{x as {y, z,}}")
     tokens = Birch.Lexer.tokenize(source, %Birch.Lexer.Position{})
     for {token, position} <- tokens do
       IO.puts("#{inspect(token)} at #{position.index}")
     end
-    parsed = Birch.Parser.parse_binding(tokens)
+    parsed = Birch.Parser.parse_block_binding(tokens)
+    IO.puts("Result:")
     IO.inspect(parsed)
   end
 

@@ -1,8 +1,8 @@
 # plan
 
-- pause current sum type work 
 - get initial compilation working, or perhaps just interpretation fro the moment
-- work on pattern matching syntax using function bindings, this will also include a new sum type syntax
+- implement pattern matching ideas into definition and update general guide
+- implement pattern matching syntax into parser, consider how underlying system will work.
 
 # ideas
 

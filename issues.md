@@ -1,5 +1,7 @@
 # issues
 
+implement new syntax from ideas into syntax definition
+
 ## compiler
 
 standardize the position of rest, position or vice versa.
@@ -9,7 +11,6 @@ make parsing errors more accurate, ie add positions, move to {:error, data}
 make sure that tokens retain positional data, or ast nodes have good enough positional data added.
 
 make list parse work on lists that dont have any elements, ie, always return a list
-
 
 ## parsing
 

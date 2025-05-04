@@ -2,9 +2,6 @@ alias Birch.Lexer, as: Lexer
 alias Lexer.Position, as: Position
 
 defmodule Birch.Parser do
-  def parse(tokens) do
-    
-  end
 
 # binary expressions
   def parse_expression(tokens) do
@@ -64,14 +61,7 @@ defmodule Birch.Parser do
   end
 
   defp parse_call_expression(left_result, tokens) do
-    parse_binary([{:dot, :call}], apply_nil(&parse_adt_call_expression/2), &parse_call_expression/2, left_result, tokens)
-  end
-
-  #still not sure about using this, while there should be some short cut for adt calls, it seems to be out of line
-  #especially with the inctroduction of dot qmark and dot bang, since they can be used with func calls, there would need to be another operator for adts for those...
-  defp parse_adt_call_expression(left_result, tokens) do
-    #parse_binary([{:dot_dot, :adt_call}], &parse_primary_expression/1, &parse_adt_call_expression/2, left_result, tokens)
-    parse_primary_expression(tokens)
+    parse_binary([{:dot, :call}], &parse_primary_expression/1, &parse_call_expression/2, left_result, tokens)
   end
 
   #lits, idents, parens, adts, control flow, could do blocks maybe
@@ -92,12 +82,11 @@ defmodule Birch.Parser do
               _ -> {:error, "No closing parenthesis"}
             end
           end
-        {:l_square, position} -> nil
-        {:if, position} -> nil
+        #{:if, position} -> nil
         _ -> longest_parse(tokens, [
           &parse_ident/1,
           &parse_function/1,
-          &parse_adt/1,
+          &parse_product/1,
           #&parse_block/1
         ])
       end
@@ -139,7 +128,7 @@ defmodule Birch.Parser do
   end
 
 
-  def parse_adt(tokens) do
+  def parse_adt(tokens) do #move this to product since it is now the only one.
     case tokens do
       [{:l_curly, _} | rest] -> 
         result = longest_parse(rest, [
@@ -232,83 +221,6 @@ defmodule Birch.Parser do
   defp parse_product_type(tokens) do
   end
 
-  #could just make this parse expression, and check later that the bottom is an ident
-  defp parse_sum_call(tokens) do 
-    case tokens do
-      [] -> {:error, "No tokens to parse"}
-      [token | rest] -> 
-        case token do
-          {{:ident, _}, position} -> 
-            case rest do
-              [{:dot, _} | rest] -> result = parse_expression(rest)
-                case result do
-                  {:error, _} -> result
-                  {:ok, expr, rest, position} -> {:ok, {:sum_call, token, expr}, rest, position}
-                end
-              _ -> {:ok, {:sum_call, token}, rest, position}
-            end
-            _ -> {:error, "Invalid token for sum call"}
-        end
-    end
-  end
-
-  defp parse_sum_block(tokens) do
-    list_result = on_token(tokens, fn token, _, rest ->
-      case token do
-        {:bar, _} -> parse_sum_block_list(rest)
-        _ -> result = parse_sum_block_list(tokens)
-          #issue here, need to add flag tto deal with checking for atleast one bar
-          #perhaps move the check for the catch all into its own function
-          result
-      end
-    end)
-  end
-  defp parse_sum_block_catch(tokens) do
-    case tokens do
-      [{:bar, _} | [{:under, _} | [{:eq, _} | rest]]] -> result = parse_expression(rest)
-        case result do
-          {:error, _} -> result
-          {:ok, expr, rest, position} -> {:ok, {:sum_block_catch, expr}, rest, position}
-        end
-      _ -> {:error, "Invalid token for sum block catch"}
-    end
-  end
-  defp parse_sum_block_list(tokens) do
-    variant_idents_result = parse_sum_block_variant_idents(tokens)
-    variants_result = case variant_idents_result do
-      {:error, _} -> variant_idents_result
-      {:ok, variant_idents, rest, _} -> expr_result = case rest do
-          [{:eq, _} | rest] -> parse_expression(rest)
-            _ -> {:error, "Invalid token for sum block variant"}
-        end
-        case expr_result do 
-          {:error, _} -> expr_result
-          {:ok, expr, rest, position} -> {:ok, {variant_idents, expr}, rest, position}
-        end
-    end
-    case variants_result do
-      {:error, _} -> variants_result
-      {:ok, variants, rest, position} -> case rest do
-        [{:bar, _} | rest] -> result = parse_sum_block_list(rest)
-          case result do
-            {:error, _} -> {:ok, [variants], rest, position}
-            {:ok, new_variants, rest, position} -> {:ok, [variants | new_variants], rest, position}
-          end
-      end
-    end
-  end
-  defp parse_sum_block_variant_idents(tokens) do # could techincially use parse ident here, but think that could be used for exprs
-    parse_list(tokens, fn tokens -> 
-      case tokens do
-        [] -> {:error, "No tokens to parse"}
-        [token | rest] -> case token do
-          {{:ident, _}, position} -> {:ok, token, rest, position}
-          _ -> {:error, "Invalid token for sum block variant ident"}
-        end
-      end
-    end, :bar)
-  end
-
 # block
 
   defp parse_block(tokens) do
@@ -324,7 +236,7 @@ defmodule Birch.Parser do
             case token do
               {:ident, _} -> on_token(rest, fn as_token, _, as_rest -> 
                 case as_token do
-                  :as -> alias_result = parse_block_binding(as_rest) 
+                  :colon -> alias_result = parse_block_binding(as_rest) 
                     case alias_result do
                       {:ok, bindings, rest, position} -> {:ok, {:alias, token, bindings}, rest, position}
                       {:error, _} -> alias_result
@@ -414,6 +326,13 @@ defmodule Birch.Parser do
       [{token, position} | rest] -> func.(token, position, rest)
     end
   end 
+
+  defp on_success(result, func) do
+    case result do
+      {:ok, elements, rest, position} -> {:ok, [element | elements], rest, position} 
+      {:error, _} -> result 
+    end
+  end
 
   #expects parse element to return a result
   defp parse_list(tokens, parse_element, delim) do

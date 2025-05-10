@@ -80,19 +80,15 @@ Functions are first-class and are curried.
 There might even be a way to curry functions that accept product types.
 
 ```
-{x} => x + y
+{x, y} => x + y . {x}
 ```
 
 This returns a new function that accepts 'y'.
 
 ## Product ADT 
 
-The product (Church products) types are akin to structs in other languages.
-Infact, there are no positional tuples in the language. 
-They have named fields and represent a Church product.
-
-Product types and data must have at least one field and at least one comma.
-This differentiates them from sum type calls that take no arguments.
+Products are akin to structs in other languages, and are the only way of packing multiple values. 
+Ie, there are no positional tuples.
 
 ### Instantiation
 
@@ -101,11 +97,10 @@ Structs are instantiated with curly braces.
 ```
 a = 2
 x = { a, b = 3 }
-y = { ..x, a = 1 }
+y = { a = 1, ..x }
 ```
 
 The spread operator is shown, only one of which is allowed, and copies fields, although specified fields will override the copied ones.
-Also, the syntax requires at least one comma for the moment.
 
 ### Typing
 
@@ -128,45 +123,13 @@ Destructuring uses curly braces, and aliasing uses the `as` keyword.
 {a, b as c} = s
 ```
 
-This might be changed such that aliasing a field uses an `=` sign instead of the `as` keyword.
-However, this might be confusing.
-
-```
-{a, c = b} = s
-```
-
 ## Sum ADT 
-
-Sums (Church sums) are akin to variants/tagged unions in other languages.
 
 ### Instantiation
 
-The value returned is essentially a deferred function call.
-
-```
-if expression then {a . x . y} else {b . x}
-```
-
 ### Typing
 
-(The syntax for typing of this is not decided yet)
-
-```
-t = {a . types | b . types }
-```
-
 ### Access
-
-```
-out = x . {
-    | a = x => y => expression
-    | b | c = y => expression
-    | _ = expression
-}
-```
-
-This cannot be used as a match expression for values, and is just specific to sum types.
-The `_` catch-all case must be put at the end of the list (It being at the end is purely a stylistic constraint).
 
 ## Arrays
 
@@ -348,50 +311,83 @@ Variable names should be descriptive and not heavily abbreviated unless the abbr
 
 ## Specification
 
-I have not added the various binary operators yet, but essentially everything else is here.
+type:
+- primitive_type
+- function_type
+- product_type
+- list_type
+- sum_type
+
+primary_expression:
+- function
+- product
+- identifier
+- call
+- if
+- type
+
+### Functions
 
 function:
-- assignee **=>** expression
+- function_case_list
+- **|** function_case_list
+
+function_case_list:
+- function_case
+- function_case **|** function_case_list
+
+function_case:
+- function_match **=>** expression
+
+function_match:
+- identifier function_match_binding_type function_match_binding_value 
+- primary_expression 
+
+function_match_binding:
+- identifier function_match_binding_type function_match_binding_value 
+
+function_match_type:
+- function_product_match
+- function_list_match
+- primitive_type
+- identifier
+- block  //check whether this is ambigous or would cause issues //shouldnt be?
+- if    //and this too  //shouldnt be
+- call  //same with this here //shouldnt be
+- list_type
+- sum_type
+
+Must specify this to make sure that product bindings are parsed instead of product types.
+
+function_product_match:
+- **{** function_product_match_list **}**
+- **{** function_product_match_list **, }**
+
+function_product_match_list:
+- identifier product_binding_alias function_match_binding_type function_match_binding_value 
+- identifier product_binding_alias function_match_binding_type function_match_binding_value **,** function_product_match_list
+
+function_match_binding_type:
+- epsilon
+- **:** function_match_type
+
+function_match_binding_value:
+- epsilon
+- **in** expression
+
+product_binding_alias:
+- epsilon
+- **as** identifier
 
 function_type:
-- expression **->** expression
+- primary_expression **->** function_type 
+- primary_expression
 
-call:
-- expression **|>** expression
-- expression . expression
-
-Call also includes accessing a field of a product type.
-It will essentially be mimicking passing in a function, which retrieves a single field of a product type.
-
-if:
-- **if** expression **then** expression **else** expression
-
-block:
-- statement_list expression
-- **(** expression **)**
-
-statement_list:
-- statement **;**
-- statement **;** statement_list
-
-statement:
-- assignee **=** expression
-- assignee **:** expression **=** expression
-
-assignee:
-- identifier
-- **{** assignee_list **}**
-
-assignee_list:
-- identifier
-- identifier **as** identifier
-- identifier **,** assignee_list
-- identifier **as** identifier **,** assignee_list
+### Products
 
 product:
-- **{** product_element **, }**
-- **{** product_element **,** product_list **}**
-- **{** product_element **,** product_list **, }**
+- **{** product_list **}**
+- **{** product_list **, }**
 - **{** product_list **, ..** expression **}** 
 - **{ ..** expression **}** 
 
@@ -411,35 +407,92 @@ product_type_list:
 - identifier **:** expression
 - identifier **:** expression **,** product_type_list
 
-sum_call:
-- { identifier }
-- { identifier . expression }
-
-sum_functions:
-- **{ |** sum_functions_list **}**
-- **{** sum_function_identifier_list **=** expression **|** sum_functions_list **}**
-- **{ |** sum_functions_list **| _ =** expression  **}**
-- **{** sum_functions_list **| _ =** expression  **}**
-- **{ _ =** expression  **}**
-
-sum_functions_list:
-- sum_function_identifier_list **=** expression 
-- sum_function_identifier_list **=** expression **|** sum_functions_list
-
-sum_function_identifier_list:
-- **|** identifier
-- **|** identifier sum_function_identifier_list
+### Sums
 
 sum_type:
-- **{** sum_type_list **}**
+- sum_type_list
+- **|** sum_type_list
+
+sum_variant_types:
+- primitive_type
+- identifier
+- block 
+- if 
+- call
+- product_type
+- list_type
+
+Have to define this to make sure function precedence is honoured.
 
 sum_type_list:
-- sum_type_variant **|** sum_type_variant
-- sum_type_variant **|** sum_type_list
+- sum_variant_types
+- sum_variant_types **|** sum_type_list
 
-sum_type_variant:
+### Operations 
+
+logic_expression:
+- logic_expression **&&** equality_expression 
+- logic_expression **||** equality_expression 
+- equality_expression
+
+equality_expression:
+- equality_expression **==** relational_expression 
+- equality_expression **~=** relational_expression 
+- relational_expression
+
+relational_expression:
+- relational_expression **<** multiplicative_expression 
+- relational_expression **<=** multiplicative_expression 
+- relational_expression **>** multiplicative_expression 
+- relational_expression **>=** multiplicative_expression 
+- multiplicative_expression
+
+multiplicative_expression:
+- multiplicative_expression * additive_expression
+- multiplicative_expression **/** additive_expression
+- additive_expression
+
+additive_expression:
+- additive_expression **+** call_expression
+- additive_expression **-** call_expression
+- call_expression
+
+call_expression:
+- primary_expression **.** call_expression
+- primary_expression
+
+### Blocks
+
+block:
+- statement_list expression
+- **(** expression **)**
+
+statement_list:
+- statement **;**
+- statement **;** statement_list
+
+statement:
+- assignee **=** expression
+- assignee **:** expression **=** expression
+
+block_binding:
 - identifier
-- identifier **.** expression
+- **{** assignee_list **}**
+
+block_binding_list:
+- identifier
+- identifier **:** identifier
+- identifier **,** assignee_list
+- identifier **:** identifier **,** assignee_list
+
+### something
+
+call:
+- expression **|>** expression
+- expression . expression
+
+if:
+- **if** expression **then** expression **else** expression
 
 array:
 - **\[** array_list **\]**

@@ -326,63 +326,6 @@ primary_expression:
 - if
 - type
 
-### Functions
-
-function:
-- function_case_list
-- **|** function_case_list
-
-function_case_list:
-- function_case
-- function_case **|** function_case_list
-
-function_case:
-- function_match **=>** expression
-
-function_match:
-- identifier function_match_binding_type function_match_binding_value 
-- primary_expression 
-
-function_match_binding:
-- identifier function_match_binding_type function_match_binding_value 
-
-function_match_type:
-- function_product_match
-- function_list_match
-- primitive_type
-- identifier
-- block  //check whether this is ambigous or would cause issues //shouldnt be?
-- if    //and this too  //shouldnt be
-- call  //same with this here //shouldnt be
-- list_type
-- sum_type
-
-Must specify this to make sure that product bindings are parsed instead of product types.
-
-function_product_match:
-- **{** function_product_match_list **}**
-- **{** function_product_match_list **, }**
-
-function_product_match_list:
-- identifier product_binding_alias function_match_binding_type function_match_binding_value 
-- identifier product_binding_alias function_match_binding_type function_match_binding_value **,** function_product_match_list
-
-function_match_binding_type:
-- epsilon
-- **:** function_match_type
-
-function_match_binding_value:
-- epsilon
-- **in** expression
-
-product_binding_alias:
-- epsilon
-- **as** identifier
-
-function_type:
-- primary_expression **->** function_type 
-- primary_expression
-
 ### Products
 
 product:
@@ -465,7 +408,6 @@ call_expression:
 
 block:
 - statement_list expression
-- **(** expression **)**
 
 statement_list:
 - statement **;**
@@ -485,7 +427,10 @@ block_binding_list:
 - identifier **,** assignee_list
 - identifier **:** identifier **,** assignee_list
 
-### something
+### hold 
+
+parens:
+- **(** expression **)**
 
 call:
 - expression **|>** expression
@@ -522,4 +467,62 @@ expression:
 - primitive_literal
 - primitive_type
 - anything above that doesnt have to do with a list, or a statement
+
+### Functions
+
+function:
+- function_case_list
+- **|** function_case_list
+
+function_case_list:
+- function_case
+- function_case **|** function_case_list
+
+function_case:
+- function_match **=>** expression
+
+function_match:
+- identifier function_match_binding_type function_match_binding_value 
+- primary_expression 
+
+function_match_binding:
+- identifier function_match_binding_type function_match_binding_value 
+
+function_match_type:
+- function_product_match
+- function_list_match
+- primitive_type
+- identifier
+- block  
+- if 
+- call  
+- list_type
+- sum_type
+
+Must specify this to make sure that product bindings are parsed instead of product types.
+
+function_product_match:
+- **{** function_product_match_list **}**
+- **{** function_product_match_list **, }**
+
+function_product_match_list:
+- identifier product_binding_alias function_match_binding_type function_match_binding_value 
+- identifier product_binding_alias function_match_binding_type function_match_binding_value **,** function_product_match_list
+
+function_match_binding_type:
+- epsilon
+- **:** function_match_type
+
+function_match_binding_value:
+- epsilon
+- **in** expression
+
+product_binding_alias:
+- epsilon
+- **as** identifier
+
+function_type:
+- primary_expression **->** function_type 
+- primary_expression
+
 

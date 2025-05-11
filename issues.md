@@ -9,6 +9,15 @@ need to:
 - create full funciton binding definition
 - fully define lists, and their matching/binding grammar
 
+when dealing with function matching, using an expression to match on a value or type, 
+certain ones are currently ambiguous. any that are not delimited by some bracketing delimiters,
+ie, ifs, calls, blocks. these may need to be bundled in aidfferent precedence level in the grammar.
+
+also for matching on values, wouldnt that make it such that functions themselves could be part of the match?
+not just the function type, would this ever be useful?.
+would need to be something that matched to code, and possibly values that had been bound to a function already?
+would definitely be messy.
+
 ## compiler
 
 standardize the position of rest, position or vice versa.

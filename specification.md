@@ -311,20 +311,130 @@ Variable names should be descriptive and not heavily abbreviated unless the abbr
 
 ## Specification
 
-type:
-- primitive_type
-- function_type
-- product_type
-- list_type
-- sum_type
+This is not a formal specification, there are ambiguities due to me being lazy.
+
+### Block
+
+block:
+- statement_list expression 
+
+// technically ambiguous, but otherwise wont have possibility for order agnostic declarations
+// 
+
+statement_list:
+- statement **;**
+- statement **;** statement_list
+
+statement:
+- assignee **=** expression 
+- assignee **:** pipe **=** expression 
+
+block_binding:
+- identifier
+- **{** assignee_list **}**
+
+block_binding_list:
+- identifier
+- identifier **:** identifier
+- identifier **,** block_binding_list 
+- identifier **:** identifier **,** block_binding_list 
+
+### If
+
+if:
+- **if** expression **then** expression **else** expression 
+
+### Operations 
+
+expression:
+- logic_expression
+
+logical_expression:
+- logic_expression **&&** equality_expression 
+- logic_expression **||** equality_expression 
+- equality_expression
+
+equality_expression:
+- equality_expression **==** relational_expression 
+- equality_expression **~=** relational_expression 
+- relational_expression
+
+relational_expression:
+- relational_expression **<** multiplicative_expression 
+- relational_expression **<=** multiplicative_expression 
+- relational_expression **>** multiplicative_expression 
+- relational_expression **>=** multiplicative_expression 
+- additive_expression 
+
+additive_expression:
+- additive_expression **+** multiplicative_expression 
+- additive_expression **-** multiplicative_expression 
+- multiplicative_expression 
+
+multiplicative_expression:
+- multiplicative_expression ***** pipe_expression 
+- multiplicative_expression **/** pipe_expression 
+- pipe_expression 
+
+pipe_expression:
+- pipe_expression **|>** call_expression 
+- call_expression
+
+call_expression:
+- call_expression **.** primary_expression 
+- primary_expression
+
+### Primary
 
 primary_expression:
-- function
-- product
 - identifier
-- call
+- literal
+- function
+- block
 - if
-- type
+- **(** expression **)**
+
+### Function
+
+function:
+- function_case_list
+- **|** function_case_list
+
+function_case_list:
+- function_case
+- function_case **|** function_case_list
+
+function_case:
+- function_match **=>** expression 
+
+function_match:
+- identifier function_match_binding_type function_match_binding_value 
+- function_product_match
+- function_list_match
+- literal 
+- **(** expression **)**
+
+function_match_binding_type:
+- epsilon
+- **:** function_product_match
+- **:** function_list_match
+- **:** primary_expression 
+
+function_product_match:
+- **{** function_product_match_list **}**
+- **{** function_product_match_list **, }**
+
+function_product_match_list:
+- identifier product_binding_alias function_match_binding_type function_match_binding_value 
+- identifier product_binding_alias function_match_binding_type function_match_binding_value **,** function_product_match_list
+
+function_match_binding_value:
+- epsilon
+- **in** expression
+
+product_binding_alias:
+- epsilon
+- **as** identifier
 
 ### Products
 
@@ -371,73 +481,7 @@ sum_type_list:
 - sum_variant_types
 - sum_variant_types **|** sum_type_list
 
-### Operations 
-
-logic_expression:
-- logic_expression **&&** equality_expression 
-- logic_expression **||** equality_expression 
-- equality_expression
-
-equality_expression:
-- equality_expression **==** relational_expression 
-- equality_expression **~=** relational_expression 
-- relational_expression
-
-relational_expression:
-- relational_expression **<** multiplicative_expression 
-- relational_expression **<=** multiplicative_expression 
-- relational_expression **>** multiplicative_expression 
-- relational_expression **>=** multiplicative_expression 
-- multiplicative_expression
-
-multiplicative_expression:
-- multiplicative_expression * additive_expression
-- multiplicative_expression **/** additive_expression
-- additive_expression
-
-additive_expression:
-- additive_expression **+** call_expression
-- additive_expression **-** call_expression
-- call_expression
-
-call_expression:
-- primary_expression **.** call_expression
-- primary_expression
-
-### Blocks
-
-block:
-- statement_list expression
-
-statement_list:
-- statement **;**
-- statement **;** statement_list
-
-statement:
-- assignee **=** expression
-- assignee **:** expression **=** expression
-
-block_binding:
-- identifier
-- **{** assignee_list **}**
-
-block_binding_list:
-- identifier
-- identifier **:** identifier
-- identifier **,** assignee_list
-- identifier **:** identifier **,** assignee_list
-
-### hold 
-
-parens:
-- **(** expression **)**
-
-call:
-- expression **|>** expression
-- expression . expression
-
-if:
-- **if** expression **then** expression **else** expression
+### List
 
 array:
 - **\[** array_list **\]**
@@ -453,6 +497,8 @@ array_list:
 array_type:
 - **\[** expression **;** expression **\]**
 
+### hold 
+
 comptime:
 - **comptime** expression
 
@@ -461,68 +507,3 @@ option_type:
 
 result_type:
 - expression **!** expression
-
-expression:
-- identifier
-- primitive_literal
-- primitive_type
-- anything above that doesnt have to do with a list, or a statement
-
-### Functions
-
-function:
-- function_case_list
-- **|** function_case_list
-
-function_case_list:
-- function_case
-- function_case **|** function_case_list
-
-function_case:
-- function_match **=>** expression
-
-function_match:
-- identifier function_match_binding_type function_match_binding_value 
-- primary_expression 
-
-function_match_binding:
-- identifier function_match_binding_type function_match_binding_value 
-
-function_match_type:
-- function_product_match
-- function_list_match
-- primitive_type
-- identifier
-- block  
-- if 
-- call  
-- list_type
-- sum_type
-
-Must specify this to make sure that product bindings are parsed instead of product types.
-
-function_product_match:
-- **{** function_product_match_list **}**
-- **{** function_product_match_list **, }**
-
-function_product_match_list:
-- identifier product_binding_alias function_match_binding_type function_match_binding_value 
-- identifier product_binding_alias function_match_binding_type function_match_binding_value **,** function_product_match_list
-
-function_match_binding_type:
-- epsilon
-- **:** function_match_type
-
-function_match_binding_value:
-- epsilon
-- **in** expression
-
-product_binding_alias:
-- epsilon
-- **as** identifier
-
-function_type:
-- primary_expression **->** function_type 
-- primary_expression
-
-

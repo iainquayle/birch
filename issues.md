@@ -5,8 +5,7 @@ implement new syntax from ideas into syntax definition
 ## grammar
 
 need to:
-- double check parsing of function and function types, may actually have to be put into the binops?
-- create full funciton binding definition
+- figure out function and sume types
 - fully define lists, and their matching/binding grammar
 
 when dealing with function matching, using an expression to match on a value or type, 

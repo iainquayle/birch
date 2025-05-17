@@ -318,8 +318,8 @@ This is not a formal specification, there are ambiguities due to me being lazy.
 block:
 - statement_list expression 
 
-// technically ambiguous, but otherwise wont have possibility for order agnostic declarations
-// 
+// Technically ambiguous, but otherwise wont have possibility for order agnostic declarations if done properly.
+// May fix this in the future, but compiler parsing left to right will get this correct.
 
 statement_list:
 - statement **;**

@@ -43,17 +43,12 @@ defmodule Birch.Parser do
         {:minus, _} -> expr_result = parse_unary_expression(rest)
           case expr_result do
             {:error, _} -> expr_result
-              {:ok, expr, rest, position} -> {:ok, {{:negate, expr}, position, rest}}
+            {:ok, expr, rest, position} -> {:ok, {{:negate, expr}, position, rest}}
           end
-#        {:bang, _} -> expr_result = parse_unary_expression(rest)
-#          case expr_result do
-#            {:error, _} -> expr_result
-#            {:ok, expr, rest, position} -> {:ok, {:not, expr}, rest, position}
-#          end
         {:tilde, _} -> expr_result = parse_unary_expression(rest)
           case expr_result do
             {:error, _} -> expr_result
-              {:ok, expr, rest, position} -> {:ok, {{:not, expr}, position, rest}}
+            {:ok, expr, rest, position} -> {:ok, {{:not, expr}, position, rest}}
           end
         _ -> parse_call_expression(nil, tokens)
       end
@@ -64,16 +59,16 @@ defmodule Birch.Parser do
     parse_binary([{:dot, :call}], &parse_primary_expression/1, &parse_call_expression/2, left_result, tokens)
   end
 
-  #lits, idents, parens, adts, control flow, could do blocks maybe
+# primary expressions
   defp parse_primary_expression(tokens) do
     case tokens do
       [] -> {:error, "No more tokens"}
       [token | rest] -> case token do
-          {{:int, _}, position} -> {:ok, {token, position, rest}}
-          {{:int_type, _}, position} -> {:ok, {token, position, rest}}
-          {{:uint_type, _}, position} -> {:ok, {token, position, rest}} 
-          {{:float, _}, position} -> {:ok, {token, position, rest}}
-          {{:float_type, _}, position} -> {:ok, {token, position, rest}}
+        {{:int, _}, position} -> {:ok, {token, position, rest}}
+        {{:int_type, _}, position} -> {:ok, {token, position, rest}}
+        {{:uint_type, _}, position} -> {:ok, {token, position, rest}} 
+        {{:float, _}, position} -> {:ok, {token, position, rest}}
+        {{:float_type, _}, position} -> {:ok, {token, position, rest}}
         {:l_paren, _} -> result = parse_expression(rest)
           case result do
             {:error, _} -> result
@@ -100,10 +95,10 @@ defmodule Birch.Parser do
     case tokens do
       [] -> {:error, "No tokens to parse"}
       [token | rest] -> 
-      case token do 
+        case token do 
           {{:ident, _}, position} -> {:ok, {token, position, rest}}
-        _ -> {:error, "Invalid token for identifier"}
-      end
+          _ -> {:error, "Invalid token for identifier"}
+        end
     end
   end
 
@@ -116,7 +111,7 @@ defmodule Birch.Parser do
         [{:eq_r_angle, _} | rest] -> expr_result = parse_expression(rest)
           case expr_result do
             {:error, _} -> expr_result
-              {:ok, {expr, position, rest}} -> {:ok, {{:function, binding, expr}, position, rest}}
+            {:ok, {expr, position, rest}} -> {:ok, {{:function, binding, expr}, position, rest}}
           end
         _ -> {:error, "Invalid token after binding"}
       end
@@ -133,14 +128,12 @@ defmodule Birch.Parser do
       [{:l_curly, _} | rest] -> 
         result = longest_parse(rest, [
           &parse_product/1,
-          #&parse_sum_call/1,
-          #&parse_sum_block/1
         ]) 
         case result do
           {:error, _} -> result
-            {:ok, {adt, position, rest}} -> 
+          {:ok, {adt, position, rest}} -> 
             case rest do
-                [{:r_curly, _} | rest] -> {:ok, {adt, position, rest}}
+              [{:r_curly, _} | rest] -> {:ok, {adt, position, rest}}
               _ -> {:error, "No closing curly brace"}
             end
         end
@@ -149,21 +142,6 @@ defmodule Birch.Parser do
   end
 
   def parse_adt_type(tokens) do
-    case tokens do
-      [{:l_curly, _} | rest] -> 
-        result = longest_parse(rest, [
-          &parse_product_type/1,
-        ]) 
-        case result do
-            {:ok, {adt, position, rest}} -> 
-          {:ok, adt, rest, position} -> 
-                [{:r_curly, _} | rest] -> {:ok, {adt, position, rest}}
-              [{:r_curly, _} | rest] -> {:ok, adt, rest, position}
-              _ -> {:error, "No closing curly brace"}
-            end
-        end
-      _ -> {:error, "Invalid token for adt or no tokens"}
-    end
   end
 
   defp parse_product(tokens) do
@@ -179,14 +157,14 @@ defmodule Birch.Parser do
             [{:dot_dot, _} | rest] -> result = parse_expression(rest) 
               case result do
                 {:error, _} -> result
-                  {:ok, {expr, position, rest}} -> {:ok, {{:product, elements, expr}, position, rest}}
+                {:ok, {expr, position, rest}} -> {:ok, {{:product, elements, expr}, position, rest}}
               end
-              _ -> {:ok, {{:product, elements}, position, rest}}
+            _ -> {:ok, {{:product, elements}, position, rest}}
           end
         _ ->  case elements do
-              [_ | [_ | _]] -> {:ok, {{:product, elements}, position, rest}} #checking for at least two elements
-            _ -> {:error, "Product must have at least one comma"}
-          end
+          [_ | [_ | _]] -> {:ok, {{:product, elements}, position, rest}} #checking for at least two elements
+          _ -> {:error, "Product must have at least one comma"}
+        end
       end
     end
   end
@@ -197,7 +175,7 @@ defmodule Birch.Parser do
         {{:ident, _}, position} -> case rest do
           [{:eq, _} | rest] -> result = parse_expression(rest)
             case result do
-                {:ok, {expr, position, rest}} -> {:ok, {{token, expr}, position, rest}}
+              {:ok, {expr, position, rest}} -> {:ok, {{token, expr}, position, rest}}
               {:ok, expr, rest, position} -> {:ok, {token, expr}, rest, position}
             end
             _ -> {:ok, {token, position, rest}} 
@@ -210,8 +188,8 @@ defmodule Birch.Parser do
       case element_result do
         [{:comma, _} | comma_rest] -> list_result = parse_product_list(comma_rest)
           case list_result do
-              {:error, _} -> {:ok, {[element], position, rest}}
-              {:ok, {list, position, rest}} -> {:ok, {[element | list], position, rest}} 
+            {:error, _} -> {:ok, {[element], position, rest}}
+            {:ok, {list, position, rest}} -> {:ok, {[element | list], position, rest}} 
           end
           _ -> {:ok, {[element], position, rest}}
       end
@@ -230,7 +208,7 @@ defmodule Birch.Parser do
   def parse_block_binding(tokens) do
     on_token(tokens, fn token, position, rest -> 
       case token do
-          {:ident, _} -> {:ok, {{:binding, token}, position, rest}} 
+        {:ident, _} -> {:ok, {{:binding, token}, position, rest}} 
         :l_curly -> 
           list_result = parse_list(rest, fn tokens -> on_token(tokens, fn token, position, rest -> 
             case token do
@@ -241,8 +219,8 @@ defmodule Birch.Parser do
                       {:ok, {bindings, position, rest}} -> {:ok, {{:alias, token, bindings}, position, rest}}
                       {:error, _} -> alias_result
                       {:ok, {{:alias, token, bindings}, rest, position}}
-                    _ -> {:ok, {{:binding, token}, rest, position}}
-                  end
+                      _ -> {:ok, {{:binding, token}, rest, position}}
+                    end
                 end 
               end) 
               _ -> {:error, "Unexpected token"}
@@ -274,13 +252,13 @@ defmodule Birch.Parser do
     Enum.reduce(results, {:error, "No tokens to parse"}, fn result, acc -> 
       case result do
         {:error, _} -> acc
-          {:ok, {_, position, _}} -> case acc do
+        {:ok, {_, position, _}} -> case acc do
           {:error, _} -> result
-            {:ok, {_, acc_position, _}} -> if Position.compare(position, acc_position) == :gt do
-            result
-          else
-            acc
-          end
+          {:ok, {_, acc_position, _}} -> if Position.compare(position, acc_position) == :gt do
+              result
+            else
+              acc
+            end
         end
       end
     end)

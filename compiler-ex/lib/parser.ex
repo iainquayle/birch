@@ -77,7 +77,7 @@ defmodule Birch.Parser do
               _ -> {:error, "No closing parenthesis"}
             end
           end
-        #{:if, position} -> nil
+        {:if, position} -> {:error, "not implemented yet"} 
         _ -> longest_parse(tokens, [
           &parse_ident/1,
           &parse_function/1,
@@ -185,7 +185,7 @@ defmodule Birch.Parser do
     end
     case element_result do
       {:error, _} -> element_result 
-      case element_result do
+      {:ok, {element, position, rest}} -> case rest do
         [{:comma, _} | comma_rest] -> list_result = parse_product_list(comma_rest)
           case list_result do
             {:error, _} -> {:ok, {[element], position, rest}}
@@ -218,9 +218,8 @@ defmodule Birch.Parser do
                     case alias_result do
                       {:ok, {bindings, position, rest}} -> {:ok, {{:alias, token, bindings}, position, rest}}
                       {:error, _} -> alias_result
-                      {:ok, {{:alias, token, bindings}, rest, position}}
-                      _ -> {:ok, {{:binding, token}, rest, position}}
                     end
+                  _ -> {:ok, {{:binding, token}, position, rest}}
                 end 
               end) 
               _ -> {:error, "Unexpected token"}
@@ -270,8 +269,8 @@ defmodule Birch.Parser do
       _ -> left_result
     end
     case left_result do
-        {:ok, {left_node, _, rest}} -> case rest do
-      {:ok, left_node, rest, _} -> case rest do
+      {:error, _} -> left_result
+      {:ok, {left_node, _, rest}} -> case rest do
           [] -> left_result
           [token | rest] -> token_pair = Enum.find(token_node_pairs, fn {token_pair_type, _} -> 
               {token_type, _} = token
@@ -308,8 +307,8 @@ defmodule Birch.Parser do
 
   defp on_success(result, func) do
     case result do
-      case result do
       {:error, _} -> result 
+      {:ok, {_, _, _}} -> func.(result)
     end
   end
 
@@ -319,16 +318,16 @@ defmodule Birch.Parser do
     case element_result do
       #{:error, _} -> {:ok, [], tokens, position} 
       {:error, _} -> element_result 
-        {:ok, {element, position, rest}} -> on_token(rest, fn delim_token, _, delim_rest -> # should change to different behaviour on empty list
+      {:ok, {element, position, rest}} -> on_token(rest, fn delim_token, _, delim_rest -> # should change to different behaviour on empty list
         if delim_token == delim do
           list_result = parse_list(delim_rest, parse_element, delim)
           case list_result do
-            case list_result do
-              {:error, _} -> {:ok, {[element], position, rest}}
-              {:ok, {elements, position, rest}} -> {:ok, {[element | elements], position, rest}} 
-              end
+            {:error, _} -> {:ok, {[element], position, rest}}
+            {:ok, {elements, position, rest}} -> {:ok, {[element | elements], position, rest}} 
+          end
+        else 
+          nil 
         end
-            else nil
       end)
     end
   end

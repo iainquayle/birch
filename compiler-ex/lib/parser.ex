@@ -43,12 +43,12 @@ defmodule Birch.Parser do
         {:minus, _} -> expr_result = parse_unary_expression(rest)
           case expr_result do
             {:error, _} -> expr_result
-            {:ok, expr, rest, position} -> {:ok, {{:negate, expr}, position, rest}}
+            {:ok, {expr, position, rest}} -> {:ok, {{:negate, expr}, position, rest}}
           end
         {:tilde, _} -> expr_result = parse_unary_expression(rest)
           case expr_result do
             {:error, _} -> expr_result
-            {:ok, expr, rest, position} -> {:ok, {{:not, expr}, position, rest}}
+            {:ok, {expr, position, rest}} -> {:ok, {{:not, expr}, position, rest}}
           end
         _ -> parse_call_expression(nil, tokens)
       end
@@ -80,7 +80,7 @@ defmodule Birch.Parser do
         {:if, position} -> {:error, "not implemented yet"} 
         _ -> longest_parse(tokens, [
           &parse_ident/1,
-          &parse_function/1,
+          #&parse_function/1,
           &parse_product/1,
           #&parse_block/1
         ])
@@ -106,7 +106,7 @@ defmodule Birch.Parser do
     binding_result = parse_function_match(tokens)
     case binding_result do
       {:error, _} -> binding_result
-        {:ok, {binding, _, rest}} -> case rest do
+      {:ok, {binding, _, rest}} -> case rest do
         [] -> {:error, "No tokens to parse"}
         [{:eq_r_angle, _} | rest] -> expr_result = parse_expression(rest)
           case expr_result do
@@ -151,7 +151,7 @@ defmodule Birch.Parser do
     end 
     case result do
       {:error, _} -> result
-        {:ok, {elements, position, rest}} -> case rest do
+      {:ok, {elements, position, rest}} -> case rest do
         [{:comma, _} | rest] -> 
           case rest do
             [{:dot_dot, _} | rest] -> result = parse_expression(rest) 
@@ -169,31 +169,22 @@ defmodule Birch.Parser do
     end
   end
   defp parse_product_list(tokens) do
-    element_result = case tokens do
-      [] -> {:error, "No tokens to parse"}
-      [token | rest] -> case token do
-        {{:ident, _}, position} -> case rest do
-          [{:eq, _} | rest] -> result = parse_expression(rest)
-            case result do
-              {:ok, {expr, position, rest}} -> {:ok, {{token, expr}, position, rest}}
-              {:ok, expr, rest, position} -> {:ok, {token, expr}, rest, position}
-            end
-            _ -> {:ok, {token, position, rest}} 
-        end
-        _ -> {:error, "Invalid token for product element"}
-      end    
-    end
-    case element_result do
-      {:error, _} -> element_result 
-      {:ok, {element, position, rest}} -> case rest do
-        [{:comma, _} | comma_rest] -> list_result = parse_product_list(comma_rest)
-          case list_result do
-            {:error, _} -> {:ok, {[element], position, rest}}
-            {:ok, {list, position, rest}} -> {:ok, {[element | list], position, rest}} 
+    parse_list(tokens, fn tokens -> 
+      case tokens do
+        [] -> {:error, "No tokens to parse"}
+        [token | rest] -> case token do
+          {{:ident, _}, position} -> case rest do
+            [{:eq, _} | rest] -> result = parse_expression(rest)
+              case result do
+                {:ok, {expr, position, rest}} -> {:ok, {{token, expr}, position, rest}}
+                {:error, _} -> result 
+              end
+              _ -> {:ok, {token, position, rest}} 
           end
-          _ -> {:ok, {[element], position, rest}}
+          _ -> {:error, "Invalid token for product element"}
+        end    
       end
-    end
+    end, :comma)
   end
 
   defp parse_product_type(tokens) do
@@ -316,8 +307,9 @@ defmodule Birch.Parser do
   defp parse_list(tokens, parse_element, delim) do
     element_result = parse_element.(tokens)
     case element_result do
-      #{:error, _} -> {:ok, [], tokens, position} 
-      {:error, _} -> element_result 
+      {:error, _} -> on_token(tokens, fn _, position, _ -> 
+        {:ok, {[], position, tokens}}
+      end)
       {:ok, {element, position, rest}} -> on_token(rest, fn delim_token, _, delim_rest -> # should change to different behaviour on empty list
         if delim_token == delim do
           list_result = parse_list(delim_rest, parse_element, delim)
@@ -326,7 +318,7 @@ defmodule Birch.Parser do
             {:ok, {elements, position, rest}} -> {:ok, {[element | elements], position, rest}} 
           end
         else 
-          nil 
+          {:error, "invalid delimiter"} 
         end
       end)
     end

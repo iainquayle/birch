@@ -5,7 +5,7 @@ implement new syntax from ideas into syntax definition
 ## grammar
 
 need to:
-- figure out function and sume types
+- figure out function and sum types
 - fully define lists, and their matching/binding grammar
 
 when dealing with function matching, using an expression to match on a value or type, 

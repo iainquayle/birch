@@ -322,8 +322,8 @@ block:
 // May fix this in the future, but compiler parsing left to right will get this correct.
 
 statement_list:
-- statement **;**
-- statement **;** statement_list
+- statement
+- statement statement_list
 
 statement:
 - assignee **=** expression 
@@ -414,15 +414,15 @@ function_match:
 - literal 
 - **(** expression **)**
 
+function_product_match:
+- **{** function_product_match_list **}**
+- **{** function_product_match_list **, }**
+
 function_match_binding_type:
 - epsilon
 - **:** function_product_match
 - **:** function_list_match
 - **:** primary_expression 
-
-function_product_match:
-- **{** function_product_match_list **}**
-- **{** function_product_match_list **, }**
 
 function_product_match_list:
 - identifier product_binding_alias function_match_binding_type function_match_binding_value 

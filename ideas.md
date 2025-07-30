@@ -6,6 +6,17 @@
 
 # ideas
 
+## blocks
+
+while originally wanting blocks to not require parens, it may simply be best to require them.
+otherwise strange things happen, 
+
+## scoping struct members
+
+perhaps members can be declared to only be visible based on blocks?
+ie, if a member is somehow declared private, it can only be accessed by sibling expressions in a block.
+ie, works based on assignments and blocks.
+
 ## considerations on named data and pattern matching
 
 while current sum type syntax is more genuine to actual sum types,
@@ -43,21 +54,9 @@ there are two options:
         - will put pressure on language to adopt some strange constructs
             such as disjoint unions of structs, and units types/strange syntax for no value fields.
             though this isnt necessarily bad...
-- special named data syntax
-    something like 
-    ```
-    `X | `Y::type
-    ```
-    and then be able to match against them. 
-    While over application would work fine here, infact even better, struct currying would not work. 
-    The one thing that would help this though would be the fact that there would be a clear divide between when it would and when it wouldnt.
-    - pros
-        - relitively standard
-        - allow structs to simply stay as structs
-    - cons
-        - adds more syntax rules to the lang
 
 ### structural matching notes
+
 structural matching would likely be best extended to matching on types.
 really types are a compile time enum of how to treat data, this could just carry over into runtime, and the overhead could be nothing.
 the syntax could be reflective of this, and 

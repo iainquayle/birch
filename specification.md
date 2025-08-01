@@ -313,13 +313,16 @@ Variable names should be descriptive and not heavily abbreviated unless the abbr
 
 This is not a formal specification, there are ambiguities due to me being lazy.
 
+### Expression
+
+expression:
+- block
+- operation
+
 ### Block
 
 block:
-- statement_list expression 
-
-// Technically ambiguous, but otherwise wont have possibility for order agnostic declarations if done properly.
-// May fix this in the future, but compiler parsing left to right will get this correct.
+- statement_list operation //can be everything but a block
 
 statement_list:
 - statement
@@ -327,7 +330,7 @@ statement_list:
 
 statement:
 - assignee **=** expression 
-- assignee **:** pipe **=** expression 
+- assignee **:** ??? **=** expression 
 
 block_binding:
 - identifier
@@ -346,7 +349,7 @@ if:
 
 ### Operations 
 
-expression:
+operation:
 - logic_expression
 
 logical_expression:
@@ -390,7 +393,6 @@ primary_expression:
 - identifier
 - literal
 - function
-- block
 - if
 - **(** expression **)**
 

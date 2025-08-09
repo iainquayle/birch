@@ -4,19 +4,19 @@ implement new syntax from ideas into syntax definition
 
 ## grammar
 
-? blocks will be at the top, can only be entered without parens at top level of file, return expr of a func, and also in an assignment 
-this could be extended a little, if blocks required at least a single assignment,
-rather than having pass though, which could then allow for block use in bin exprs.
+if the way in which type exprs were put in the syntax, then blocks can be a primary expr like they want to be.
+the only issue so far, is dealing with the return expr in a block getting confused with the equals sign that follows.
+whatever is done, will break the continuity between products and block typing.
 
-parens can hold any expr, but every expr may not be useable every where?
-such as blocks being problematic when it comes to type exprs used with assignments.
+one other option, make the : always manditory even if no type expression is there?
+
 
 change short circuit to use or and and? as it is more of a set of actions rather than a pure data operation. 
 need to figure out though how something like calls will be like with in toher types
 
 
-could actually get away with blocks no parents in a lot of places, so long as the type decls in addignments changed.
-as of right now, anything that can be used there that could end in a block will swallow the folling block possibly.
+also, need to finally decide on what to do for sum types, both functions matching on them, and the typing of them
+and what to do about empty fields
 
 
 need to:

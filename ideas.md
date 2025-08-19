@@ -8,8 +8,13 @@
 
 ## blocks
 
-while originally wanting blocks to not require parens, it may simply be best to require them.
-otherwise strange things happen, 
+to deal with the type expressions issue, all that needs to be done is make the : necessary
+var: type_expr = expr
+or 
+var: = expr
+or
+var: _ = expr
+makes it so that block can now be a primary expr at the bottom again
 
 ## scoping struct members
 

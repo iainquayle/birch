@@ -1,20 +1,6 @@
-# plan
-
-- get initial compilation working, or perhaps just interpretation fro the moment
-- implement pattern matching ideas into definition and update general guide
-- implement pattern matching syntax into parser, consider how underlying system will work.
-
 # ideas
 
 ## blocks
-
-to deal with the type expressions issue, all that needs to be done is make the : necessary
-var: type_expr = expr
-or 
-var: = expr
-or
-var: _ = expr
-makes it so that block can now be a primary expr at the bottom again
 
 ## scoping struct members
 
@@ -121,3 +107,19 @@ this will both allow for better optimization, but also unify the syntax of the t
 would be nice to simplify/make strings more robust over issues in other langs.
 rust, too damn many. 
 elixir, graphemes vs this vs that.
+
+## types
+
+when it comes to assigning adts, consider allowing adts that are a sub or super set of the type to be passed in or stored.
+ie 
+
+```
+foo: { a: int, b: int } = { a = 1, b = 2, c = 3 }
+```
+
+but just restrict the access to the fields that are in the type?
+pros:
+- allows for more flexible code
+- kind of more in line with the allowance of currying over tuples
+cons:
+- could make mistakes harder to catch 

@@ -3,21 +3,10 @@
 implement new syntax from ideas into syntax definition
 
 ## grammar
-
-if the way in which type exprs were put in the syntax, then blocks can be a primary expr like they want to be.
-the only issue so far, is dealing with the return expr in a block getting confused with the equals sign that follows.
-whatever is done, will break the continuity between products and block typing.
-
-one other option, make the : always manditory even if no type expression is there?
-
-
 change short circuit to use or and and? as it is more of a set of actions rather than a pure data operation. 
 need to figure out though how something like calls will be like with in toher types
 
-
-also, need to finally decide on what to do for sum types, both functions matching on them, and the typing of them
-and what to do about empty fields
-
+figure out empty fields in sum types
 
 need to:
 - figure out function and sum types
@@ -29,8 +18,6 @@ ie, ifs, calls, blocks. these may need to be bundled in aidfferent precedence le
 
 also for matching on values, wouldnt that make it such that functions themselves could be part of the match?
 not just the function type, would this ever be useful?.
-would need to be something that matched to code, and possibly values that had been bound to a function already?
-would definitely be messy.
 
 ## compiler
 
@@ -41,47 +28,6 @@ make parsing errors more accurate, ie add positions, move to {:error, data}
 make sure that tokens retain positional data, or ast nodes have good enough positional data added.
 
 make list parse work on lists that dont have any elements, ie, always return a list
-
-## syntax 
-
-fix bindings lol, sub destructures will need to be field as {...}
-
-## blocks
-
-could make it that normal bindings imperative,
-and then preface functions and types that should allow for mutual recursion with a keyword.
-either use something like rec, or type and fn?
-
-## functions
-
-also will be good to add something like tail, or rec, or something to replace loops in a manner that doesnt require the user think of names for the function.
-as well, something like tail forcing tail recursion would be nice for explicit optimization.
-
-for polling loops, or recursions that interatct with the outside world, these would be a necessity.
-
-## types
-
-when it comes to assigning adts, consider allowing adts that are a sub or super set of the type to be passed in or stored.
-ie 
-
-```
-foo: { a: int, b: int } = { a = 1, b = 2, c = 3 }
-```
-
-but just restrict the access to the fields that are in the type?
-pros:
-- allows for more flexible code
-- kind of more in line with the allowance of currying over tuples
-cons:
-- could make mistakes harder to catch 
-
-## control flow
-
-## init
-
-## expressions
-
-## definition
 
 
 ## metaprogramming

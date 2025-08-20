@@ -1,16 +1,16 @@
 # Birch
 
-A very minimalistic functional language, with goals of supporting full CTR and RTC metaprogramming.
+A minimalistic typed functional language, that doesnt sacrifice usability.
 
-The overall goal of the language is to make a typed lambda calculus,
-with syntactic sugar for common patterns such as booleans, Church products/tuples, Church sums/either-or types, and other common data types.
+The overall goal of the language is to make a typed lambda calculus++,
+with syntactic sugar for common patterns such as Church products/tuples, Church sums/either-or types, and other common data types.
 By following the lambda calculus and keeping the language as simple as possible,
 the programmer does not need to spend time considering which language construct is best, but instead on how best to solve the problem at hand.
 
 The main points of note are:
 
 - Immutability all the time.
-- Declaration order independence all the time.
+- Declaration order independence all the time (probably, maybe).
 - Strongly typed, with inference.
 - Algebraic types.
 - Anonymous types.
@@ -19,11 +19,12 @@ The main points of note are:
 - Piping support.
 
 While the general feel and syntax of the language has been mostly decided,
-certain parts, such as always requiring curly braces for algebraic types, might be tweaked.
+certain parts, smaller tweaks are still being made. 
 
 ## Primitives
 
-Primitives are the most basic data types and are currently limited to unsigned and signed integers of varying sizes, floats of varying sizes, and bools.
+Primitives are the most basic data types and are currently limited to unsigned and signed integers of varying sizes,
+floats of varying sizes, and bools.
 (First versions of the compiler will likely only support 32-bit integers and floats).
 
 ### Instantiation
@@ -45,6 +46,10 @@ f32
 bool
 ```
 
+## Strings
+
+Not yet decided on, still lots of work here.
+
 ## Functions
 
 Functions only take one argument and return one value.
@@ -52,6 +57,7 @@ Functions only take one argument and return one value.
 ### Instantiation
 
 All functions are denoted by an assignee followed by a fat arrow (`=>`).
+Later, pattern matching using functions will be shown as well.
 
 ```
 binding => expression
@@ -77,10 +83,10 @@ x |> f
 ```
 
 Functions are first-class and are curried.
-There might even be a way to curry functions that accept product types.
+There may be in the future be a way to curry functions that accept product types.
 
 ```
-{x, y} => x + y . {x}
+{x} |> {x, y} => x + y
 ```
 
 This returns a new function that accepts 'y'.
@@ -89,6 +95,8 @@ This returns a new function that accepts 'y'.
 
 Products are akin to structs in other languages, and are the only way of packing multiple values. 
 Ie, there are no positional tuples.
+Product and product types must have at least one value, there are no empty products. 
+There will be however empty product fields, which will take the place of enums in most languages.
 
 ### Instantiation
 
@@ -100,7 +108,8 @@ x = { a, b = 3 }
 y = { a = 1, ..x }
 ```
 
-The spread operator is shown, only one of which is allowed, and copies fields, although specified fields will override the copied ones.
+The spread operator is shown, only one of which is allowed, and copies fields, 
+although specified fields will override the copied ones.
 
 ### Typing
 
@@ -125,11 +134,35 @@ Destructuring uses curly braces, and aliasing uses the `as` keyword.
 
 ## Sum ADT 
 
+Sum types switch on the underlying types, such as int, float, bool, etc.
+However, they can also switch on user created types, such as products,
+even hypothetically functions though this would be discouraged.
+
 ### Instantiation
+
+Return two different types
+
+```
+if foo then {bar = 1} else {baz = 1} 
+```
 
 ### Typing
 
+```
+Foo = {bar: i32} | {baz: i32}
+```
+
 ### Access
+
+Using a sum value leans on functions, which by defualt allow for pattern matching on types and values.
+
+```
+x = y |>
+    | {bar} => bar * 2
+    | {baz} => baz * 3
+```
+
+The syntax of matching functions is still being work on.
 
 ## Arrays
 
@@ -163,37 +196,6 @@ Access is done using square brackets.
 a\[0\]
 ```
 
-## Named Data
-
-It is not yet certain if this will be implemented.
-
-The details are not decided, but it would be nice to have a way to name data and restrict it to only be used in certain functions.
-Also, the syntax for this would be different.
-
-### Instantiation
-
-Data can be named or anonymous:
-
-```
-x = 1
-y = A 1 // Not like this
-x != y
-```
-
-This facilitates restricting function usage.
-
-### Typing
-
-```
-t = A: u32
-```
-
-### Access
-
-The access mechanism is undecided, but it would be convenient to syntactically avoid referencing the name part of the data.
-This might be possible, but it could also pose an issue for type inference.
-
-
 ## Types
 
 ### Casting
@@ -216,28 +218,26 @@ It follows the `if then else` pattern.
 if x == 1 then x else y
 ```
 
-### Match
+### Pattern Match
 
-There isn't a `match` expression yet, but there likely will be.
+Pattern matching also makes use of functions. The syntax for which is not fully set yet
 
 ## Blocks
 
 Blocks are a list of statements culminating in an expression.
+The syntax for assignment may change a little. 
 
 ```
 _ =
-    x = 1;
-    y = 2;
-    x + 1
-;
+    x := 1;
+    y: i32 = 2;
+    x * y + 1
 ```
 
-Currently, statements are separated by semicolons; however, this will likely change to be less verbose.
 
 ## Scoping
 
 Everything is an expression except for assignments.
-Even blocks culminate with an expression, which serves as the return value.
 
 ```
 _ = (
@@ -248,6 +248,7 @@ _ = (
 
 Variables within the same scope are declaration-order independent, although stylistically, it's best to declare them in the order they are used.
 This might still be changed to be imperative, potentially disallowing mutual recursion.
+This also may change to only allow recursion on assignments preceded with type or fn.
 
 ```
 _ = (
@@ -311,41 +312,8 @@ Variable names should be descriptive and not heavily abbreviated unless the abbr
 
 ## Specification
 
-This is not a formal specification, there are ambiguities due to me being lazy.
-
-### Expression
-
-expression:
-- block
-- operation
-
-### Block
-
-block:
-- statement_list operation //can be everything but a block
-
-statement_list:
-- statement
-- statement statement_list
-
-statement:
-- assignee **=** expression 
-- assignee **:** ??? **=** expression 
-
-block_binding:
-- identifier
-- **{** assignee_list **}**
-
-block_binding_list:
-- identifier
-- identifier **:** identifier
-- identifier **,** block_binding_list 
-- identifier **:** identifier **,** block_binding_list 
-
-### If
-
-if:
-- **if** expression **then** expression **else** expression 
+This is not a true bnf specification, there are ambiguities due to me being lazy.
+It is also a WIP, language is still evolving.
 
 ### Operations 
 
@@ -363,10 +331,10 @@ equality_expression:
 - relational_expression
 
 relational_expression:
-- relational_expression **<** multiplicative_expression 
-- relational_expression **<=** multiplicative_expression 
-- relational_expression **>** multiplicative_expression 
-- relational_expression **>=** multiplicative_expression 
+- relational_expression **<** additive_expression 
+- relational_expression **<=** additive_expression  
+- relational_expression **>** additive_expression  
+- relational_expression **>=** additive_expression  
 - additive_expression 
 
 additive_expression:
@@ -375,7 +343,7 @@ additive_expression:
 - multiplicative_expression 
 
 multiplicative_expression:
-- multiplicative_expression ***** pipe_expression 
+- multiplicative_expression ** * ** pipe_expression 
 - multiplicative_expression **/** pipe_expression 
 - pipe_expression 
 
@@ -394,7 +362,36 @@ primary_expression:
 - literal
 - function
 - if
+- block
 - **(** expression **)**
+
+### Block
+
+block:
+- statement_list operation //can be everything but a block
+
+statement_list:
+- statement
+- statement statement_list
+
+statement:
+- assignee **:=** expression 
+- assignee **:** expression **=** expression 
+
+block_binding:
+- identifier
+- **{** assignee_list **}**
+
+block_binding_list:
+- identifier
+- identifier **:** identifier
+- identifier **,** block_binding_list 
+- identifier **:** identifier **,** block_binding_list 
+
+### If
+
+if:
+- **if** expression **then** expression **else** expression 
 
 ### Function
 
@@ -499,7 +496,7 @@ array_list:
 array_type:
 - **\[** expression **;** expression **\]**
 
-### hold 
+### not sure yet 
 
 comptime:
 - **comptime** expression

@@ -368,25 +368,25 @@ primary_expression:
 ### Block
 
 block:
-- statement_list operation //can be everything but a block
+- statement_list expression //this is ambiguous, as a block could return a new block. assume parsing statements first
 
 statement_list:
 - statement
 - statement statement_list
 
 statement:
-- assignee **:=** expression 
-- assignee **:** expression **=** expression 
+- block_assignee **:=** expression 
+- block_assignee **:** expression **=** expression 
 
-block_binding:
+block_assignee:
 - identifier
-- **{** assignee_list **}**
+- **{** block_product_assignee_list **}**
 
-block_binding_list:
+block_product_assignee_list:
 - identifier
-- identifier **:** identifier
+- identifier **as** identifier
 - identifier **,** block_binding_list 
-- identifier **:** identifier **,** block_binding_list 
+- identifier **as** identifier **,** block_binding_list 
 
 ### If
 
@@ -397,7 +397,7 @@ if:
 
 function:
 - function_case_list
-- **|** function_case_list
+- **|** function_case_list //may not allow this, makes for ambiguities. or requiring it may be less ambiguous?
 
 function_case_list:
 - function_case
@@ -410,7 +410,7 @@ function_match:
 - identifier function_match_binding_type function_match_binding_value 
 - function_product_match
 - function_list_match
-- literal 
+- literal //may add ranges
 - **(** expression **)**
 
 function_product_match:
@@ -434,6 +434,8 @@ function_match_binding_value:
 product_binding_alias:
 - epsilon
 - **as** identifier
+
+function_list_match:
 
 ### Products
 

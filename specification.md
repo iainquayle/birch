@@ -317,7 +317,7 @@ It is also a WIP, language is still evolving.
 
 ### Operations 
 
-operation:
+expression:
 - logic_expression
 
 logical_expression:
@@ -397,7 +397,6 @@ if:
 
 function:
 - function_case_list
-- **|** function_case_list //may not allow this, makes for ambiguities. or requiring it may be less ambiguous?
 
 function_case_list:
 - function_case
@@ -410,7 +409,7 @@ function_match:
 - identifier function_match_binding_type function_match_binding_value 
 - function_product_match
 - function_list_match
-- literal //may add ranges
+- literal
 - **(** expression **)**
 
 function_product_match:
@@ -452,35 +451,33 @@ product_list:
 product_element:
 - identifier
 - identifier **=** expression
+- identifier **=** _ 
 
 product_type:
 - **{** product_type_list **}**
 - **{** product_type_list **, }**
 
 product_type_list:
+- product_type_element
+- product_type_element **,** product_type_list
+
+product_type_element:
 - identifier **:** expression
-- identifier **:** expression **,** product_type_list
+- identifier **:** _ 
 
 ### Sums
 
 sum_type:
 - sum_type_list
-- **|** sum_type_list
-
-sum_variant_types:
-- primitive_type
-- identifier
-- block 
-- if 
-- call
-- product_type
-- list_type
-
-Have to define this to make sure function precedence is honoured.
 
 sum_type_list:
 - sum_variant_types
 - sum_variant_types **|** sum_type_list
+
+sum_variant_types:
+- identifier
+- type
+- **(** expression **)**
 
 ### List
 

@@ -20,9 +20,9 @@ ie, ifs, calls, blocks. these may need to be bundled in aidfferent precedence le
 also for matching on values, wouldnt that make it such that functions themselves could be part of the match?
 not just the function type, would this ever be useful?.
 
-### functions
 
-currently the functions do not fit with the type notation used on both blocks and products.
+currently the functions do not fit with the type notation used on both blocks and products,
+in terms of being able to use type expressions freely.
 need to make the colon required, and the type expression is optional.
 
 currently, over all type of a function is handled by its caller
@@ -30,6 +30,13 @@ currently, over all type of a function is handled by its caller
 but typing needs to be used by the individual matching functions.
 with regards to this, is the current solution for assignees on products correct?
 it moves away from what is necessary such as ts typing, allowing for more dense solution
+
+however, with having the required colon, it wouldnt fit with the product typing system, which doesnt require it.
+one other way to deal with the these issues, could be denoting the start of statements and functions, ie use let and fn?
+but let wouldnt make sense to use with statements
+
+probably keep the required colons for the moment, but going forward, different solution would be nicer
+could use the precedence set by some types, that require a either an ident/type, or a paren suuround expression
 
 ## compiler
 

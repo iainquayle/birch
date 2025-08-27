@@ -3,6 +3,7 @@
 implement new syntax from ideas into syntax definition
 
 ## grammar
+
 change short circuit to use or and and? as it is more of a set of actions rather than a pure data operation. 
 need to figure out though how something like calls will be like with in toher types
 
@@ -18,6 +19,17 @@ ie, ifs, calls, blocks. these may need to be bundled in aidfferent precedence le
 
 also for matching on values, wouldnt that make it such that functions themselves could be part of the match?
 not just the function type, would this ever be useful?.
+
+### functions
+
+currently the functions do not fit with the type notation used on both blocks and products.
+need to make the colon required, and the type expression is optional.
+
+currently, over all type of a function is handled by its caller
+
+but typing needs to be used by the individual matching functions.
+with regards to this, is the current solution for assignees on products correct?
+it moves away from what is necessary such as ts typing, allowing for more dense solution
 
 ## compiler
 

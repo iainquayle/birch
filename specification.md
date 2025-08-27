@@ -368,13 +368,15 @@ primary_expression:
 ### Block
 
 block:
-- statement_list expression //this is ambiguous, as a block could return a new block. assume parsing statements first
+- statement_list expression 
+
+This is ambiguous, as a block could return a new block. assume parsing statements first.
 
 statement_list:
 - statement
 - statement statement_list
 
-statement:
+statement: //this isnt in line with typing on functions, which is problematic
 - block_assignee **:=** expression 
 - block_assignee **:** expression **=** expression 
 
@@ -406,9 +408,9 @@ function_case:
 - function_match **=>** expression 
 
 function_match:
-- identifier function_match_binding_type function_match_binding_value 
-- function_product_match
-- function_list_match
+- identifier **:** function_match_binding_type function_match_binding_value 
+- function_product_match 
+- function_list_match 
 - literal
 - **(** expression **)**
 
@@ -416,11 +418,13 @@ function_product_match:
 - **{** function_product_match_list **}**
 - **{** function_product_match_list **, }**
 
+//this needs to change
 function_match_binding_type:
 - epsilon
 - **:** function_product_match
 - **:** function_list_match
-- **:** primary_expression 
+- **:** identifier 
+- **:** **(** expression **)**
 
 function_product_match_list:
 - identifier product_binding_alias function_match_binding_type function_match_binding_value 

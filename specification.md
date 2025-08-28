@@ -457,6 +457,50 @@ product_element:
 - identifier **=** expression
 - identifier **=** _ 
 
+### List
+
+array:
+- **\[** array_list **\]**
+- **\[** array_list, **\]**
+- **\[** array_list, **..** expression **\]**
+
+array_list:
+- expression
+- expression **=** expression
+- expression **,** array_list 
+- expression **=** expression **,** array_list
+
+### Function Type
+
+fun_io_types:
+- identifier
+- easy_parse_types 
+- **(** expression **)**
+
+
+### Sum Type
+
+sum_type:
+- sum_type_list
+
+sum_type_list:
+- sum_variant_types
+- sum_variant_types **|** sum_type_list
+
+sum_variant_types:
+- identifier
+- easy_parse_types 
+- **(** expression **)**
+
+### Easy Parse Types
+
+easy_parse_types:
+- product_type
+- list_type 
+- builtin_types
+
+### Product Type
+
 product_type:
 - **{** product_type_list **}**
 - **{** product_type_list **, }**
@@ -469,35 +513,11 @@ product_type_element:
 - identifier **:** expression
 - identifier **:** _ 
 
-### Sums
+### List Type
 
-sum_type:
-- sum_type_list
-
-sum_type_list:
-- sum_variant_types
-- sum_variant_types **|** sum_type_list
-
-sum_variant_types:
-- identifier
-- type
-- **(** expression **)**
-
-### List
-
-array:
-- **\[** array_list **\]**
-
-array_list:
-- expression
-- expression **,** expression_list
-- **..** expression
-- identifier **=** expression
-- **..** expression **,** array_list
-- identifier **=** expression **,** array_list
-
-array_type:
+list_type:
 - **\[** expression **;** expression **\]**
+- **\[** expression **; _ \]**
 
 ### not sure yet 
 
